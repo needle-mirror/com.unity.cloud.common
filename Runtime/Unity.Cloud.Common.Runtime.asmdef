@@ -1,0 +1,16 @@
+{
+    "name": "Unity.Cloud.Common.Runtime",
+    "rootNamespace": "Unity.Cloud.Common.Runtime",
+    "references": [
+        "GUID:498d02e03062b2649b108f31a9668c56"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

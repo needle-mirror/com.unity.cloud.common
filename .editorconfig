@@ -1,0 +1,12 @@
+[*.asmdef]
+scrape_api = true
+
+[**/Tests/**.asmdef]
+scrape_api = false
+
+[*.Tests.asmdef]
+scrape_api = false
+
+[*.cs]
+disable_auto_format = true
+

@@ -1,0 +1,102 @@
+using System;
+using UnityEngine;
+
+    namespace Unity.Cloud.Common.Runtime
+{
+    /// <summary>
+    /// A class containing Unity Player Settings for a Unity Cloud app.
+    /// </summary>
+    public class UnityCloudPlayerSettings : ScriptableObject, IAppIdProvider, IAppNameProvider
+    {
+        /// <summary>
+        /// The asset name for the <see cref="UnityCloudPlayerSettings"/> scriptable object.
+        /// </summary>
+        public const string k_AssetName = "UnityCloudPlayerSettings";
+
+        /// <summary>
+        /// The default app name.
+        /// </summary>
+        public const string k_DefaultAppName = "default";
+
+        /// <summary>
+        /// The default app display name.
+        /// </summary>
+        public const string k_DefaultAppDisplayName = "Default";
+
+#pragma warning disable S1104 // Make this field 'private' and encapsulate it in a 'public' property.
+
+        /// <summary>
+        /// The Unity Cloud app ID.
+        /// </summary>
+        [Tooltip("Must match the App Id assigned to this Unity Project in the Unity Cloud Portal.")]
+        public string AppId;
+
+        /// <summary>
+        /// The Unity Cloud app name.
+        /// </summary>
+        [ReadOnly] public string AppName = k_DefaultAppName;
+
+        /// <summary>
+        /// The Unity Cloud App display name.
+        /// </summary>
+        [ReadOnly] public string AppDisplayName = k_DefaultAppDisplayName;
+#pragma warning restore S1104
+
+        static UnityCloudPlayerSettings s_Instance;
+
+        /// <summary>
+        /// Gets or creates the current instance of the <see cref="UnityCloudPlayerSettings"/>.
+        /// </summary>
+        public static UnityCloudPlayerSettings Instance
+        {
+            get
+            {
+                UnitySynchronizationContextGrabber.s_UnitySynchronizationContext.Send(_ =>
+                {
+                    if (s_Instance == null)
+                    {
+                        s_Instance = Resources.Load<UnityCloudPlayerSettings>(k_AssetName);
+
+                        if (s_Instance == null)
+                        {
+                            s_Instance = CreateInstance<UnityCloudPlayerSettings>();
+                        }
+                    }
+                }, null);
+
+                return s_Instance;
+            }
+        }
+
+        /// <summary>
+        /// Gets the app ID.
+        /// </summary>
+        /// <returns>The app ID.</returns>
+        public string GetAppId()
+        {
+            return Instance.AppId;
+        }
+
+        /// <summary>
+        /// Gets the app name.
+        /// </summary>
+        /// <returns>The app name.</returns>
+        public string GetAppName()
+        {
+            return Instance.AppName;
+        }
+
+        /// <summary>
+        /// Gets the app display name.
+        /// </summary>
+        /// <returns>The app display name.</returns>
+        public string GetDisplayName()
+        {
+            return Instance.AppDisplayName;
+        }
+    }
+
+    public class ReadOnlyAttribute : PropertyAttribute
+    {
+    }
+}

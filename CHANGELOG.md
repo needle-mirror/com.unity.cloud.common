@@ -1,0 +1,261 @@
+# Changelog
+All notable changes to this package will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+## [0.11.0] - 2032-03-30
+
+### Changed
+- [Breaking] `UrlRedirectionInterceptor` runtime class ctor changed from `public` to `internal`
+- [Breaking] Change identifier types from Guid to SceneId, WorkspaceId, DatasetId, OrganizationId and VersionId.
+- [Breaking] Refactored both `DotNetHttpClient` and `UnityHttpClient` to better handle exceptions
+- Added `HttpClientHeaderModifier` and `SericeHttpClientHeaderModifier` implementations to automatically append headers to all requests
+- Added an `ApiSourceVersion` class and associated attribute and extension methods to append Api Source information as headers
+- Added a method to `IServiceMessagingClient` to add  `ApiSourceVersion` which will be added as headers in the `ServiceMessagingClient` implementation.
+- Exposes the Api Source header value in `ServiceHeaderUtils`
+
+### Fixed
+- Disable code using Moq when the package is not present.
+
+## [0.10.0] - 2023-03-16
+
+### Changed
+- [Breaking] `ServiceExceptions` objects are now built with Correct Default Codes.
+- [Breaking] All mentions of "Digital Twins" and "DT" renamed to their "Unity Cloud" equivalent, or removed altogether
+- [Breaking] The `DT_CLOUD` environment variable is now `UNITY_CLOUD_SERVICES_ENV`
+- The `UC_TRACE` header key is not `UNITY_CLOUD_TRACE`
+- `ActivateAppFromUrl` modifier changed from `internal` to `public`
+- [Breaking] `Digital Twins/Resources/DigitalTwinsPlayerSettings.asset` renamed to `Unity Cloud/Resources/UnityCloudPlayerSettings.asset`
+  - Existing `DigitalTwinsPlayerSettings` within your projects should be change to the new naming and file path.
+- [Breaking] `CloudConfiguration` renamed to `ServiceHostConfiguration`
+- [Breaking] `CloudEnvironment` renamed to `ServiceEnvironment`
+- [Breaking] `IMessagingClient` renamed to `IServiceMessagingClient`
+- [Breaking] `RegionUtils` renamed to `ServiceRegionUtils`
+- [Breaking] `Protocol` renamed to `ServiceProtocol`
+- [Breaking] Moved all Storage related interfaces and structures to Storage package
+- [Breaking] `Clipboard` has been replaced by platform-specific `UnityClipboard` and `BrowserClipboard`.
+
+### Removed
+- [Breaking] Removed Url field from IScene and IWorkspace interfaces.
+
+## [0.9.2] - 2023-03-02
+
+### Added
+- Added tests for Clipboard
+- `RefreshPropertiesAsync`, `DeleteMetadataAsync`,`AddOrUpdateMetadataAsync`,`Metadata` and `MetadataChanged` to `IWorkspace`
+- async methods to create, delete, list, and update versions to `IDataset`.
+- `IDatasetVersion`, `IDatasetVersionCreation` and `IDatasetVersionUpdate` interfaces.
+- Added unit tests for new `IHttpClient` exceptions
+
+### Changed
+- `AsyncUrlRedirectAwaiter` now uses the `ITimeAwaiter` for its refresh delays.
+- `IWorkspace` inherits `INotifyPropertyChanged`
+- [Obsolete] IClipboard now has platform-specific implementations and `Clipboard` is obsolete.
+- [Obsolete] `IWorkspace.Url` property is marked as Obsolete (we will stop exposing it in the future)
+- [Obsolete] `IScene.Url` property is marked as Obsolete (we will stop exposing it in the future)
+- [Breaking] `IUrlRedirectionInterceptor` and related classes now throw `TimeoutException`, and no longer return `Failed` or `Timeout`  redirection statuses
+
+## [0.9.1] - 2023-02-24
+
+### Fixed
+- Fixed ServiceHttpClient turning all http error codes into RetryExpiredException.
+- Fixed NativeWebSocketClient catched exception type.
+
+### Added
+- `RefreshPropertiesAsync`, `DeleteMetadataAsync`,`AddOrUpdateMetadataAsync`,`Metadata` and `MetadataChanged` to `IWorkspace`
+- async methods to create, delete, list, and update datasets to `IWorkspace`.
+- `IDataset` interface
+
+### Changed
+- `IWorkspace` inherits `INotifyPropertyChanged`
+- `IWorkspace.Url` property is marked as Obsolete.
+- `IScene.Url` property is marked as Obsolete.
+
+## [0.9.0] - 2023-02-16
+
+### Fixed
+- Fixed `UnityLogOutput.GenerateMessageFromException` to correctly handle exceptions inside a `System.Task`.
+- Fix error string in CloudConfiguration.
+
+### Added
+- GetAppsInfoAsync method in `IAppInfoProvider` and `AppInfoProvider`.
+- `IClipboard` interface and a `Clipboard` implementation.
+- ValidateFilenameExistsAsync method in `IKeyValueStore`, `FileKeyValueStore` and `BrowserKeyValueStore`.
+- Websocket support for sending binary frames
+
+### Updated
+- Clarifying the contract of IRetryPolicy.
+  - [Breaking] OperationRetryQueued and RetryQueuedParams replaced with IProgress in ExecuteAsync and RetryQueuedProgress.
+  - [Breaking] Added RetriedOperation and ShouldRetryChecker delegates. The latter replaces ShouldRetryParams struct.
+  - [Breaking] ExecuteAsync method's contract has been updated to accept new delegates and IProgress ; it also throws an exhaustive list of exceptions listed in its xml documentation.
+  - [Breaking] ExecuteAsyncWithExceptionValidation now requires a ShouldRetryExceptionChecker method
+  - [Breaking] Updated ExponentialBackoffRetryPolicy and NoRetryPolicy to follow the new contract
+  - Updated ServiceHttpClient and MessagingClient to use the new version of RetryPolicy.
+  - Added KeepAlive to websocket client, which requires a the server to support Ping/Pong messages (RFC6455 - 5.5.2/5.5.3)
+
+## [0.8.1] - 2023-02-02
+
+### Added
+- CopyToClipboard method in `CommonBrowserInterop` to fix WebGL runtime limitation.
+
+### Changed
+- [BREAKING] Added exceptions to the Interoperability component and updated tests.
+
+## [0.8.0] - 2023-01-19
+
+### Added
+- `ActivateAppFromUrl` and `ActivateAppFromUrlEditor` to complement existing `UrlRedirectionInterceptor` runtime class.
+- `IStringObfuscator` interface and `AesStringObfuscator` class in core.
+- Increased unit test coverage for Networking classes.
+- Scripting API documentation on several components.
+
+### Changed
+- [Breaking] `FileKeyValueStore` constructor has new optional `IStringObfuscator` parameter.
+
+### Fixed
+- Resolved various code analysis smells, bugs, and warnings
+- Removed duplication in RetryPolicy tests
+
+## [0.7.1] - 2022-12-21
+
+### Added
+- Settings: Unit test for `AppInfoProvider`
+- HttpClientExtensions: DeleteJsonAsync, GetJsonAsync, PostJsonAsync and PutJsonAsync to execute asynchronious requests with JSON serialization and deserialization.
+- Exposed `HttpStatusCode` in `ServiceException`
+- Override for `GetObjectData()` in `ServiceException` to serialize `ServiceError` variable.
+- A default message for `LicenseUnavailableException`.
+
+### Changed
+- Default string content for POST and PUT for UnityHttpClient in `LegacyRequestHandler.cs`.
+- Updated the implementation of 'ISerializable' for ServiceExceptions to conform to the recommended pattern.
+
+### Fixed
+- Sending content for DELETE for UnityHttpClient in `LegacyRequestHandler.cs`.
+- Receiving content for DELETE for UnityHttpClient in `LegacyRequestHandler.cs`.
+
+## [0.7.0] - 2022-12-08
+
+### Added
+- Retry policy: IRetryPolicy, ExponentialBackoffRetryPolicy, NoRetryPolicy, TimeSeriesBuilder, RetryExpiredException, ServiceHttpClientTests
+- Integrate a retry policy in ServiceHttpClient. SendAsync with ServiceHttpClientOptions argument can use retry policy. SendAsync without ServiceHttpClientOptions argument do not use retry policy.
+- New retry policy parameter in ServiceHttpClientOptions constructor.
+- Integrate a retry policy in MessagingClient. By default, use a "exponential backoff with jitter" retry. New MessagingClientOptions can be passed to ConnectAsync.
+- WebSocketClientFactory exposing IWebSocketClient creation based on platform.
+- New GetLogger that accepts the type as a string.
+- Protected Websocket connect in MessagingClient
+
+### Changed
+- WebglWebSocketAdapter: Connect method throw exception when connection fail.
+- [Breaking] IWebSocketClient is now public and moved from runtime to core.
+- [Breaking] MessagingClient moved from runtime to core and constructor requires an IWebSocketClient.
+- Utilities moved from runtime to core.
+- NativeWebSocketClient send connection state changed through thread invoker.
+- Fixed AddHeadersAsQuery method in HeaderUtils.
+- Replaced obsolete string conversion call in WebSocketAdapter.jslib.
+
+### Fixed
+- Duplicate command line arguments crash
+- Fix non-string content for PUT and POST for UnityHttpClient.
+
+## [0.6.0] - 2022-11-24
+
+### Added
+- Capability to send a message collection in IMessagingClient/MessagingClient.
+- LaunchArgumentsParser.
+- [Breaking] GetSceneAsync method in IWorkspace interface.
+- Button to link to online documentation from Player Settings.
+- Internal WebGL support: DTTask, TaskExtensions
+
+### Changed
+- Fixed and activated MessagingClientTests.
+- [Breaking] Renamed the sample configuration from `samples.json` to a hidden `.dt-samples.json`
+- Removed the unused documentation link from `SampleConfiguration.cs`
+- [Breaking] Reworked the platorm support implementations with new BasePkcePlatformSupport class
+
+### Removed
+- Removed unused private usage of JsonUtility.
+
+## [0.5.0] - 2022-10-05
+
+### Changed
+- [Breaking] These interfaces does not inherit from IDisposable anymore: IAppInfoProvider, IHttpClient, IMessagingClient, IScene, IServiceHttpClient.
+
+### Removed
+- [Breaking] Removed the PlatformSupportFactory. Use the MessagingClient constructor directly
+
+### Fixed
+- Fix Windows custom uri scheme registration on IL2CPP
+
+## [0.4.0] - 2022-09-22
+
+### Added
+- IKeyValueStore, FileKeyValueStore, BrowserKeyValueStore and CommonBrowserInterop.
+- AsyncUrlRedirectAwaiter, IUrlRedirectAwaiter, IUrlRedirectionInterceptor, UriSchemeRedirection, UrlRedirectionInterceptor, UrlRedirectResult and UrlRedirectStatus.
+- PreBuildValidation, BuildUtils, AppLinksHelper, WindowsBuildPostProcess, OSXPlistParser, InfoPlistPostProcessBuild, XCodePostProcessBuild, AndroidBuildPostProcess.
+
+### Fixed
+- OSX standalone build
+- IL2CPP build on Windows
+
+### Changed
+- README.md, LICENSE.md, Third Party Notice.md
+- [Breaking] Cleaning folder hierarchy and namespaces
+
+## [0.3.0] - 2022-09-15
+
+### Added
+- [Breaking] A new CloudConfiguration parameter to the AppInfoProvider.
+- Added a UnityCloudConfigurationFactory for Unity users and a CloudConfigurationFactory for non-Unity users to create CloudConfiguration objects.
+
+### Changed
+- Fixed method signatures in IHttpClient and moved DownloadFilePath to ServiceHttpClientOptions
+
+### Removed
+- [Breaking] Removed the static CloudConfiguration class and replace it with a non-static one.
+- [Breaking] TraceId no longer exposed in ServiceHttpClient and MessagingClient constructors
+
+## [0.2.0] - 2022-09-08
+
+### Added
+- Unity.DigitalTwins.AppSettings namespace.
+- Scripting reference documentation
+- IAppIdProvider and IAppInfoProvider interface.
+- Digital Twins "App Registration" entry in Player Settings to fetch and cache registered app information.
+- X-Digital-Twins-AppId, X-Digital-Twins-ClientTrace and X-Digital-Twins-Trace Headers in ServiceHttpClient SendAsync method.
+- LatestVersion property in IScene.
+- DownloadFileAsync method in IHttpClient.
+
+### Changed
+- [Breaking] Force GCP Locale region in CloudConfiguration and RegionUtils.
+- [Breaking] AppId string constructor arguments replaced by IAppIdProvider in ServiceClientHttp.
+- [Breaking] Moved some classes from Unity.DigitalTwins.ServiceClient to new Unity.DigitalTwins.Cloud namespace.
+- Refactored DownloadFileToDiskAsync into RequestAsync in LegacyRequestHandler
+- Fix to WebGL messaging client
+- Prevent build on default App Name value
+- Fixing Json API
+
+### Removed
+- [Breaking] X-Reflect-ClientTrace, X-Reflect-Trace and X-Reflect-AppId removed from headers in ServiceHttpClient SendAsync method.
+
+## [0.1.0] - 2022-08-26
+
+### Changed
+- SceneId and WorkspaceId have been changed from String to System.Guid.
+
+## [0.0.1] - 2022-08-05
+
+### Added
+- DT_TRACE environment variable in headers.
+- CloudConfiguration, CloudEnvironment, RegionUtils and ProtocolConfiguration.
+- LogEvent now has an Exception field that can be added and passed to the ILogOutput implementation.
+- The DTLogger class now has overloads for handling an exception object.
+- SampleDependencyImporter for automatically importing common asset dependencies alongside a sample
+
+### Changed
+- The LogError extension methods now pass the entire Exception method instead of just the message field.
+
+### Removed
+- [Breaking] ISceneProvider, IWorkspaceProvider and associated model classes has been moved to the new Storage package.
+- [Breaking] Moved the QueryArgumentParser to the HttpClient asmdef.
+- [Breaking] Moved the QueryArgumentProcessor, DeepLinkProvider and associated model classes to the new DeepLinking package.

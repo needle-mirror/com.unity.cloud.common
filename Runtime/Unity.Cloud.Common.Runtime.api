@@ -1,0 +1,115 @@
+// This file is generated. Do not modify by hand.
+// XML documentation file not found. To check if public methods have XML comments,
+// make sure the XML doc file is present and located next to the scraped dll
+namespace Unity.Cloud.Common.Runtime
+{
+    public class ActivateAppFromUrl : UnityEngine.MonoBehaviour
+    {
+        public bool ActivateAtStartUp { get; }
+        public string ActivationUrl { get; }
+        public ActivateAppFromUrl() {}
+    }
+
+    public class BrowserClipboard : IClipboard
+    {
+        public bool CopyText(string textContent);
+    }
+
+    public class BrowserKeyValueStore : IKeyValueStore
+    {
+        public BrowserKeyValueStore() {}
+        public System.Threading.Tasks.Task DeleteCacheAsync(string filename);
+        public System.Threading.Tasks.Task<string> ReadCacheAsync(string filename);
+        public System.Threading.Tasks.Task<bool> ValidateFilenameExistsAsync(string filename);
+        public System.Threading.Tasks.Task WriteToCacheAsync(string filename, string content);
+    }
+
+    public static class ClipboardFactory
+    {
+        public static IClipboard Create();
+    }
+
+    public static class CommonBrowserInterop
+    {
+        public static void CacheValue(string key, string value);
+        public static void ClearCache(string key);
+        public static bool CopyToClipboard(string value);
+        public static string GetQueryParam(string paramId);
+        public static string GetURLFromPage();
+        public static void Navigate(string url, string windowId = @"_self");
+        public static string RetrieveCachedValue(string key);
+    }
+
+    public class ReadOnlyAttribute : UnityEngine.PropertyAttribute
+    {
+        public ReadOnlyAttribute() {}
+    }
+
+    public class UnityClipboard : IClipboard
+    {
+        public bool CopyText(string textContent);
+    }
+
+    public class UnityCloudPlayerSettings : UnityEngine.ScriptableObject, IAppIdProvider, IAppNameProvider
+    {
+        [ReadOnly] public string AppDisplayName = @"Default";
+        [UnityEngine.Tooltip(@"Must match the App Id assigned to this Unity Project in the Unity Cloud Portal.")] public string AppId;
+        [ReadOnly] public string AppName = @"default";
+        public const string k_AssetName = @"UnityCloudPlayerSettings";
+        public const string k_DefaultAppDisplayName = @"Default";
+        public const string k_DefaultAppName = @"default";
+        public static UnityCloudPlayerSettings Instance { get; }
+        public UnityCloudPlayerSettings() {}
+        public string GetAppId();
+        public string GetAppName();
+        public string GetDisplayName();
+    }
+
+    public class UnityHttpClient : IHttpClient
+    {
+        public System.TimeSpan Timeout { get; set; }
+        public UnityHttpClient() {}
+        public System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage> DownloadFileAsync(System.Net.Http.HttpRequestMessage request, string downloadFilePath, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        public System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage> SendAsync(System.Net.Http.HttpRequestMessage request, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+    }
+
+    public static class UnityLoggerProvider
+    {
+        public static string UnityObjectContextPropertyName { get; }
+        public static UCLogger GetLogger<T>(UnityEngine.Object context);
+    }
+
+    public class UnityLogOutput : ILogOutput
+    {
+        public LogLevel CurrentLevel { get; set; }
+        public bool Enabled { get; set; }
+        public UnityLogOutput() {}
+        public static void SetupUnityLogOutput();
+        [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)] public static void SetupUnityLogOutputRuntime();
+        public void Write(LogEvent logEvent);
+    }
+
+    public static class UnityRuntimeServiceHostConfigurationFactory
+    {
+        public static ServiceHostConfiguration Create(string applicationOverrideValue = @"");
+    }
+
+    public class UrlRedirectionInterceptor : IUrlRedirectionInterceptor, System.IDisposable
+    {
+        public event System.Action<System.Uri> DeepLinkForwarded;
+        public System.Collections.Generic.List<string> AwaitedQueryArguments { get; }
+        public UrlRedirectionInterceptor(string hostDomain = default(string), int refreshDelay = 500, int timeoutDelay = 60000) {}
+        public System.Threading.Tasks.Task<UrlRedirectResult> AwaitRedirectAsync(System.Collections.Generic.List<string> awaitedQueryArguments = default(System.Collections.Generic.List<string>));
+        public void Dispose();
+        protected virtual void Dispose(bool disposing);
+        public static IUrlRedirectionInterceptor GetInstance();
+        public System.Nullable<UrlRedirectResult> GetRedirectionResult();
+        public string GetRedirectProcessId();
+        public void InterceptAwaitedUrl(string url, System.Collections.Generic.List<string> awaitedQueryArguments = default(System.Collections.Generic.List<string>));
+    }
+
+    public static class WebSocketClientFactory
+    {
+        public static IWebSocketClient Create();
+    }
+}

@@ -1,0 +1,129 @@
+// This file is generated. Do not modify by hand.
+// XML documentation file not found. To check if public methods have XML comments,
+// make sure the XML doc file is present and located next to the scraped dll
+namespace Unity.Cloud.Common.Editor
+{
+    [UnityEditor.CustomEditor(typeof(Unity.Cloud.Common.Runtime.ActivateAppFromUrl))] public class ActivateAppFromUrlEditor : UnityEditor.Editor
+    {
+        public ActivateAppFromUrlEditor() {}
+        public void DrawGUI();
+        public override void OnInspectorGUI();
+    }
+
+    public static class AppLinksHelper
+    {
+        public static System.Collections.ObjectModel.ReadOnlyCollection<string> AppLinksDomains { get; }
+        public static System.Collections.ObjectModel.ReadOnlyCollection<string> SupportedDomains { get; }
+    }
+
+    public static class BuildUtils
+    {
+        public static string GetCustomUriScheme();
+        public static string GetNamespacedUriScheme();
+    }
+
+    public class PlistDocument
+    {
+        public PlistElementDict root;
+        public string version = @"1.0";
+        public PlistDocument() {}
+        public void Create();
+        public void ReadFromFile(string path);
+        public void ReadFromStream(System.IO.TextReader tr);
+        public void ReadFromString(string text);
+        public void WriteToFile(string path);
+        public void WriteToStream(System.IO.TextWriter tw);
+        public string WriteToString();
+    }
+
+    public class PlistElement
+    {
+        public PlistElement this[string key] { get; set; }
+        protected PlistElement() {}
+        public PlistElementArray AsArray();
+        public bool AsBoolean();
+        public System.DateTime AsDate();
+        public PlistElementDict AsDict();
+        public int AsInteger();
+        public float AsReal();
+        public string AsString();
+    }
+
+    public class PlistElementArray : PlistElement
+    {
+        public System.Collections.Generic.List<PlistElement> values;
+        public PlistElementArray() {}
+        public PlistElementArray AddArray();
+        public void AddBoolean(bool val);
+        public void AddDate(System.DateTime val);
+        public PlistElementDict AddDict();
+        public void AddInteger(int val);
+        public void AddReal(float val);
+        public void AddString(string val);
+    }
+
+    public class PlistElementBoolean : PlistElement
+    {
+        public bool value;
+        public PlistElementBoolean(bool v) {}
+    }
+
+    public class PlistElementDate : PlistElement
+    {
+        public System.DateTime value;
+        public PlistElementDate(System.DateTime date) {}
+    }
+
+    public class PlistElementDict : PlistElement
+    {
+        public PlistElement this[string key] { get; set; }
+        public System.Collections.Generic.IDictionary<string, PlistElement> values { get; }
+        public PlistElementDict() {}
+        public PlistElementArray CreateArray(string key);
+        public PlistElementDict CreateDict(string key);
+        public void SetBoolean(string key, bool val);
+        public void SetDate(string key, System.DateTime val);
+        public void SetInteger(string key, int val);
+        public void SetReal(string key, float val);
+        public void SetString(string key, string val);
+    }
+
+    public class PlistElementInteger : PlistElement
+    {
+        public int value;
+        public PlistElementInteger(int v) {}
+    }
+
+    public class PlistElementReal : PlistElement
+    {
+        public float value;
+        public PlistElementReal(float v) {}
+    }
+
+    public class PlistElementString : PlistElement
+    {
+        public string value;
+        public PlistElementString(string v) {}
+    }
+
+    [UnityEditor.CustomPropertyDrawer(typeof(Unity.Cloud.Common.Runtime.ReadOnlyAttribute))] public class ReadOnlyDrawer : UnityEditor.PropertyDrawer
+    {
+        public ReadOnlyDrawer() {}
+        public override float GetPropertyHeight(UnityEditor.SerializedProperty property, UnityEngine.GUIContent label);
+        public override void OnGUI(UnityEngine.Rect position, UnityEditor.SerializedProperty property, UnityEngine.GUIContent label);
+    }
+
+    [UnityEditor.CustomEditor(typeof(Unity.Cloud.Common.Runtime.UnityCloudPlayerSettings))] public class UnityCloudPlayerSettingsEditor : UnityEditor.Editor
+    {
+        public UnityCloudPlayerSettingsEditor() {}
+        public void DrawGUI();
+        public override void OnInspectorGUI();
+    }
+
+    public class UnityCloudPlayerSettingsProvider : UnityEditor.SettingsProvider
+    {
+        [UnityEditor.SettingsProvider] public static UnityEditor.SettingsProvider CreateUnityCloudPlayerSettingsProvider();
+        public override void OnActivate(string searchContext, UnityEngine.UIElements.VisualElement rootElement);
+        public override void OnGUI(string searchContext);
+    }
+}
