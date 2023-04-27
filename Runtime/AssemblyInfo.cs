@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using Unity.Cloud.Common;
 
-[assembly: ApiSourceVersion("com.unity.cloud.common", "0.11.0")]
+[assembly: ApiSourceVersion("com.unity.cloud.common", "0.12.1")]
 [assembly: InternalsVisibleTo("Unity.Cloud.Common.Editor")]
 [assembly: InternalsVisibleTo("Unity.Cloud.Common.Tests")]
 [assembly: InternalsVisibleTo("Unity.Cloud.Common.Tests.Editor")]

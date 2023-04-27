@@ -111,6 +111,7 @@ namespace Unity.Cloud.Common
 
     public static class HttpClientExtensions
     {
+        public static System.Net.Http.HttpRequestMessage CreateHttpRequestMessage(System.Net.Http.HttpMethod httpMethod, System.Uri uri);
         public static System.Uri CreateUri(string uri);
         public static System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage> DeleteAsync(this IHttpClient httpClient, string requestUri, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
         public static System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage> DeleteAsync(this IHttpClient httpClient, System.Uri requestUri, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
@@ -441,12 +442,6 @@ namespace Unity.Cloud.Common
         protected RetryExecutionFailedException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) {}
     }
 
-    public class RetryExpiredException : System.Exception
-    {
-        public RetryExpiredException() {}
-        protected RetryExpiredException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) {}
-    }
-
     public static class RetryPolicyExtensions
     {
         public static System.Threading.Tasks.Task ExecuteAsyncWithExceptionValidation(this IRetryPolicy retryPolicy, IRetryPolicy.RetriedOperation retriedOperation, IRetryPolicy.ShouldRetryExceptionChecker shouldRetryExceptionChecker, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken), System.IProgress<RetryQueuedProgress> progress = default(System.IProgress<RetryQueuedProgress>));
@@ -620,7 +615,6 @@ namespace Unity.Cloud.Common
 
     public static class ServiceHttpClientExtensions
     {
-        public static System.Uri CreateUri(string uri);
         public static System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage> DeleteAsync(this IServiceHttpClient httpClient, string requestUri, ServiceHttpClientOptions options, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
         public static System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage> DeleteAsync(this IServiceHttpClient httpClient, System.Uri requestUri, ServiceHttpClientOptions options, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
         public static System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage> DeleteAsync(this IServiceHttpClient httpClient, string requestUri, System.Net.Http.HttpContent content, ServiceHttpClientOptions options, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));

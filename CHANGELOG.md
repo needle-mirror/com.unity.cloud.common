@@ -4,12 +4,33 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.12.1] - 2023-04-27
+
+### Added
+- Added support for the PATCH http method in LegacyRequestHandler.
+
+### Changed
+- Fix exception when stacktrace is null in `UnityLogOutput`.
+
+## [0.12.0] - 2023-04-13
+
+### Added
+- Added documentation for thrown exceptions in the `Networking/Http` components.
+- Added a `CreateHttpRequestMessage` helper method to `HttpClientExtensions`.
+
+### Changed
+- [Breaking] New exceptions can be thrown in the Http clients, documented for each method.
+
+### Removed
+- [Breaking] Removed `RetryExpiredException` in favor of `TimeoutException` usage.
+- [Breaking] Removed `CreateUri()` from `ServiceHttpClientExtensions`.
+
 ## [0.11.0] - 2032-03-30
 
 ### Changed
 - [Breaking] `UrlRedirectionInterceptor` runtime class ctor changed from `public` to `internal`
 - [Breaking] Change identifier types from Guid to SceneId, WorkspaceId, DatasetId, OrganizationId and VersionId.
-- [Breaking] Refactored both `DotNetHttpClient` and `UnityHttpClient` to better handle exceptions
+- [Breaking] Refactored both `DotNetHttpClient` and `UnityHttpClient` to better handle exceptions.
 - Added `HttpClientHeaderModifier` and `SericeHttpClientHeaderModifier` implementations to automatically append headers to all requests
 - Added an `ApiSourceVersion` class and associated attribute and extension methods to append Api Source information as headers
 - Added a method to `IServiceMessagingClient` to add  `ApiSourceVersion` which will be added as headers in the `ServiceMessagingClient` implementation.

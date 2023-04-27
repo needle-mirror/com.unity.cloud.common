@@ -13,14 +13,19 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="uri">The Uri containing a query.</param>
         /// <param name="allowOverwrite">Whether to allow a query to be overwritten if it exists more than once.</param>
-        /// <returns></returns>
+        /// <returns>The resulting <see cref="Dictionary"/>.</returns>
+        /// <exception cref="ArgumentNullException"> Thrown when uri is null.</exception>
         public static Dictionary<string, string> GetDictionaryFromArguments(Uri uri, bool allowOverwrite = false)
         {
-             var queryArgs = new Dictionary<string, string>();
+            if (uri == null)
+                throw new ArgumentNullException(nameof(uri));
+
+            var queryArgs = new Dictionary<string, string>();
             if (uri.Query.Length > 1)
             {
                 return GetDictionaryFromString(uri.Query.Substring(1), allowOverwrite);
             }
+
             return queryArgs;
         }
 
@@ -29,7 +34,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="queryString">The query to parse.</param>
         /// <param name="allowOverwrite">Whether to allow a query to be overwritten if it exists more than once.</param>
-        /// <returns></returns>
+        /// <returns>The resulting <see cref="Dictionary"/>.</returns>
         public static Dictionary<string, string> GetDictionaryFromString(string queryString, bool allowOverwrite = false)
         {
             var queryArgs = new Dictionary<string, string>();
@@ -46,6 +51,7 @@ namespace Unity.Cloud.Common
                     }
                 }
             }
+
             return queryArgs;
         }
     }

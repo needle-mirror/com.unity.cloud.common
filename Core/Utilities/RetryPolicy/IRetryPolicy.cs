@@ -89,7 +89,7 @@ namespace Unity.Cloud.Common
         /// - When <paramref name="shouldRetryChecker"/> returns false after <paramref name="retriedOperation"/> throws an exception, in which case the internal exception is passed through the former's innerException field.
         /// - When <paramref name="shouldRetryChecker"/> throws an <see cref="RetryExecutionFailedException"/>, in which case this exception is immediately bubbled up.
         /// </exception>
-        /// <exception cref="RetryExpiredException">When the retry policy expires.</exception>
+        /// <exception cref="TimeoutException">When the retry policy expires.</exception>
         /// <exception cref="OperationCanceledException">When the <paramref name="retriedOperation"/> or the <paramref name="cancellationToken"/> is cancelled.</exception>
         /// <exception cref="InvalidArgumentException">
         /// - When <paramref name="shouldRetryChecker"/> throws an invalid exception.
@@ -112,7 +112,7 @@ namespace Unity.Cloud.Common
         /// The result of the <paramref name="retriedOperation"/>, after <paramref name="shouldRetryExceptionChecker"/> returns false.
         /// </returns>
         /// <exception cref="RetryExecutionFailedException">When <paramref name="shouldRetryExceptionChecker"/> returns false after <paramref name="retriedOperation"/> throws an exception. The internal exception is passed through the former's innerException field.</exception>
-        /// <exception cref="RetryExpiredException">When the retry policy expires.</exception>
+        /// <exception cref="TimeoutException">When the retry policy expires.</exception>
         /// <exception cref="OperationCanceledException">When the <paramref name="retriedOperation"/> or the <paramref name="cancellationToken"/> is cancelled.</exception>
         /// <exception cref="InvalidArgumentException">
         /// - When <paramref name="shouldRetryChecker"/> throws an invalid exception.
@@ -136,12 +136,8 @@ namespace Unity.Cloud.Common
         /// The result of the <paramref name="retriedOperation"/>, after <paramref name="shouldRetryExceptionChecker"/> returns false.
         /// </returns>
         /// <exception cref="RetryExecutionFailedException">When <paramref name="shouldRetryExceptionChecker"/> returns false after <paramref name="retriedOperation"/> throws an exception. The internal exception is passed through the former's innerException field.</exception>
-        /// <exception cref="RetryExpiredException">When the retry policy expires.</exception>
+        /// <exception cref="TimeoutException">When the retry policy expires.</exception>
         /// <exception cref="OperationCanceledException">When the <paramref name="retriedOperation"/> or the <paramref name="cancellationToken"/> is cancelled.</exception>
-        /// <exception cref="InvalidArgumentException">
-        /// - When <paramref name="shouldRetryChecker"/> throws an invalid exception.
-        /// - When <paramref name="shouldRetryChecker"/> does not await the completion of operationTask.
-        /// </exception>
         public static Task<T> ExecuteAsyncWithExceptionValidation<T>(this IRetryPolicy retryPolicy, IRetryPolicy.RetriedOperation<T> retriedOperation,
             IRetryPolicy.ShouldRetryExceptionChecker shouldRetryExceptionChecker, CancellationToken cancellationToken = default, IProgress<RetryQueuedProgress> progress = default)
         {
@@ -171,12 +167,8 @@ namespace Unity.Cloud.Common
         /// The result of the <paramref name="retriedOperation"/>, after <paramref name="shouldRetryResultChecker"/> returns false.
         /// </returns>
         /// <exception cref="RetryExecutionFailedException">When <paramref name="retriedOperation"/> throws an exception, regardless of the result of <paramref name="shouldRetryResultChecker"/>. The internal exception is passed through the former's innerException field.</exception>
-        /// <exception cref="RetryExpiredException">When the retry policy expires.</exception>
+        /// <exception cref="TimeoutException">When the retry policy expires.</exception>
         /// <exception cref="OperationCanceledException">When the <paramref name="retriedOperation"/> or the <paramref name="cancellationToken"/> is cancelled.</exception>
-        /// <exception cref="InvalidArgumentException">
-        /// - When <paramref name="shouldRetryChecker"/> throws an invalid exception.
-        /// - When <paramref name="shouldRetryChecker"/> does not await the completion of operationTask.
-        /// </exception>
         public static Task<T> ExecuteAsyncWithResultValidation<T>(this IRetryPolicy retryPolicy, IRetryPolicy.RetriedOperation<T> retriedOperation, IRetryPolicy.ShouldRetryResultChecker<T> shouldRetryResultChecker,
             CancellationToken cancellationToken = default, IProgress<RetryQueuedProgress> progress = default)
         {

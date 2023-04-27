@@ -12,6 +12,8 @@ namespace Unity.Cloud.Common
     /// </summary>
     public static class HttpClientExtensions
     {
+        const string k_PatchMethod = "PATCH";
+
         /// <summary>
         /// Sends an asynchronous GET request to the specified Uri.
         /// </summary>
@@ -19,6 +21,10 @@ namespace Unity.Cloud.Common
         /// <param name="requestUri">The uri for the request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An <see cref="HttpResponseMessage"/>.</returns>
+        /// <exception cref="ArgumentException">Thrown when the requestUri is invalid.</exception>
+        /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
+        /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
         public static Task<HttpResponseMessage> GetAsync(this IHttpClient httpClient, string requestUri, CancellationToken cancellationToken = default)
         {
             return httpClient.GetAsync(CreateUri(requestUri), cancellationToken);
@@ -31,9 +37,13 @@ namespace Unity.Cloud.Common
         /// <param name="requestUri">The uri for the request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An <see cref="HttpResponseMessage"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the requestUri is null.</exception>
+        /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
+        /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
         public static Task<HttpResponseMessage> GetAsync(this IHttpClient httpClient, Uri requestUri, CancellationToken cancellationToken = default)
         {
-            return httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, requestUri), cancellationToken);
+            return httpClient.SendAsync(CreateHttpRequestMessage(HttpMethod.Get, requestUri), cancellationToken);
         }
 
         /// <summary>
@@ -45,6 +55,10 @@ namespace Unity.Cloud.Common
         /// <param name="downloadFilePath">The path for the downloaded file.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An <see cref="HttpResponseMessage"/>.</returns>
+        /// <exception cref="ArgumentException">Thrown when the requestUri is invalid.</exception>
+        /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
+        /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
         public static Task<HttpResponseMessage> PostAsync(this IHttpClient httpClient, string requestUri, HttpContent content,
             string downloadFilePath = null, CancellationToken cancellationToken = default)
         {
@@ -60,10 +74,14 @@ namespace Unity.Cloud.Common
         /// <param name="downloadFilePath">The path for the downloaded file.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An <see cref="HttpResponseMessage"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the requestUri is null.</exception>
+        /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
+        /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
         public static Task<HttpResponseMessage> PostAsync(this IHttpClient httpClient, Uri requestUri, HttpContent content,
             string downloadFilePath = null, CancellationToken cancellationToken = default)
         {
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUri);
+            HttpRequestMessage request = CreateHttpRequestMessage(HttpMethod.Post, requestUri);
             request.Content = content;
             return downloadFilePath is null
                 ? httpClient.SendAsync(request, cancellationToken)
@@ -78,6 +96,10 @@ namespace Unity.Cloud.Common
         /// <param name="content">The HTTP content for the request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An <see cref="HttpResponseMessage"/>.</returns>
+        /// <exception cref="ArgumentException">Thrown when the requestUri is invalid.</exception>
+        /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
+        /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
         public static Task<HttpResponseMessage> PutAsync(this IHttpClient httpClient, string requestUri, HttpContent content,
             CancellationToken cancellationToken = default)
         {
@@ -92,10 +114,53 @@ namespace Unity.Cloud.Common
         /// <param name="content">The HTTP content for the request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An <see cref="HttpResponseMessage"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the requestUri is null.</exception>
+        /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
+        /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
         public static Task<HttpResponseMessage> PutAsync(this IHttpClient httpClient, Uri requestUri, HttpContent content,
             CancellationToken cancellationToken = default)
         {
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Put, requestUri);
+            HttpRequestMessage request = CreateHttpRequestMessage(HttpMethod.Put, requestUri);
+            request.Content = content;
+            return httpClient.SendAsync(request, cancellationToken);
+        }
+
+        /// <summary>
+        /// Sends an asynchronous PATCH request to the specified Uri.
+        /// </summary>
+        /// <param name="httpClient">The HTTP client.</param>
+        /// <param name="requestUri">The uri for the request.</param>
+        /// <param name="content">The HTTP content for the request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An <see cref="HttpResponseMessage"/>.</returns>
+        /// <exception cref="ArgumentException">Thrown when the requestUri is invalid.</exception>
+        /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
+        /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
+        public static Task<HttpResponseMessage> PatchAsync(this IHttpClient httpClient, string requestUri, HttpContent content,
+            CancellationToken cancellationToken = default)
+        {
+            return httpClient.PatchAsync(CreateUri(requestUri), content, cancellationToken);
+        }
+
+        /// <summary>
+        /// Sends an asynchronous PATCH request to the specified Uri.
+        /// </summary>
+        /// <param name="httpClient">The HTTP client.</param>
+        /// <param name="requestUri">The uri for the request.</param>
+        /// <param name="content">The HTTP content for the request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An <see cref="HttpResponseMessage"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the requestUri is null.</exception>
+        /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
+        /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
+        public static Task<HttpResponseMessage> PatchAsync(this IHttpClient httpClient, Uri requestUri, HttpContent content,
+            CancellationToken cancellationToken = default)
+        {
+            // We use the HttpMethod constructor here because HttpMethod.Patch throws PlatformNotSupportedException
+            HttpRequestMessage request = CreateHttpRequestMessage(new HttpMethod(k_PatchMethod), requestUri);
             request.Content = content;
             return httpClient.SendAsync(request, cancellationToken);
         }
@@ -107,6 +172,10 @@ namespace Unity.Cloud.Common
         /// <param name="requestUri">The uri for the request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An <see cref="HttpResponseMessage"/>.</returns>
+        /// <exception cref="ArgumentException">Thrown when the requestUri is invalid.</exception>
+        /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
+        /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
         public static Task<HttpResponseMessage> DeleteAsync(this IHttpClient httpClient, string requestUri, CancellationToken cancellationToken = default)
         {
             return httpClient.DeleteAsync(CreateUri(requestUri), cancellationToken);
@@ -119,9 +188,13 @@ namespace Unity.Cloud.Common
         /// <param name="requestUri">The uri for the request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An <see cref="HttpResponseMessage"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the requestUri is null.</exception>
+        /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
+        /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
         public static Task<HttpResponseMessage> DeleteAsync(this IHttpClient httpClient, Uri requestUri, CancellationToken cancellationToken = default)
         {
-            return httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Delete, requestUri), cancellationToken);
+            return httpClient.SendAsync(CreateHttpRequestMessage(HttpMethod.Delete, requestUri), cancellationToken);
         }
 
         /// <summary>
@@ -132,6 +205,10 @@ namespace Unity.Cloud.Common
         /// <param name="content">The HTTP content for the request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An <see cref="HttpResponseMessage"/>.</returns>
+        /// <exception cref="ArgumentException">Thrown when the requestUri is invalid.</exception>
+        /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
+        /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
         public static Task<HttpResponseMessage> DeleteAsync(this IHttpClient httpClient, string requestUri, HttpContent content,
             CancellationToken cancellationToken = default)
         {
@@ -146,10 +223,14 @@ namespace Unity.Cloud.Common
         /// <param name="content">The HTTP content for the request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An <see cref="HttpResponseMessage"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the requestUri is null.</exception>
+        /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
+        /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
         public static Task<HttpResponseMessage> DeleteAsync(this IHttpClient httpClient, Uri requestUri, HttpContent content,
             CancellationToken cancellationToken = default)
         {
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, requestUri);
+            HttpRequestMessage request = CreateHttpRequestMessage(HttpMethod.Delete, requestUri);
             request.Content = content;
             return httpClient.SendAsync(request, cancellationToken);
         }
@@ -159,12 +240,28 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="uri">The <see cref="string"/> to convert.</param>
         /// <returns>The created <see cref="Uri"/>.</returns>
+        /// <exception cref="ArgumentException">Thrown when an unhandled exception is thrown constructing the URI.</exception>
         public static Uri CreateUri(String uri)
         {
-            if (string.IsNullOrEmpty(uri))
-                return null;
+            if (!Uri.TryCreate(uri, UriKind.RelativeOrAbsolute, out Uri result))
+                throw new ArgumentException(nameof(uri));
 
-            return !Uri.TryCreate(uri, UriKind.RelativeOrAbsolute, out Uri result) ? null : result;
+            return result;
+        }
+
+        /// <summary>
+        /// Creates an <see cref="HttpRequestMessage"/> from an <see cref="HttpMethod"/> and a <see cref="Uri"/>.
+        /// </summary>
+        /// <param name="httpMethod">The HTTP method.</param>
+        /// <param name="uri">The <see cref="Uri"/> to request.</param>
+        /// <returns>The created <see cref="HttpRequestMessage"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the URI is null.</exception>
+        public static HttpRequestMessage CreateHttpRequestMessage(HttpMethod httpMethod, Uri uri)
+        {
+            if (uri == null)
+                throw new ArgumentNullException(nameof(uri));
+
+            return new HttpRequestMessage(httpMethod, uri);
         }
 
         /// <summary>

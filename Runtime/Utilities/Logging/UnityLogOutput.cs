@@ -90,24 +90,28 @@ namespace Unity.Cloud.Common.Runtime
         string GenerateMessageFromException(Exception exception)
         {
             var messageStringBuilder = new StringBuilder(exception.Message);
-            var lines = exception.StackTrace.Split('\n');
-            foreach (var line in lines)
-            {
-                var callInfo = line.Split("in ");
-                messageStringBuilder.Append("\n" + callInfo[0]);
+            var lines = exception.StackTrace?.Split('\n');
 
-                if (callInfo.Length > 1)
+            if (lines != null)
+            {
+                foreach (var line in lines)
                 {
-                    var codeInfo = callInfo[1].Split(".cs:");
-                    if (codeInfo.Length > 1)
+                    var callInfo = line.Split("in ");
+                    messageStringBuilder.Append("\n" + callInfo[0]);
+
+                    if (callInfo.Length > 1)
                     {
-                        messageStringBuilder.Append("in " + "<a href=\"" + codeInfo[0] + ".cs\" line=\"" + codeInfo[1] + "\">" +
-                                                    codeInfo[0] + ".cs:" + codeInfo[1] + "</a>");
-                    }
-                    else
-                    {
-                        // exceptions inside a System.Task don't have ".cs:" in the message, so append as-is
-                        messageStringBuilder.Append(codeInfo[0]);
+                        var codeInfo = callInfo[1].Split(".cs:");
+                        if (codeInfo.Length > 1)
+                        {
+                            messageStringBuilder.Append("in " + "<a href=\"" + codeInfo[0] + ".cs\" line=\"" + codeInfo[1] + "\">" +
+                                                        codeInfo[0] + ".cs:" + codeInfo[1] + "</a>");
+                        }
+                        else
+                        {
+                            // exceptions inside a System.Task don't have ".cs:" in the message, so append as-is
+                            messageStringBuilder.Append(codeInfo[0]);
+                        }
                     }
                 }
             }

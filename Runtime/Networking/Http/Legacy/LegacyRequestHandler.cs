@@ -18,6 +18,7 @@ namespace Unity.Cloud.Common.Runtime
     class LegacyRequestHandler
     {
         const string k_EmptyStringContent = "";
+        const string k_HttpVerbPatch = "PATCH";
         const string k_TimeoutErrorMessage = "Request timeout";
 
         readonly IMainThreadIODispatcher m_Dispatcher;
@@ -32,6 +33,16 @@ namespace Unity.Cloud.Common.Runtime
             m_Dispatcher = dispatcher;
         }
 
+        /// <summary>
+        /// Send an asynchronous HTTP request or file download request.
+        /// </summary>
+        /// <param name="httpRequestMessage">The request message.</param>
+        /// <param name="downloadFilePath">Optional path to save downloaded files.</param>
+        /// <param name="cancellationToken">Optional cancellation token that will try to cancel the operation.</param>
+        /// <returns>A task that will hold the HttpResponseMessage once the request is completed.</returns>
+        /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
+        /// <exception cref="TaskCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
+        /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
         public async Task<HttpResponseMessage> RequestAsync(HttpRequestMessage httpRequestMessage, string downloadFilePath, CancellationToken cancellationToken)
         {
             var factoryTask = await Task.Factory.StartNew(
@@ -106,14 +117,13 @@ namespace Unity.Cloud.Common.Runtime
             var bytesContent = state.BytesContent;
             var downloadFilePath = state.DownloadFilePath;
 
-            var request = httpRequestMessage.Method.ToString() switch
+            var methodString = httpRequestMessage.Method.ToString();
+            var request = methodString switch
             {
                 UnityWebRequest.kHttpVerbGET => UnityWebRequest.Get(httpRequestMessage.RequestUri),
-                // NOTE: For POST, create a PUT request, then override the verb, see https://manuelotheo.com/uploading-raw-json-data-through-unitywebrequest/
-                UnityWebRequest.kHttpVerbPOST when bytesContent != null => UnityWebRequest.Put(httpRequestMessage.RequestUri, bytesContent),
-                UnityWebRequest.kHttpVerbPOST => UnityWebRequest.Put(httpRequestMessage.RequestUri, stringContent ?? k_EmptyStringContent),
-                UnityWebRequest.kHttpVerbPUT when bytesContent != null => UnityWebRequest.Put(httpRequestMessage.RequestUri, bytesContent),
-                UnityWebRequest.kHttpVerbPUT => UnityWebRequest.Put(httpRequestMessage.RequestUri, stringContent ?? k_EmptyStringContent),
+                // NOTE: For POST and PATCH, create a PUT request, then override the verb, see https://manuelotheo.com/uploading-raw-json-data-through-unitywebrequest/
+                UnityWebRequest.kHttpVerbPUT or UnityWebRequest.kHttpVerbPOST or k_HttpVerbPatch when bytesContent != null => UnityWebRequest.Put(httpRequestMessage.RequestUri, bytesContent),
+                UnityWebRequest.kHttpVerbPUT or UnityWebRequest.kHttpVerbPOST or k_HttpVerbPatch => UnityWebRequest.Put(httpRequestMessage.RequestUri, stringContent ?? k_EmptyStringContent),
                 UnityWebRequest.kHttpVerbDELETE when bytesContent != null => CreateDeleteRequest(httpRequestMessage.RequestUri, bytesContent: state.BytesContent),
                 UnityWebRequest.kHttpVerbDELETE => CreateDeleteRequest(httpRequestMessage.RequestUri, stringContent: state.StringContent),
                 _ => throw new NotImplementedException()
@@ -121,10 +131,10 @@ namespace Unity.Cloud.Common.Runtime
 
             state.Request = request;
 
-            if (httpRequestMessage.Method == HttpMethod.Post)
+            if (methodString == UnityWebRequest.kHttpVerbPOST || methodString == k_HttpVerbPatch)
             {
-                // Override the put
-                request.method = UnityWebRequest.kHttpVerbPOST;
+                // Override the put if necessary
+                request.method = methodString;
             }
 
             foreach (var header in httpRequestMessage.Headers)

@@ -43,7 +43,7 @@ namespace Unity.Cloud.Common
 
         /// <exception cref="OperationCanceledException">When shouldRetryResult is false, but the actionTask is cancelled.</exception>
         /// <exception cref="RetryExecutionFailedException">When shouldRetryResult is false, but the actionTask throws an exception, which is passed as innerException.</exception>
-        /// <exception cref="RetryExpiredException">When shouldRetryResult is true, which means the RetryPolicy expired.</exception>
+        /// <exception cref="TimeoutException">When shouldRetryResult is true, which means the RetryPolicy expired.</exception>
         /// <exception cref="InvalidArgumentException">When provided <paramref name="actionTask"/> is not completed.</exception>
         public static T GetRetryResult<T>(Task<T> actionTask, bool shouldRetryResult)
         {
@@ -67,7 +67,7 @@ namespace Unity.Cloud.Common
             else
             {
                 // RetryPolicy expired.
-                throw new RetryExpiredException();
+                throw new TimeoutException();
             }
         }
     }

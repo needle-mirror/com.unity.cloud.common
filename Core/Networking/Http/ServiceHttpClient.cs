@@ -151,24 +151,13 @@ namespace Unity.Cloud.Common
             set => m_BaseHttpClient.Timeout = value;
         }
 
-        /// <summary>
-        /// Send an asynchronous HTTP request.
-        /// </summary>
-        /// <param name="request">The request to be sent.</param>
-        /// <param name="cancellationToken">Optional cancellation token that will try to cancel the operation.</param>
-        /// <returns>A task that will hold the HttpResponseMessage once the request is completed</returns>
+        /// <inheritdoc />
         public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
         {
             return SendAsync(request, ServiceHttpClientOptions.NoRetryOption(), cancellationToken);
         }
 
-        /// <summary>
-        /// Send an asynchronous HTTP request.
-        /// </summary>
-        /// <param name="request">The request to be sent.</param>
-        /// <param name="options">The options for the client.</param>
-        /// <param name="cancellationToken">Optional cancellation token that will try to cancel the operation.</param>
-        /// <returns>A task that will hold the HttpResponseMessage once the request is completed</returns>
+        /// <inheritdoc />
         public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, ServiceHttpClientOptions options,
             CancellationToken cancellationToken = default)
         {
@@ -202,13 +191,7 @@ namespace Unity.Cloud.Common
             return await SendWithErrorProcessingAsync(request, options, cancellationToken);
         }
 
-        /// <summary>
-        /// Send an asynchronous a file download request.
-        /// </summary>
-        /// <param name="request">The request to be sent.</param>
-        /// <param name="downloadFilePath">Optional path to save downloaded files.</param>
-        /// <param name="cancellationToken">Optional cancellation token that will try to cancel the operation.</param>
-        /// <returns>A task that will hold the HttpResponseMessage once the request is completed</returns>
+        /// <inheritdoc />
         public Task<HttpResponseMessage> DownloadFileAsync(HttpRequestMessage request, string downloadFilePath,
             CancellationToken cancellationToken = default)
         {
@@ -217,9 +200,54 @@ namespace Unity.Cloud.Common
 
         async Task<HttpResponseMessage> SendBaseHttpClientAsync(HttpRequestMessage request, ServiceHttpClientOptions options, IRetryPolicy.ShouldRetryResultChecker<HttpResponseMessage> responseValidator, CancellationToken cancellationToken = default)
         {
-            return await (options.DownloadFilePath is null
-                ? options.RetryPolicy.ExecuteAsyncWithResultValidation<HttpResponseMessage>(ct => m_BaseHttpClient.SendAsync(request, ct), responseValidator, cancellationToken)
-                : options.RetryPolicy.ExecuteAsyncWithResultValidation<HttpResponseMessage>(ct => m_BaseHttpClient.DownloadFileAsync(request, options.DownloadFilePath, ct), responseValidator, cancellationToken));
+            try
+            {
+                return await (options.DownloadFilePath is null
+                    ? ExecuteAsyncWithResultAndExceptionValidation(options.RetryPolicy,
+                        ct => m_BaseHttpClient.SendAsync(request, ct), responseValidator, cancellationToken)
+                    : ExecuteAsyncWithResultAndExceptionValidation(options.RetryPolicy,
+                        ct => m_BaseHttpClient.DownloadFileAsync(request, options.DownloadFilePath, ct),
+                        responseValidator, cancellationToken));
+            }
+            catch (RetryExecutionFailedException retryExecutionFailedException)
+            {
+                // We throw the inner exception to hide IRetryPolicy exceptions and keep IServiceHttpClient
+                // closer to IHttpClient in terms of exceptions.
+                if(retryExecutionFailedException.InnerException != null)
+                    throw retryExecutionFailedException.InnerException;
+
+                throw;
+            }
+        }
+
+        Task<HttpResponseMessage> ExecuteAsyncWithResultAndExceptionValidation(IRetryPolicy retryPolicy,
+            IRetryPolicy.RetriedOperation<HttpResponseMessage> retriedOperation,
+            IRetryPolicy.ShouldRetryResultChecker<HttpResponseMessage> shouldRetryResultChecker,
+            CancellationToken cancellationToken = default, IProgress<RetryQueuedProgress> progress = default)
+        {
+            return retryPolicy.ExecuteAsync(retriedOperation, async result =>
+            {
+                HttpResponseMessage taskResult;
+                try
+                {
+                    taskResult = await result.UnityConfigureAwait(false);
+                }
+                catch (HttpRequestException)
+                {
+                    return true;
+                }
+                catch (TimeoutException)
+                {
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    // Stop the retry and bubble up the exception
+                    throw new RetryExecutionFailedException(e);
+                }
+
+                return await shouldRetryResultChecker(taskResult);
+            }, cancellationToken, progress);
         }
 
         Task<bool> ResponseValidatorNoErrorProcessing(HttpResponseMessage response)

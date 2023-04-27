@@ -260,8 +260,14 @@ namespace Unity.Cloud.Common
         /// Creates an exception corresponding to the error code contained in the provided <see cref="ServiceError"/>.
         /// If the code is not known or 0, a more generic <see cref="ServiceException"/> will be returned.
         /// </summary>
+        /// <param name="error">The provided service error.</param>
+        /// <returns>The created exception.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when error is null.</exception>
         public static ServiceException Build(ServiceError error)
         {
+            if (error == null)
+                throw new ArgumentNullException(nameof(error));
+
             switch (error.ErrorCode)
             {
                 // If the error code is unknown, try to throw a more generic exception using http codes
