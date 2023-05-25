@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,6 +59,64 @@ namespace Unity.Cloud.Common.Runtime
 
         async Task<HttpResponseMessage> RequestInternalAsync(HttpRequestMessage httpRequestMessage, string downloadFilePath = null, CancellationToken cancellationToken = default)
         {
+            var state = await BuildRequestState(httpRequestMessage, downloadFilePath);
+
+            if (m_Dispatcher != null)
+            {
+                async void HandleRequestWithRedirectionAction(Action<object> onCompleted)
+                {
+                    await HandleRequestWithRedirection(state, cancellationToken);
+                }
+                await m_Dispatcher.RunAsync<object>(HandleRequestWithRedirectionAction).ConfigureAwait(false);
+                await m_Dispatcher.RunAsync<object>(onCompleted => CompleteRequest(state, onCompleted)).ConfigureAwait(false);
+            }
+            else
+            {
+                await HandleRequestWithRedirection(state, cancellationToken);
+                CompleteRequest(state, res => { });
+            }
+
+            return state.Response;
+        }
+
+        async Task HandleRequestWithRedirection(RequestState state, CancellationToken cancellationToken)
+        {
+            /*
+            UnityWebRequest internal handling of redirection httpStatusCode 302 will not modify the headers when issuing follow-up requests.
+            This limitation makes some requests fail because they contain unsupported headers.
+            Here, we set the redirectLimit to 0 in order to handle this use case, and properly handle headers on redirected requests.
+            */
+            long responseStatusCode = 302;
+            // Matching UnityWebRequest redirectLimit default value of 32
+            var maxHttpRedirection = 32;
+            var httpRedirectionCount = 0;
+            // Memorize original request scheme and host
+
+            while (responseStatusCode.Equals((long)HttpStatusCode.Redirect) && httpRedirectionCount < maxHttpRedirection)
+            {
+                // After first redirection
+                if (httpRedirectionCount >= 1 && !TryHandleRedirection(state))
+                {
+                    // exit loop and complete request
+                    break;
+                }
+
+                var tcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+                PrepareAndStartRequest(state, res => tcs.TrySetResult(res), cancellationToken);
+                await tcs.Task;
+
+                if (cancellationToken.IsCancellationRequested)
+                    throw new TaskCanceledException(tcs.Task);
+
+                responseStatusCode = state.Request.responseCode;
+
+                if (responseStatusCode.Equals((long)HttpStatusCode.Redirect))
+                    httpRedirectionCount++;
+            }
+        }
+
+        async Task<RequestState> BuildRequestState(HttpRequestMessage httpRequestMessage, string downloadFilePath = null)
+        {
             string stringContent = null;
             byte[] bytesContent = null;
             switch (httpRequestMessage.Content)
@@ -71,27 +130,41 @@ namespace Unity.Cloud.Common.Runtime
                     bytesContent = await httpRequestMessage.Content.ReadAsByteArrayAsync();
                     break;
             }
+            return  new RequestState(httpRequestMessage, stringContent, bytesContent, downloadFilePath, null, null, Timeout);
+        }
 
-            var state = new RequestState(httpRequestMessage, stringContent, bytesContent, downloadFilePath, null, null, Timeout);
-
-            if (m_Dispatcher != null)
+        static bool TryHandleRedirection(RequestState state)
+        {
+            var redirectLocation = state.Request.GetResponseHeader("Location");
+            if (Uri.TryCreate(redirectLocation, UriKind.Absolute, out Uri redirectUri))
             {
-                await m_Dispatcher.RunAsync<object>(onCompleted => PrepareAndStartRequest(state, onCompleted, cancellationToken)).ConfigureAwait(false);
-                await m_Dispatcher.RunAsync<object>(onCompleted => CompleteRequest(state, onCompleted)).ConfigureAwait(false);
+                var originalRequestHost = state.OriginalHttpRequestMessage.RequestUri.Host;
+                var originalRequestScheme = state.OriginalHttpRequestMessage.RequestUri.Scheme;
+
+                // If redirection to a different scheme or host, reset HttpRequestMessage
+                if (!redirectUri.Scheme.Equals(originalRequestScheme) ||
+                    !redirectUri.Host.Equals((originalRequestHost)))
+                {
+                    RebuildHttpRequestMessageWithoutAuthorizationHeader(state, redirectLocation);
+                }
+                // Otherwise, keep original headers and body, only reset Uri
+                else
+                {
+                    state.HttpRequestMessage.RequestUri = redirectUri;
+                }
+                return true;
             }
-            else
-            {
-                var tcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-                PrepareAndStartRequest(state, res => tcs.TrySetResult(res), cancellationToken);
-                await tcs.Task;
+            return false;
+        }
 
-                if (cancellationToken.IsCancellationRequested)
-                    throw new TaskCanceledException(tcs.Task);
+        static void RebuildHttpRequestMessageWithoutAuthorizationHeader(RequestState state, string redirectLocation)
+        {
+            var redirectHttRequestMessage = new HttpRequestMessage();
+            redirectHttRequestMessage.RequestUri = new Uri(redirectLocation);
 
-                CompleteRequest(state, res => { });
-            }
-
-            return state.Response;
+            state.HttpRequestMessage = redirectHttRequestMessage;
+            state.HttpRequestMessage.Content = state.OriginalHttpRequestMessage.Content;
+            state.HttpRequestMessage.Method = state.OriginalHttpRequestMessage.Method;
         }
 
         static UnityWebRequest CreateDeleteRequest(Uri requestUri, string stringContent = null, byte[] bytesContent = null)
@@ -161,6 +234,9 @@ namespace Unity.Cloud.Common.Runtime
                 //To ensure content reception for Delete-requests
                 request.downloadHandler = new DownloadHandlerBuffer();
             }
+
+            // Force handling the Redirect response from server
+            request.redirectLimit = 0;
 
             state.CancellationTokenRegistration = cancellationToken.Register(() =>
             {
@@ -233,6 +309,7 @@ namespace Unity.Cloud.Common.Runtime
         class RequestState
         {
             public HttpRequestMessage HttpRequestMessage;
+            public HttpRequestMessage OriginalHttpRequestMessage;
             public string StringContent;
             public byte[] BytesContent;
             public string DownloadFilePath;
@@ -244,6 +321,7 @@ namespace Unity.Cloud.Common.Runtime
             public RequestState(HttpRequestMessage httpRequestMessage, string stringContent, byte[] bytesContent, string downloadFilePath, UnityWebRequest request, HttpResponseMessage response, TimeSpan timeout)
             {
                 HttpRequestMessage = httpRequestMessage;
+                OriginalHttpRequestMessage = httpRequestMessage;
                 StringContent = stringContent;
                 BytesContent = bytesContent;
                 DownloadFilePath = downloadFilePath;

@@ -1,6 +1,6 @@
 {
   "name": "com.unity.cloud.common",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "displayName": "Unity Cloud Common",
   "description": "Common functionalities needed by the Unity Cloud SDKs",
   "unity": "2021.3",
@@ -9,18 +9,18 @@
     "com.unity.modules.unitywebrequest": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.cloud.common.tests": "0.12.1"
+    "com.unity.cloud.common.tests": "0.13.0"
   },
   "_upm": {
-    "changelog": "### Added\n- Added support for the PATCH http method in LegacyRequestHandler.\n\n### Changed\n- Fix exception when stacktrace is null in `UnityLogOutput`."
+    "changelog": "### Added\n- Added `InstanceId` struct.\n- Support for `Azure` service provider and `transformation.unity.com` domain.\n- [Breaking] `Azure` is now the default service provider.\n\n### Changed\n- Explicit http request redirection handling in `LegacyRequestHandler`.\n- [Breaking] Renamed `ServiceRegionUtils.Provider` to `ServiceDomainProvider`.\n- [Breaking] Removed `Default` values from `ServiceEnvironment` and `ServiceDomainProvider`.\n- `ServiceHostConfiguration` now supports a `ServiceDomainProvider` override.\n- [Breaking] Parameters renamed in `ServiceHostConfiguration.GetServiceAddress()` overloads.\n- Renamed all instances of `dt.unity.com` in test cases to `mock.unity.com`.\n- [Breaking] `ServiceRegionUtils` renamed to `ServiceDomainUtils` and made internal.\n- Split `ServiceHostConfiguration.cs` into separate files by class and struct.\n\n### Removed\n- [Breaking] Removed unsupported `GCPUK` and `Tencent` providers\n\n### Changed\n- Modified import order for samples and dependencies to avoid missing asset errors."
   },
   "upmCi": {
-    "footprint": "334b704fe333e5c970be30298126a563f747fbfa"
+    "footprint": "3b9847c77405fe9d0e6ca6fb54762065180be68d"
   },
-  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@0.12/manual/index.html",
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@0.13/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/digital-twins-sdk.git",
     "type": "git",
-    "revision": "13087e64f8a23cd71a40bf3c5beac43bc9c41df5"
+    "revision": "f7944dc2fe9d6fe3a7405cf96799b474e9e2fce9"
   }
 }

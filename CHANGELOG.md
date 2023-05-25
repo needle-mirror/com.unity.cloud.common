@@ -4,6 +4,38 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2023-05-25
+
+### Added
+- Added `InstanceId` struct.
+- Support for `Azure` service provider and `transformation.unity.com` domain.
+- [Breaking] `Azure` is now the default service provider.
+
+### Changed
+- Explicit http request redirection handling in `LegacyRequestHandler`.
+- [Breaking] Renamed `ServiceRegionUtils.Provider` to `ServiceDomainProvider`.
+- [Breaking] Removed `Default` values from `ServiceEnvironment` and `ServiceDomainProvider`.
+- `ServiceHostConfiguration` now supports a `ServiceDomainProvider` override.
+- [Breaking] Parameters renamed in `ServiceHostConfiguration.GetServiceAddress()` overloads.
+- Renamed all instances of `dt.unity.com` in test cases to `mock.unity.com`.
+- [Breaking] `ServiceRegionUtils` renamed to `ServiceDomainUtils` and made internal.
+- Split `ServiceHostConfiguration.cs` into separate files by class and struct.
+
+### Removed
+- [Breaking] Removed unsupported `GCPUK` and `Tencent` providers
+
+### Changed
+- Modified import order for samples and dependencies to avoid missing asset errors. 
+
+## [0.12.2] - 2023-05-11
+
+### Fixed
+- NativeWebSocketClient: do not dispose client on disconnect.
+- Explicitly set the serialization options.
+
+### Changed
+- Upgrade to Moq 2.0.0-pre.2
+
 ## [0.12.1] - 2023-04-27
 
 ### Added

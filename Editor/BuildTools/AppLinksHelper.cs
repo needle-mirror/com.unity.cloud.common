@@ -14,12 +14,16 @@ namespace Unity.Cloud.Common.Editor
             "test.dt.unity.com",
             "ci-stg.dt.unity.com",
             "stg.dt.unity.com",
-            "dt.unity.com"
+            "dt.unity.com",
+            "test.transformation.unity.com",
+            "stg.transformation.unity.com",
+            "transformation.unity.com"
         };
 
         static readonly List<string> k_AppLinksDomains = new List<string>
         {
-            "*.dt.unity.com"
+            "*.dt.unity.com",
+            "*.transformation.unity.com"
         };
 
         /// <summary>

@@ -17,30 +17,15 @@ namespace Unity.Cloud.Common.Editor
         /// </summary>
         class SamplePostprocessor : AssetPostprocessor
         {
-            public static event Action<string> AssetImported;
-            public static event Action<string> AssetDeleted;
-            public static event Action<string> AssetMoved;
-            public static event Action<string> AssetMovedFromAssetsPaths;
+            public static event Action<string> OnAssetWillImport;
 
 #pragma warning disable S1144 // Remove the unused private method
-            static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+            void OnPreprocessAsset()
             {
-                RaiseEventOnAssets(AssetImported, importedAssets);
-                RaiseEventOnAssets(AssetDeleted, deletedAssets);
-                RaiseEventOnAssets(AssetMoved, movedAssets);
-                RaiseEventOnAssets(AssetMovedFromAssetsPaths, movedFromAssetPaths);
+                Debug.Log(assetPath);
+                OnAssetWillImport?.Invoke(assetPath);
             }
 #pragma warning restore S1144
-
-            static void RaiseEventOnAssets(Action<string> postProcessEvent, string[] assets)
-            {
-                if (postProcessEvent != null && assets != null)
-                {
-                    for (int i = 0; i < assets.Length; i++)
-                        postProcessEvent.Invoke(assets[i]);
-                }
-
-            }
         }
 
         static SampleDependencyImporter()
@@ -71,13 +56,13 @@ namespace Unity.Cloud.Common.Editor
                 m_Samples = GetSamples(packageInfo);
                 if (TryLoadSampleConfiguration(m_PackageInfo, out m_SampleConfiguration))
                 {
-                    SamplePostprocessor.AssetImported += LoadAssetDependencies;
+                    SamplePostprocessor.OnAssetWillImport += LoadOnAssetDependencies;
                 }
             }
             else
             {
                 m_PackageInfo = null;
-                SamplePostprocessor.AssetImported -= LoadAssetDependencies;
+                SamplePostprocessor.OnAssetWillImport -= LoadOnAssetDependencies;
             }
         }
 
@@ -103,7 +88,7 @@ namespace Unity.Cloud.Common.Editor
         /// <summary>
         /// Handles loading common asset dependencies if required.
         /// </summary>
-        void LoadAssetDependencies(string assetPath)
+        void LoadOnAssetDependencies(string assetPath)
         {
             if (m_SampleConfiguration != null)
             {
@@ -146,7 +131,9 @@ namespace Unity.Cloud.Common.Editor
                 var dependencyPath = Path.GetFullPath($"Packages/{packageInfo.name}/Samples~/{paths[i]}");
                 if (Directory.Exists(dependencyPath))
                 {
-                    CopyDirectory(dependencyPath, $"{Application.dataPath}/Samples/{packageInfo.displayName}/{packageInfo.version}/{paths[i]}");
+                    var samplePath = $"Samples/{packageInfo.displayName}/{packageInfo.version}/{paths[i]}";
+                    CopyDirectory(dependencyPath, $"{Application.dataPath}/{samplePath}");
+                    AssetDatabase.ImportAsset($"Assets/{samplePath}");
                     assetsImported = true;
                 }
             }

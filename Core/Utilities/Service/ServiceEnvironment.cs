@@ -6,11 +6,6 @@ namespace Unity.Cloud.Common
     public enum ServiceEnvironment
     {
         /// <summary>
-        /// Default service environment.
-        /// </summary>
-        Default,
-
-        /// <summary>
         /// Url service environment.
         /// </summary>
         /// <remarks>

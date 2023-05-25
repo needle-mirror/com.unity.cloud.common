@@ -45,7 +45,7 @@ namespace Unity.Cloud.Common
         /// <returns>The serialized JSON string.</returns>
         public static string Serialize<T>(T value)
         {
-            return JsonConvert.SerializeObject(value);
+            return JsonConvert.SerializeObject(value, new JsonSerializerSettings());
         }
     }
 }

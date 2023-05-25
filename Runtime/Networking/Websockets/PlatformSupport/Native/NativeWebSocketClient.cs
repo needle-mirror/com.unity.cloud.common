@@ -296,7 +296,6 @@ namespace Unity.Cloud.Common.Runtime
         void HandleClientDisconnection(Exception e)
         {
             State = ConnectionState.Disconnected;
-            m_Client?.Dispose();
             s_Logger.LogDebug("Closed connection to server.");
             if(e != null)
                 s_Logger.LogError(e);
@@ -304,7 +303,6 @@ namespace Unity.Cloud.Common.Runtime
         void HandleClientDisconnection(string msg)
         {
             State = ConnectionState.Disconnected;
-            m_Client?.Dispose();
             s_Logger.LogDebug("Closed connection to server. " + msg);
         }
 

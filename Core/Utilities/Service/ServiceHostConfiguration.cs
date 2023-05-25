@@ -4,122 +4,56 @@ using System.Collections.Generic;
 namespace Unity.Cloud.Common
 {
     /// <summary>
-    /// A factory class used to create a <see cref="ServiceHostConfiguration"/>.
-    /// </summary>
-    public static class ServiceHostConfigurationFactory
-    {
-        /// <summary>
-        /// Create a <see cref="ServiceHostConfiguration"/> with an optional application override value for the service environment.
-        /// </summary>
-        /// <param name="applicationOverrideValue">An override value for the service environment.</param>
-        /// <returns>The created configuration.</returns>
-        public static ServiceHostConfiguration Create(string applicationOverrideValue = null)
-        {
-#if !UNITY_WEBGL || UNITY_EDITOR
-            return new ServiceHostConfiguration(applicationOverrideValue);
-#else
-            throw new InvalidOperationException("Consider using UnityRuntimeServiceHostConfigurationFactory from the Unity.Cloud.Common.Runtime assembly");
-#endif
-        }
-    }
-
-    /// <summary>
     /// A class representing a configuration for the service environment for the application.
     /// </summary>
     public sealed class ServiceHostConfiguration
     {
-        static readonly UCLogger s_Logger = LoggerProvider.GetLogger<ServiceHostConfiguration>();
-
         /// <summary>
         /// The environment variable key for the service environment override.
         /// </summary>
         public static string SystemOverrideEnvironmentVariableName => "UNITY_CLOUD_SERVICES_ENV";
 
-        static readonly Dictionary<ServiceRegionUtils.Provider, string> s_ServerDomainMap = new()
-        {
-            { ServiceRegionUtils.Provider.GCP, "dt.unity.com" },
-            { ServiceRegionUtils.Provider.Tencent, "dt.unity.cn" },
-            { ServiceRegionUtils.Provider.GCPUK, "uk.dt.unity.com" }
-        };
+        /// <summary>
+        /// The environment variable key for the service domain provider override.
+        /// </summary>
+        public static string SystemOverrideProviderVariableName => "UNITY_CLOUD_SERVICES_DOMAIN_PROVIDER";
 
-        readonly string m_OverrideValue;
-        readonly ServiceEnvironment? m_OverrideEnvironment;
+        readonly ServiceEnumOverride<ServiceEnvironment> m_EnvironmentOverride = new();
+        readonly ServiceEnumOverride<ServiceDomainProvider> m_ProviderOverride = new();
 
-        internal ServiceHostConfiguration(string applicationOverrideValue = null)
-            : this(ReadEnvironmentVariable(), applicationOverrideValue)
+        internal ServiceHostConfiguration(ServiceHost? applicationOverride = null)
+            : this(ReadSystemOverrides(), applicationOverride ?? new ServiceHost())
         {}
 
-        internal ServiceHostConfiguration(string systemOverrideValue, string applicationOverrideValue)
+        ServiceHostConfiguration(ServiceHost systemOverride, ServiceHost applicationOverride)
         {
-            m_OverrideValue = string.Empty;
-            m_OverrideEnvironment = null;
+            m_EnvironmentOverride.ResolveOverride(systemOverride.EnvironmentValue, applicationOverride.EnvironmentValue, ServiceEnvironmentUtils.ParseEnvironmentValue);
+            m_ProviderOverride.ResolveOverride(systemOverride.ProviderValue, applicationOverride.ProviderValue, ServiceDomainUtils.ParseProviderValue);
+        }
 
-            var systemOverrideEnvironment = ResolveDefault(ParseEnvironmentValue(systemOverrideValue));
-            if (systemOverrideEnvironment.HasValue)
+        static ServiceHost ReadSystemOverrides()
+        {
+            return new ServiceHost()
             {
-                m_OverrideValue = systemOverrideValue;
-                m_OverrideEnvironment = systemOverrideEnvironment;
-
-                s_Logger.LogInfo($"{nameof(ServiceHostConfiguration)} created with system override value: {m_OverrideValue} and environment {m_OverrideEnvironment}");
-            }
-            else
-            {
-                var applicationEnvironment = ResolveDefault(ParseEnvironmentValue(applicationOverrideValue));
-                if (applicationEnvironment.HasValue)
-                {
-                    m_OverrideValue = applicationOverrideValue;
-                    m_OverrideEnvironment = applicationEnvironment;
-
-                    s_Logger.LogInfo($"{nameof(ServiceHostConfiguration)} created with application override value: {m_OverrideValue} and environment {m_OverrideEnvironment}");
-                }
-                else
-                    s_Logger.LogInfo($"{nameof(ServiceHostConfiguration)} created without override value");
-            }
-
-        }
-
-        static ServiceEnvironment? ResolveDefault(ServiceEnvironment? environment)
-        {
-            if (environment.HasValue)
-                return environment.Value == ServiceEnvironment.Default ? ServiceEnvironment.Production : environment;
-
-            return null;
-        }
-
-        static ServiceEnvironment? ParseEnvironmentValue(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                return null;
-
-            if (Uri.TryCreate(value, UriKind.Absolute, out _))
-                return ServiceEnvironment.Url;
-
-            if (Enum.TryParse<ServiceEnvironment>(value, true, out var env))
-                return env;
-
-            return null;
-        }
-
-        static string ReadEnvironmentVariable()
-        {
-            return Environment.GetEnvironmentVariable(SystemOverrideEnvironmentVariableName);
+                EnvironmentValue = Environment.GetEnvironmentVariable(SystemOverrideEnvironmentVariableName),
+                ProviderValue = Environment.GetEnvironmentVariable(SystemOverrideProviderVariableName)
+            };
         }
 
         /// <summary>
-        /// Returns the service address for the specified inputs.
+        /// Resolves the <see cref="ServiceEnvironment"/>, prioritizing the override set via the Environment Variable.
         /// </summary>
         /// <param name="environmentOverride">The service environment override.</param>
         /// <returns>The resolved environment and url.</returns>
         /// <exception cref="NotSupportedException"></exception>
         public (ServiceEnvironment environment, string url) ResolveEnvironment(ServiceEnvironment? environmentOverride = null)
         {
-            if (m_OverrideEnvironment.HasValue)
-                if (m_OverrideEnvironment == ServiceEnvironment.Url)
-                    return (m_OverrideEnvironment.Value, m_OverrideValue);
+            if (m_EnvironmentOverride.Result.HasValue)
+                if (m_EnvironmentOverride.Result == ServiceEnvironment.Url)
+                    return (m_EnvironmentOverride.Result.Value, m_EnvironmentOverride.OverrideValue);
                 else
-                    return (m_OverrideEnvironment.Value, string.Empty);
+                    return (m_EnvironmentOverride.Result.Value, string.Empty);
 
-            environmentOverride = ResolveDefault(environmentOverride);
             if (environmentOverride.HasValue)
             {
                 if (environmentOverride.Value == ServiceEnvironment.Url)
@@ -131,33 +65,37 @@ namespace Unity.Cloud.Common
         }
 
         /// <summary>
+        /// Resolves the <see cref="ServiceDomainProvider"/>, prioritizing the override set via the Environment Variable.
+        /// </summary>
+        /// <param name="providerOverride">The service environment override.</param>
+        /// <returns>The resolved environment and url.</returns>
+        /// <exception cref="NotSupportedException"></exception>
+        public ServiceDomainProvider ResolveProvider(ServiceDomainProvider? providerOverride = null)
+        {
+            if (m_ProviderOverride.Result.HasValue)
+                return m_ProviderOverride.Result.Value;
+
+            return providerOverride ?? ServiceDomainUtils.DefaultDomainProvider;
+        }
+
+        /// <summary>
         /// Returns the service address for the specified inputs.
         /// </summary>
         /// <param name="protocol">The web protocol.</param>
         /// <param name="serviceName">The service's name.</param>
         /// <returns>The service address.</returns>
         public string GetServiceAddress(ServiceProtocol protocol = ServiceProtocol.Http, string serviceName = "project")
-            => GetServiceAddress(ServiceRegionUtils.UserLocaleProvider, protocol, serviceName);
-
-        /// <summary>
-        /// Returns the service address for the specified inputs.
-        /// </summary>
-        /// <param name="regionProvider">The region provider.</param>
-        /// <param name="protocol">The web protocol.</param>
-        /// <param name="serviceName">The service's name.</param>
-        /// <returns>The service address.</returns>
-        public string GetServiceAddress(ServiceRegionUtils.Provider regionProvider, ServiceProtocol protocol = ServiceProtocol.Http, string serviceName = "project")
-            => GetServiceAddress(ServiceEnvironment.Default, regionProvider, protocol, serviceName);
+            => GetServiceAddress(ServiceEnvironment.Production, ServiceDomainUtils.DefaultDomainProvider, protocol, serviceName);
 
         /// <summary>
         /// Returns the service address for the specified inputs.
         /// </summary>
         /// <param name="environmentOverride">The service environment override.</param>
-        /// <param name="regionProvider">The region provider.</param>
+        /// <param name="serviceDomainProviderOverride">The service domain provider.</param>
         /// <param name="protocol">The web protocol.</param>
         /// <param name="serviceName">The service's name.</param>
         /// <returns>The service address.</returns>
-        public string GetServiceAddress(ServiceEnvironment environmentOverride, ServiceRegionUtils.Provider regionProvider, ServiceProtocol protocol = ServiceProtocol.Http, string serviceName = "project")
+        public string GetServiceAddress(ServiceEnvironment environmentOverride, ServiceDomainProvider serviceDomainProviderOverride, ServiceProtocol protocol = ServiceProtocol.Http, string serviceName = "project")
         {
             var port = 10010;
             var subdomain = "";
@@ -171,38 +109,28 @@ namespace Unity.Cloud.Common
                 port = 5000;
             }
 
-            return GetServiceAddress(environmentOverride, regionProvider, subdomain, port, protocol, serviceName);
+            return GetServiceAddress(environmentOverride, serviceDomainProviderOverride, subdomain, port, protocol, serviceName);
         }
 
         /// <summary>
         /// Returns the service address for the specified inputs.
         /// </summary>
         /// <param name="environmentOverride">The service environment override.</param>
-        /// <param name="regionProvider">The region provider.</param>
+        /// <param name="serviceDomainProviderOverride">The service domain provider.</param>
         /// <param name="subdomain">The service subdomain.</param>
         /// <param name="port">The service port.</param>
         /// <param name="protocol">The web protocol.</param>
         /// <param name="serviceName">The service's name.</param>
         /// <returns>The service address.</returns>
-        /// <exception cref="NotSupportedException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public string GetServiceAddress(ServiceEnvironment environmentOverride, ServiceRegionUtils.Provider regionProvider, string subdomain, int port, ServiceProtocol protocol, string serviceName)
+        public string GetServiceAddress(ServiceEnvironment environmentOverride, ServiceDomainProvider serviceDomainProviderOverride, string subdomain, int port, ServiceProtocol protocol, string serviceName)
         {
             string url;
             (environmentOverride, url) = ResolveEnvironment(environmentOverride);
+            serviceDomainProviderOverride = ResolveProvider(serviceDomainProviderOverride);
 
             if (string.IsNullOrEmpty(serviceName))
                 serviceName = "project";
-
-            if (environmentOverride == ServiceEnvironment.Default)
-                environmentOverride = ServiceEnvironment.Production;
-            if (regionProvider == ServiceRegionUtils.Provider.Default)
-                regionProvider = ServiceRegionUtils.Provider.GCP;
-
-            if (!regionProvider.Equals(ServiceRegionUtils.Provider.GCP))
-            {
-                throw new NotSupportedException($"Unsupported Region '{regionProvider}' Please use ServiceRegionUtils.Provider.GCP.");
-            }
 
             var uriScheme = protocol switch
             {
@@ -212,7 +140,8 @@ namespace Unity.Cloud.Common
                 _ => "https"
             };
 
-            var domain = s_ServerDomainMap[regionProvider];
+            var domain = GetServiceDomain(serviceDomainProviderOverride);
+
             return environmentOverride switch
             {
                 ServiceEnvironment.Production => $"{uriScheme}://{subdomain}{domain}",
@@ -224,5 +153,31 @@ namespace Unity.Cloud.Common
             };
         }
 
+        /// <summary>
+        /// Will return the domain for the resolved <see cref="ServiceDomainProvider"/>.
+        /// </summary>
+        /// <returns>The domain for the specified provider.</returns>
+        public string GetServiceDomain()
+        {
+            return GetServiceDomain(m_ProviderOverride.Result ?? ServiceDomainUtils.DefaultDomainProvider);
+        }
+
+        /// <summary>
+        /// Will return the domain for a given <see cref="ServiceDomainProvider"/>.
+        /// </summary>
+        /// <param name="serviceDomainProvider">The service domain provider.</param>
+        /// <returns>The domain for the specified provider.</returns>
+        /// <exception cref="NotSupportedException"> Thrown if the <see cref="ServiceDomainProvider"/> is not mapped to a domain.</exception>
+        public string GetServiceDomain(ServiceDomainProvider serviceDomainProvider)
+        {
+            try
+            {
+                return ServiceDomainUtils.s_ServerDomainMap[serviceDomainProvider];
+            }
+            catch (KeyNotFoundException)
+            {
+                throw new NotSupportedException($"The service domain provider is not supported: {serviceDomainProvider}");
+            }
+        }
     }
 }
