@@ -1,11 +1,12 @@
 using System.Runtime.CompilerServices;
 using Unity.Cloud.Common;
 
-[assembly: ApiSourceVersion("com.unity.cloud.common", "0.13.0")]
+[assembly: ApiSourceVersion("com.unity.cloud.common", "0.13.1")]
 [assembly: InternalsVisibleTo("Unity.Cloud.Common.Tests")]
 [assembly: InternalsVisibleTo("Unity.Cloud.Common.Tests.Editor")]
 [assembly: InternalsVisibleTo("Unity.Cloud.Common.Tests.ValidApiSource")]
 [assembly: InternalsVisibleTo("Unity.Cloud.Common.Tests.InvalidApiSource")]
 [assembly: InternalsVisibleTo("Unity.Cloud.Common.Tests.NoApiSource")]
 [assembly: InternalsVisibleTo("Unity.Cloud.Common.Runtime")]
+[assembly: InternalsVisibleTo("Unity.Cloud.Debugging.Runtime")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

@@ -8,6 +8,8 @@ namespace Unity.Cloud.Common
     /// </summary>
     public sealed class ServiceHostConfiguration
     {
+        public const ServiceEnvironment k_DefaultEnvironment = ServiceEnvironment.Production;
+
         /// <summary>
         /// The environment variable key for the service environment override.
         /// </summary>
@@ -61,7 +63,7 @@ namespace Unity.Cloud.Common
                 return (environmentOverride.Value, string.Empty);
             }
 
-            return (ServiceEnvironment.Production, string.Empty);
+            return (k_DefaultEnvironment, string.Empty);
         }
 
         /// <summary>
@@ -85,7 +87,7 @@ namespace Unity.Cloud.Common
         /// <param name="serviceName">The service's name.</param>
         /// <returns>The service address.</returns>
         public string GetServiceAddress(ServiceProtocol protocol = ServiceProtocol.Http, string serviceName = "project")
-            => GetServiceAddress(ServiceEnvironment.Production, ServiceDomainUtils.DefaultDomainProvider, protocol, serviceName);
+            => GetServiceAddress(k_DefaultEnvironment, ServiceDomainUtils.DefaultDomainProvider, protocol, serviceName);
 
         /// <summary>
         /// Returns the service address for the specified inputs.

@@ -17,7 +17,7 @@ namespace Unity.Cloud.Common
         };
 
         /// <summary>
-        /// Returns the Default Provider (Provider.Azure)
+        /// Returns the Default Provider.
         /// </summary>
         internal static ServiceDomainProvider DefaultDomainProvider => k_DefaultDomainProvider;
 

@@ -235,8 +235,10 @@ namespace Unity.Cloud.Common.Runtime
                 request.downloadHandler = new DownloadHandlerBuffer();
             }
 
+#if !UNITY_WEBGL || UNITY_EDITOR
             // Force handling the Redirect response from server
             request.redirectLimit = 0;
+#endif
 
             state.CancellationTokenRegistration = cancellationToken.Register(() =>
             {

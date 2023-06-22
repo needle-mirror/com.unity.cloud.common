@@ -1,6 +1,6 @@
 {
   "name": "com.unity.cloud.common",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "displayName": "Unity Cloud Common",
   "description": "Common functionalities needed by the Unity Cloud SDKs",
   "unity": "2021.3",
@@ -9,18 +9,18 @@
     "com.unity.modules.unitywebrequest": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.cloud.common.tests": "0.13.0"
+    "com.unity.cloud.common.tests": "0.13.1"
   },
   "_upm": {
-    "changelog": "### Added\n- Added `InstanceId` struct.\n- Support for `Azure` service provider and `transformation.unity.com` domain.\n- [Breaking] `Azure` is now the default service provider.\n\n### Changed\n- Explicit http request redirection handling in `LegacyRequestHandler`.\n- [Breaking] Renamed `ServiceRegionUtils.Provider` to `ServiceDomainProvider`.\n- [Breaking] Removed `Default` values from `ServiceEnvironment` and `ServiceDomainProvider`.\n- `ServiceHostConfiguration` now supports a `ServiceDomainProvider` override.\n- [Breaking] Parameters renamed in `ServiceHostConfiguration.GetServiceAddress()` overloads.\n- Renamed all instances of `dt.unity.com` in test cases to `mock.unity.com`.\n- [Breaking] `ServiceRegionUtils` renamed to `ServiceDomainUtils` and made internal.\n- Split `ServiceHostConfiguration.cs` into separate files by class and struct.\n\n### Removed\n- [Breaking] Removed unsupported `GCPUK` and `Tencent` providers\n\n### Changed\n- Modified import order for samples and dependencies to avoid missing asset errors."
+    "changelog": "### Changed\n- Disabled manual redirection for WebGL to fix GCP support.\n- Support for internal debug options."
   },
   "upmCi": {
-    "footprint": "3b9847c77405fe9d0e6ca6fb54762065180be68d"
+    "footprint": "ed845cefded9fed1566434e9fbfa06c845f5cb15"
   },
   "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@0.13/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/digital-twins-sdk.git",
     "type": "git",
-    "revision": "f7944dc2fe9d6fe3a7405cf96799b474e9e2fce9"
+    "revision": "56bb14b1d8cccd0d7c56a4a05a4b2c65f72e6617"
   }
 }
