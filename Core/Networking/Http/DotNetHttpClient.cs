@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -31,24 +32,21 @@ namespace Unity.Cloud.Common
         }
 
         /// <inheritdoc/>
-        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
+        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, HttpCompletionOption completionOption,
+            IProgress<HttpProgress> progress, CancellationToken cancellationToken)
         {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
             try
             {
-                return await TrySendRequestAsync(request, cancellationToken);
+                return await TrySendRequestAsync(request, completionOption, progress, cancellationToken);
             }
             catch (InvalidOperationException)
             {
                 // We clone the request and re-send it to bypass the InvalidOperationException
-                return await TrySendRequestAsync(await CloneRequest(request), cancellationToken);
+                return await TrySendRequestAsync(await CloneRequest(request), completionOption, progress, cancellationToken);
             }
-        }
-
-        /// <inheritdoc/>
-        public Task<HttpResponseMessage> DownloadFileAsync(HttpRequestMessage request, string downloadFilePath,
-            CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -73,13 +71,43 @@ namespace Unity.Cloud.Common
             GC.SuppressFinalize(this);
         }
 
-        async Task<HttpResponseMessage> TrySendRequestAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
+        async Task<HttpResponseMessage> TrySendRequestAsync(HttpRequestMessage request, HttpCompletionOption completionOption,
+            IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
             HttpResponseMessage response;
 
             try
             {
-                response = await m_HttpClient.SendAsync(request, cancellationToken);
+                var requestContentLength = request.Content?.Headers.ContentLength;
+                if (progress != null)
+                {
+                    float? initialUploadProgress = requestContentLength.HasValue ? 0 : null;
+                    progress.Report(new HttpProgress(0, initialUploadProgress));
+
+                    if (requestContentLength.HasValue)
+                    {
+                        await using var uploadStream = await request.Content.ReadAsStreamAsync();
+                        new Task(() => { ReportUploadProgressAsync(uploadStream, progress); }).Start();
+                    }
+                }
+
+                response = await m_HttpClient.SendAsync(request, completionOption, cancellationToken);
+
+
+                var responseContentLength = response.Content?.Headers.ContentLength;
+                float? finalUploadProgress = requestContentLength.HasValue ? 1 : null;
+                if (progress != null)
+                {
+                    if (responseContentLength.HasValue)
+                    {
+                        await using var downloadStream = await response.Content.ReadAsStreamAsync();
+                        await ReportDownloadProgressAsync(downloadStream, responseContentLength.Value, finalUploadProgress,
+                            progress, cancellationToken);
+                    }
+
+                    float? finalDownloadProgress = responseContentLength.HasValue ? 1 : null;
+                    progress.Report(new HttpProgress(finalDownloadProgress, finalUploadProgress));
+                }
             }
             catch (Exception exception)
             {
@@ -101,6 +129,27 @@ namespace Unity.Cloud.Common
             }
 
             return response;
+        }
+
+        void ReportUploadProgressAsync(Stream stream, IProgress<HttpProgress> progress)
+        {
+            while (stream.Position < stream.Length)
+            {
+                progress.Report(new HttpProgress(0, (float)stream.Position / stream.Length));
+            }
+        }
+
+        async Task ReportDownloadProgressAsync(Stream stream, long contentLength, float? uploadProgress, IProgress<HttpProgress> progress,
+            CancellationToken cancellationToken = default)
+        {
+            var buffer = new byte[81920];
+            long totalBytesRead = 0;
+            int bytesRead;
+            while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)) != 0)
+            {
+                totalBytesRead += bytesRead;
+                progress.Report(new HttpProgress((float)totalBytesRead / contentLength, uploadProgress));
+            }
         }
 
         async Task<HttpRequestMessage> CloneRequest(HttpRequestMessage request)

@@ -12,8 +12,10 @@ namespace Unity.Cloud.Common
             if (string.IsNullOrEmpty(value))
                 return null;
 
+#pragma warning disable CS0618 // Type or member is obsolete
             if (Uri.TryCreate(value, UriKind.Absolute, out _))
                 return ServiceEnvironment.Url;
+#pragma warning restore CS0618
 
             if (Enum.TryParse<ServiceEnvironment>(value, true, out var env))
                 return env;

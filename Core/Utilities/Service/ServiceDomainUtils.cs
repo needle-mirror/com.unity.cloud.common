@@ -4,12 +4,10 @@ using System.Collections.Generic;
 namespace Unity.Cloud.Common
 {
     /// <summary>
-    /// Helper methods for determining providers by region.
+    /// Helper methods for determining service domain by provider.
     /// </summary>
     static class ServiceDomainUtils
     {
-        const ServiceDomainProvider k_DefaultDomainProvider = ServiceDomainProvider.Azure;
-
         internal static readonly Dictionary<ServiceDomainProvider, string> s_ServerDomainMap = new()
         {
             { ServiceDomainProvider.Azure, "transformation.unity.com" },
@@ -17,14 +15,9 @@ namespace Unity.Cloud.Common
         };
 
         /// <summary>
-        /// Returns the Default Provider.
-        /// </summary>
-        internal static ServiceDomainProvider DefaultDomainProvider => k_DefaultDomainProvider;
-
-        /// <summary>
         /// Returns a Provider based on ISO Region Name
         /// </summary>
-        internal static ServiceDomainProvider UserLocaleDomainProvider => k_DefaultDomainProvider; // Force default until new regions are deployed
+        internal static ServiceDomainProvider UserLocaleDomainProvider => ServiceHostResolver.DefaultDomainProvider; // Force default until new regions are deployed
 
         internal static ServiceDomainProvider? ParseProviderValue(string value)
         {

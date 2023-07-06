@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -17,7 +18,16 @@ namespace Unity.Cloud.Common
         /// <returns></returns>
         public async static Task<T> JsonDeserializeAsync<T>(this HttpResponseMessage response)
         {
-            var content = await response.Content.ReadAsStringAsync();
+            string content;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            var stream = await response.Content.ReadAsStreamAsync();
+            using var reader = new StreamReader(stream);
+            content = reader.ReadToEnd();
+#else
+            content = await response.Content.ReadAsStringAsync();
+#endif
+
             return JsonSerialization.Deserialize<T>(content);
         }
     }

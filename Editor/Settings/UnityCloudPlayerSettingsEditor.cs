@@ -84,10 +84,10 @@ namespace Unity.Cloud.Common.Editor
         {
             if (m_HttpClient == null)
             {
-                var configuration = UnityRuntimeServiceHostConfigurationFactory.Create();
+                var serviceHostResolver = UnityRuntimeServiceHostResolverFactory.Create();
                 m_HttpClient = new UnityHttpClient();
                 var serviceHttpClient = new ServiceHttpClient(m_HttpClient, null, UnityCloudPlayerSettings.Instance);
-                m_AppInfoProvider = new AppInfoProvider(serviceHttpClient, configuration);
+                m_AppInfoProvider = new AppInfoProvider(serviceHttpClient, serviceHostResolver);
             }
 
             if (m_AppIdProperty.stringValue.Length > 0)

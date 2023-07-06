@@ -1,6 +1,6 @@
 {
   "name": "com.unity.cloud.common",
-  "version": "0.13.1",
+  "version": "0.14.0",
   "displayName": "Unity Cloud Common",
   "description": "Common functionalities needed by the Unity Cloud SDKs",
   "unity": "2021.3",
@@ -9,18 +9,18 @@
     "com.unity.modules.unitywebrequest": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.cloud.common.tests": "0.13.1"
+    "com.unity.cloud.common.tests": "0.14.0"
   },
   "_upm": {
-    "changelog": "### Changed\n- Disabled manual redirection for WebGL to fix GCP support.\n- Support for internal debug options."
+    "changelog": "### Added\n- Added download/upload support for IHttpClient.SendAsync\n- Added custom DownloadHandler to UnityHttpClient\n\n### Changed\n- [Breaking] `IServiceHostResolver` added to replace `ServiceHostConfiguration`.\n- [Deprecated] `ServiceHostConfiguration` is now deprecated in facor of `IServiceHostResolver`.\n- `ServiceHostConfiguration` implements `IServiceHostResolver` to maintain backwars compatibility.\n- Uses of `ServiceHostConfiguration` have been replaced for `IServiceHostResolver`.\n- [Deprecated] `ServiceEnvironment.Url` and `ServiceEnvironment.Local` are deprecated.\n- [BREAKING] Exposed IProgress in IHttpClient.SendAsync\n- [BREAKING] Exposed HttpCompletionOption in IHttpClient.SendAsync\n- Optimized UploadHandler selection for UnityHttpClient\n- Adapted the way we serialize HTTP content for WebGL builds.\n\n### Removed\n- Removed needless log from sample import.\n- [BREAKING] Removed DownloadFileAsync from IHttpClient\n- Removed deprecated code related to HTTP response message with no content"
   },
   "upmCi": {
-    "footprint": "ed845cefded9fed1566434e9fbfa06c845f5cb15"
+    "footprint": "6e358260cb2bd38d65d0c5e3fa7a7f621f9362c9"
   },
-  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@0.13/manual/index.html",
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@0.14/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/digital-twins-sdk.git",
     "type": "git",
-    "revision": "56bb14b1d8cccd0d7c56a4a05a4b2c65f72e6617"
+    "revision": "fbdd31928d4f487378c37d436ac092a6dc3a66d5"
   }
 }

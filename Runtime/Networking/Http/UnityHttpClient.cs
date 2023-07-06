@@ -1,7 +1,10 @@
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Unity.Cloud.Common.Runtime
 {
@@ -10,14 +13,27 @@ namespace Unity.Cloud.Common.Runtime
     /// </summary>
     public class UnityHttpClient : IHttpClient
     {
+        const long k_DefaultMaximumUploadSizeForMemoryStorageBytes = 1000000;
+
         readonly LegacyRequestHandler m_RequestHandler;
+        readonly long m_MaximumUploadSizeForMemoryStorage;
 
         /// <summary>
         /// Initializes and returns an instance of <see cref="UnityHttpClient"/>.
         /// </summary>
-        public UnityHttpClient()
+        public UnityHttpClient() : this(k_DefaultMaximumUploadSizeForMemoryStorageBytes)
+        { }
+
+        /// <summary>
+        /// Initializes and returns an instance of <see cref="UnityHttpClient"/>.
+        /// </summary>
+        /// <param name="maximumUploadSizeForMemoryStorage">The maximum upload size that the client will store in memory.
+        /// Bigger payloads will be stored in a temporary file.</param>
+        public UnityHttpClient(long maximumUploadSizeForMemoryStorage)
         {
             m_RequestHandler = new LegacyRequestHandler();
+
+            m_MaximumUploadSizeForMemoryStorage = maximumUploadSizeForMemoryStorage;
         }
 
         /// <inheritdoc/>
@@ -28,19 +44,51 @@ namespace Unity.Cloud.Common.Runtime
         }
 
         /// <inheritdoc/>
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
+        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, HttpCompletionOption completionOption,
+            IProgress<HttpProgress> progress, CancellationToken cancellationToken)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            return m_RequestHandler.RequestAsync(request, null, cancellationToken);
-        }
+            UploadHandler uploadHandler = null;
+            string tempFilepath = null;
+            Stream source = null;
 
-        /// <inheritdoc/>
-        public Task<HttpResponseMessage> DownloadFileAsync(HttpRequestMessage request, string downloadFilePath,
-            CancellationToken cancellationToken = default)
-        {
-            return m_RequestHandler.RequestAsync(request, downloadFilePath, cancellationToken);
+            var requestContent = request.Content;
+            if (requestContent != null)
+            {
+                source = await requestContent.ReadAsStreamAsync();
+
+                if (source is FileStream fileStream)
+                {
+                    uploadHandler = new UploadHandlerFile(fileStream.Name);
+                }
+                else if (requestContent.Headers.ContentLength > m_MaximumUploadSizeForMemoryStorage)
+                {
+                    tempFilepath = Path.GetTempPath() + Guid.NewGuid();
+
+                    var destination = File.OpenWrite(tempFilepath);
+                    await source.CopyToAsync(destination, cancellationToken);
+
+                    await destination.DisposeAsync();
+
+                    uploadHandler = new UploadHandlerFile(tempFilepath);
+                }
+                else
+                {
+                    uploadHandler = new UploadHandlerRaw(await requestContent.ReadAsByteArrayAsync());
+                }
+            }
+
+            var response = await m_RequestHandler.RequestAsync(request, uploadHandler, completionOption, progress, cancellationToken);
+
+            if (source != null)
+                await source.DisposeAsync();
+
+            if(!String.IsNullOrEmpty(tempFilepath) && File.Exists(tempFilepath))
+                File.Delete(tempFilepath);
+
+            return response;
         }
     }
 }

@@ -1,12 +1,9 @@
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEditor;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Unity.Cloud.Common.Runtime
@@ -18,8 +15,9 @@ namespace Unity.Cloud.Common.Runtime
 
     class LegacyRequestHandler
     {
-        const string k_EmptyStringContent = "";
         const string k_HttpVerbPatch = "PATCH";
+        const string k_HttpVerbDelete = "DELETE";
+        const string k_ContentLengthHeaderKey = "Content-Length";
         const string k_TimeoutErrorMessage = "Request timeout";
 
         readonly IMainThreadIODispatcher m_Dispatcher;
@@ -38,48 +36,54 @@ namespace Unity.Cloud.Common.Runtime
         /// Send an asynchronous HTTP request or file download request.
         /// </summary>
         /// <param name="httpRequestMessage">The request message.</param>
-        /// <param name="downloadFilePath">Optional path to save downloaded files.</param>
+        /// <param name="completionOption">When the operation should complete.</param>
+        /// <param name="uploadHandler">Optional path of files to be uploaded.</param>
+        /// <param name="progress">The progress provider.</param>
         /// <param name="cancellationToken">Optional cancellation token that will try to cancel the operation.</param>
         /// <returns>A task that will hold the HttpResponseMessage once the request is completed.</returns>
         /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
         /// <exception cref="TaskCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
         /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
-        public async Task<HttpResponseMessage> RequestAsync(HttpRequestMessage httpRequestMessage, string downloadFilePath, CancellationToken cancellationToken)
+        public async Task<HttpResponseMessage> RequestAsync(HttpRequestMessage httpRequestMessage, UploadHandler uploadHandler, HttpCompletionOption completionOption,
+            IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
             var factoryTask = await Task.Factory.StartNew(
-                async () => await RequestInternalAsync(httpRequestMessage, downloadFilePath, cancellationToken),
+                async () => await RequestInternalAsync(httpRequestMessage, uploadHandler, completionOption, progress, cancellationToken),
                 cancellationToken,
                 TaskCreationOptions.DenyChildAttach,
                 m_Scheduler);
 
-            var response = await factoryTask;
-
-            return response;
+            return await factoryTask;
         }
 
-        async Task<HttpResponseMessage> RequestInternalAsync(HttpRequestMessage httpRequestMessage, string downloadFilePath = null, CancellationToken cancellationToken = default)
+        async Task<HttpResponseMessage> RequestInternalAsync(HttpRequestMessage httpRequestMessage, UploadHandler uploadHandler, HttpCompletionOption completionOption,
+            IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
-            var state = await BuildRequestState(httpRequestMessage, downloadFilePath);
+            var state = await BuildRequestState(httpRequestMessage);
 
             if (m_Dispatcher != null)
             {
                 async void HandleRequestWithRedirectionAction(Action<object> onCompleted)
                 {
-                    await HandleRequestWithRedirection(state, cancellationToken);
+                    await HandleRequestWithRedirection(state, uploadHandler, completionOption, progress, cancellationToken);
                 }
+
                 await m_Dispatcher.RunAsync<object>(HandleRequestWithRedirectionAction).ConfigureAwait(false);
-                await m_Dispatcher.RunAsync<object>(onCompleted => CompleteRequest(state, onCompleted)).ConfigureAwait(false);
+                if(completionOption == HttpCompletionOption.ResponseContentRead)
+                    await m_Dispatcher.RunAsync<object>(action => CompleteRequest(state)).ConfigureAwait(false);
             }
             else
             {
-                await HandleRequestWithRedirection(state, cancellationToken);
-                CompleteRequest(state, res => { });
+                await HandleRequestWithRedirection(state, uploadHandler, completionOption, progress, cancellationToken);
+                if(completionOption == HttpCompletionOption.ResponseContentRead)
+                    CompleteRequest(state);
             }
 
             return state.Response;
         }
 
-        async Task HandleRequestWithRedirection(RequestState state, CancellationToken cancellationToken)
+        async Task HandleRequestWithRedirection(RequestState state, UploadHandler uploadHandler,  HttpCompletionOption completionOption,
+            IProgress<HttpProgress> progress, CancellationToken cancellationToken)
         {
             /*
             UnityWebRequest internal handling of redirection httpStatusCode 302 will not modify the headers when issuing follow-up requests.
@@ -101,12 +105,13 @@ namespace Unity.Cloud.Common.Runtime
                     break;
                 }
 
-                var tcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-                PrepareAndStartRequest(state, res => tcs.TrySetResult(res), cancellationToken);
-                await tcs.Task;
+                if (completionOption == HttpCompletionOption.ResponseContentRead)
+                    await ProcessRequestWithResponseContentReadOption(state, uploadHandler, progress, cancellationToken);
+                else
+                    await ProcessRequestWithResponseHeadersReadOption(state, uploadHandler, progress, cancellationToken);
 
                 if (cancellationToken.IsCancellationRequested)
-                    throw new TaskCanceledException(tcs.Task);
+                    throw new TaskCanceledException();
 
                 responseStatusCode = state.Request.responseCode;
 
@@ -115,7 +120,7 @@ namespace Unity.Cloud.Common.Runtime
             }
         }
 
-        async Task<RequestState> BuildRequestState(HttpRequestMessage httpRequestMessage, string downloadFilePath = null)
+        async Task<RequestState> BuildRequestState(HttpRequestMessage httpRequestMessage)
         {
             string stringContent = null;
             byte[] bytesContent = null;
@@ -130,7 +135,7 @@ namespace Unity.Cloud.Common.Runtime
                     bytesContent = await httpRequestMessage.Content.ReadAsByteArrayAsync();
                     break;
             }
-            return  new RequestState(httpRequestMessage, stringContent, bytesContent, downloadFilePath, null, null, Timeout);
+            return  new RequestState(httpRequestMessage, stringContent, bytesContent, null, null, Timeout);
         }
 
         static bool TryHandleRedirection(RequestState state)
@@ -167,9 +172,35 @@ namespace Unity.Cloud.Common.Runtime
             state.HttpRequestMessage.Method = state.OriginalHttpRequestMessage.Method;
         }
 
+        async Task ProcessRequestWithResponseContentReadOption(RequestState state, UploadHandler uploadHandler,
+            IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
+        {
+            var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            await PrepareAndStartRequest(state, () => { }, () => tcs.TrySetResult(true),
+                uploadHandler, progress, cancellationToken);
+            await tcs.Task;
+        }
+
+        async Task ProcessRequestWithResponseHeadersReadOption(RequestState state, UploadHandler uploadHandler,
+            IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
+        {
+            void TryCompleteRequest(RequestState state, TaskCompletionSource<bool> tcs)
+            {
+                if (state.Request.responseCode.Equals((long)HttpStatusCode.Redirect))
+                    tcs.TrySetResult(true);
+                else
+                    CompleteRequest(state);
+            }
+
+            var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            await PrepareAndStartRequest(state, () => tcs.TrySetResult(true),
+                () => TryCompleteRequest(state, tcs), uploadHandler, progress, cancellationToken);
+            await tcs.Task;
+        }
+
         static UnityWebRequest CreateDeleteRequest(Uri requestUri, string stringContent = null, byte[] bytesContent = null)
         {
-            var request = UnityWebRequest.Delete(requestUri);
+            var request = new UnityWebRequest(requestUri, k_HttpVerbDelete);
 
             byte[] requestContent = bytesContent;
             if (stringContent != null)
@@ -183,32 +214,24 @@ namespace Unity.Cloud.Common.Runtime
             return request;
         }
 
-        static void PrepareAndStartRequest(RequestState state, Action<object> onCompleted, CancellationToken cancellationToken)
+        static async Task PrepareAndStartRequest(RequestState state, Action onHeadersReceived, Action onCompleted, UploadHandler uploadHandler,
+            IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
             var httpRequestMessage = state.HttpRequestMessage;
-            var stringContent = state.StringContent;
             var bytesContent = state.BytesContent;
-            var downloadFilePath = state.DownloadFilePath;
 
             var methodString = httpRequestMessage.Method.ToString();
             var request = methodString switch
             {
                 UnityWebRequest.kHttpVerbGET => UnityWebRequest.Get(httpRequestMessage.RequestUri),
-                // NOTE: For POST and PATCH, create a PUT request, then override the verb, see https://manuelotheo.com/uploading-raw-json-data-through-unitywebrequest/
-                UnityWebRequest.kHttpVerbPUT or UnityWebRequest.kHttpVerbPOST or k_HttpVerbPatch when bytesContent != null => UnityWebRequest.Put(httpRequestMessage.RequestUri, bytesContent),
-                UnityWebRequest.kHttpVerbPUT or UnityWebRequest.kHttpVerbPOST or k_HttpVerbPatch => UnityWebRequest.Put(httpRequestMessage.RequestUri, stringContent ?? k_EmptyStringContent),
+                // We are using new UnityWebRequest() instead of UnityWebRequest.Method to prevent memory leaks linked with conflicting uploadHandlers.
+                UnityWebRequest.kHttpVerbPUT or UnityWebRequest.kHttpVerbPOST or k_HttpVerbPatch => new UnityWebRequest(httpRequestMessage.RequestUri, methodString),
                 UnityWebRequest.kHttpVerbDELETE when bytesContent != null => CreateDeleteRequest(httpRequestMessage.RequestUri, bytesContent: state.BytesContent),
                 UnityWebRequest.kHttpVerbDELETE => CreateDeleteRequest(httpRequestMessage.RequestUri, stringContent: state.StringContent),
                 _ => throw new NotImplementedException()
             };
 
             state.Request = request;
-
-            if (methodString == UnityWebRequest.kHttpVerbPOST || methodString == k_HttpVerbPatch)
-            {
-                // Override the put if necessary
-                request.method = methodString;
-            }
 
             foreach (var header in httpRequestMessage.Headers)
             {
@@ -220,20 +243,19 @@ namespace Unity.Cloud.Common.Runtime
             {
                 foreach (var header in httpRequestMessage.Content.Headers)
                 {
+                    if (header.Key == k_ContentLengthHeaderKey)
+                        continue;
+
                     var value = string.Join(",", header.Value);
                     request.SetRequestHeader(header.Key, value);
                 }
             }
 
-            var isDownload = !string.IsNullOrEmpty(downloadFilePath);
-
-            if (isDownload)
-                request.downloadHandler = new DownloadHandlerFile(downloadFilePath);
-            else if (httpRequestMessage.Method == HttpMethod.Delete)
-            {
-                //To ensure content reception for Delete-requests
-                request.downloadHandler = new DownloadHandlerBuffer();
-            }
+            var memoryStreamDownloadHandler = new MemoryStreamDownloadHandler();
+            memoryStreamDownloadHandler.HeadersReceived += onHeadersReceived;
+            request.downloadHandler = memoryStreamDownloadHandler;
+            if (uploadHandler != null)
+                request.uploadHandler = uploadHandler;
 
 #if !UNITY_WEBGL || UNITY_EDITOR
             // Force handling the Redirect response from server
@@ -251,17 +273,39 @@ namespace Unity.Cloud.Common.Runtime
                 request.timeout = state.Timeout.Seconds;
             }
 
+            var response = new HttpResponseMessage();
+            response.RequestMessage = httpRequestMessage;
+            response.Content = new StreamContent(memoryStreamDownloadHandler.OutputStream);
+            state.Response = response;
+
             var asyncOp = request.SendWebRequest();
-            asyncOp.completed += obj => { onCompleted(null); };
+            asyncOp.completed += asyncop => { onCompleted(); };
+
+            if (progress == null)
+                return;
+
+            bool isUpload = request.uploadHandler != null;
+            float? initialUploadProgress = isUpload ? 0 : null;
+            progress.Report(new HttpProgress(0, initialUploadProgress));
+
+            while (!asyncOp.isDone)
+            {
+                progress.Report(new HttpProgress(request.downloadProgress, isUpload ? request.uploadProgress : null));
+
+                await Task.Yield();
+            }
+
+            float? finalDownloadProgress = memoryStreamDownloadHandler.OutputStream.Length > 0 ? 1 : null;
+            float? finalUploadProgress = isUpload ? 1 : null;
+            progress.Report(new HttpProgress(finalDownloadProgress,
+                finalUploadProgress));
         }
 
-        static void CompleteRequest(RequestState state, Action<object> onCompleted)
+        static void CompleteRequest(RequestState state)
         {
             state.CancellationTokenRegistration?.Dispose();
 
             var request = state.Request;
-            var httpRequestMessage = state.HttpRequestMessage;
-            var isDownload = !string.IsNullOrEmpty(state.DownloadFilePath);
 
             var errorMessage = request.error;
             if (request.result == UnityWebRequest.Result.ConnectionError)
@@ -276,36 +320,9 @@ namespace Unity.Cloud.Common.Runtime
                 throw new HttpRequestException(errorMessage);
             }
 
-            var response = new HttpResponseMessage();
-            response.RequestMessage = httpRequestMessage;
+            state.Response.StatusCode = (HttpStatusCode) request.responseCode;
 
-            if (!isDownload)
-            {
-                // Parse response message
-                if (request.GetResponseHeader("Content-Type") == "application/octet-stream")
-                    response.Content = new ByteArrayContent(request.downloadHandler?.data ?? new byte[0]);
-                else
-                    response.Content = new StringContent(GetResponseTextContent(request));
-            }
-
-            response.StatusCode = (HttpStatusCode) request.responseCode;
-
-            state.Response = response;
-            onCompleted(null);
             request.Dispose();
-        }
-
-        static string GetResponseTextContent(UnityWebRequest request)
-        {
-            try
-            {
-                return request.downloadHandler?.text ?? string.Empty;
-            }
-            catch (NotSupportedException)
-            {
-                // Some download handlers don't have string accessors
-                return string.Empty;
-            }
         }
 
         class RequestState
@@ -314,19 +331,18 @@ namespace Unity.Cloud.Common.Runtime
             public HttpRequestMessage OriginalHttpRequestMessage;
             public string StringContent;
             public byte[] BytesContent;
-            public string DownloadFilePath;
             public UnityWebRequest Request;
             public HttpResponseMessage Response;
             public IDisposable CancellationTokenRegistration;
             public TimeSpan Timeout;
 
-            public RequestState(HttpRequestMessage httpRequestMessage, string stringContent, byte[] bytesContent, string downloadFilePath, UnityWebRequest request, HttpResponseMessage response, TimeSpan timeout)
+            public RequestState(HttpRequestMessage httpRequestMessage, string stringContent, byte[] bytesContent, UnityWebRequest request,
+                HttpResponseMessage response, TimeSpan timeout)
             {
                 HttpRequestMessage = httpRequestMessage;
                 OriginalHttpRequestMessage = httpRequestMessage;
                 StringContent = stringContent;
                 BytesContent = bytesContent;
-                DownloadFilePath = downloadFilePath;
                 Request = request;
                 Response = response;
                 Timeout = timeout;

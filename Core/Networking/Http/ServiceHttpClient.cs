@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,11 +32,6 @@ namespace Unity.Cloud.Common
         /// </summary>
         public bool UseBaseHttpClientOnly { get; }
 
-        /// <summary>
-        /// The path for file downloads.
-        /// </summary>
-        public string DownloadFilePath { get; }
-
         IRetryPolicy m_RetryPolicy;
 
         /// <summary>
@@ -50,16 +46,14 @@ namespace Unity.Cloud.Common
         /// <param name="skipDefaultHeaders">Whether to fill the default headers.</param>
         /// <param name="skipErrorProcessing">Whether to skip error processing.</param>
         /// <param name="useBaseHttpClientOnly">Whether to use the base HTTP client to send requests.</param>
-        /// <param name="downloadFilePath">The path for file downloads.</param>
         /// <param name="retryPolicy">The retry policy to use for the client.</param>
         public ServiceHttpClientOptions(bool skipDefaultAuthentication, bool skipDefaultHeaders, bool skipErrorProcessing,
-            bool useBaseHttpClientOnly, string downloadFilePath = null, IRetryPolicy retryPolicy = null)
+            bool useBaseHttpClientOnly, IRetryPolicy retryPolicy = null)
         {
             SkipDefaultAuthentication = skipDefaultAuthentication;
             SkipDefaultHeaders = skipDefaultHeaders;
             SkipErrorProcessing = skipErrorProcessing;
             UseBaseHttpClientOnly = useBaseHttpClientOnly;
-            DownloadFilePath = downloadFilePath;
             m_RetryPolicy = retryPolicy ?? new ExponentialBackoffRetryPolicy();
         }
 
@@ -97,19 +91,7 @@ namespace Unity.Cloud.Common
         /// Initializes and returns an instance of <see cref="ServiceHttpClientOptions"/> with no retry policy.
         /// </summary>
         /// <returns>The specific client options.</returns>
-        public static ServiceHttpClientOptions NoRetryOption() => new ServiceHttpClientOptions(false, false, false, false, null, new NoRetryPolicy());
-
-        /// <summary>
-        /// Initializes and returns an instance of <see cref="ServiceHttpClientOptions"/> with file download options.
-        /// </summary>
-        /// <returns>The specific client options.</returns>
-        public static ServiceHttpClientOptions DownloadFilePathOption(string path) => new ServiceHttpClientOptions(false, false, false, false, path, null);
-
-        /// <summary>
-        /// Initializes and returns an instance of <see cref="ServiceHttpClientOptions"/> with file download options and no retry policy.
-        /// </summary>
-        /// <returns>The specific client options.</returns>
-        public static ServiceHttpClientOptions DownloadFilePathNoRetryOption(string path) => new ServiceHttpClientOptions(false, false, false, false, path, new NoRetryPolicy());
+        public static ServiceHttpClientOptions NoRetryOption() => new ServiceHttpClientOptions(false, false, false, false, new NoRetryPolicy());
     }
 
     /// <summary>
@@ -133,11 +115,7 @@ namespace Unity.Cloud.Common
             IAccessTokenProvider accessTokenProvider,
             IAppIdProvider appIdProvider)
         {
-#if UC_DEV_TOOLS
-            m_BaseHttpClient = baseHttpClient.WithModifierMiddleware();
-#else
             m_BaseHttpClient = baseHttpClient;
-#endif
             m_AccessTokenProvider = accessTokenProvider;
             m_AppIdProvider = appIdProvider;
         }
@@ -152,62 +130,68 @@ namespace Unity.Cloud.Common
         }
 
         /// <inheritdoc />
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, HttpCompletionOption completionOption,
+            IProgress<HttpProgress> progress, CancellationToken cancellationToken)
         {
-            return SendAsync(request, ServiceHttpClientOptions.NoRetryOption(), cancellationToken);
+            return SendAsync(request, ServiceHttpClientOptions.NoRetryOption(), completionOption, progress, cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, ServiceHttpClientOptions options,
-            CancellationToken cancellationToken = default)
+        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, ServiceHttpClientOptions options, HttpCompletionOption completionOption,
+            IProgress<HttpProgress> progress, CancellationToken cancellationToken)
         {
             if (options.UseBaseHttpClientOnly)
             {
-                return await SendBaseHttpClientAsync(request, options, ResponseValidatorNoErrorProcessing, cancellationToken);
+                return await SendBaseHttpClientAsync(request, completionOption, options, ResponseValidatorNoErrorProcessing, progress, cancellationToken);
             }
 
-            if (!options.SkipDefaultHeaders)
+            // Only add custom headers if the request URI points to internal unity.com APIs
+            const string k_UnityApiPattern = @"https.*\.unity\.com/api/.*|localhost:.*\/api/.*";
+            if (Regex.IsMatch(request.RequestUri.ToString(), k_UnityApiPattern))
             {
-                request.Headers.AddAppIdAndClientTrace(m_AppIdProvider?.GetAppId(), k_ClientTrace);
-            }
-
-            if (!options.SkipDefaultAuthentication)
-            {
-                if (m_AccessTokenProvider != null)
+                if (!options.SkipDefaultHeaders)
                 {
-                    var accessToken = await m_AccessTokenProvider.GetAccessTokenAsync();
-                    if (!string.IsNullOrEmpty(accessToken))
+                    request.Headers.AddAppIdAndClientTrace(m_AppIdProvider?.GetAppId(), k_ClientTrace);
+                }
+
+                if (!options.SkipDefaultAuthentication)
+                {
+                    if (m_AccessTokenProvider != null)
                     {
-                        request.Headers.AddAuthorization(accessToken);
+                        var accessToken = await m_AccessTokenProvider.GetAccessTokenAsync();
+                        if (!string.IsNullOrEmpty(accessToken))
+                        {
+                            request.Headers.AddAuthorization(accessToken);
+                        }
                     }
                 }
             }
 
             if (options.SkipErrorProcessing)
             {
-                return await SendBaseHttpClientAsync(request, options, ResponseValidatorNoErrorProcessing, cancellationToken);
+                return await SendBaseHttpClientAsync(request, completionOption, options, ResponseValidatorNoErrorProcessing, progress,
+                    cancellationToken);
             }
 
-            return await SendWithErrorProcessingAsync(request, options, cancellationToken);
+            return await SendWithErrorProcessingAsync(request, completionOption, options, progress, cancellationToken);
         }
 
-        /// <inheritdoc />
-        public Task<HttpResponseMessage> DownloadFileAsync(HttpRequestMessage request, string downloadFilePath,
-            CancellationToken cancellationToken = default)
+        /// <inheritdoc/>
+        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, ServiceHttpClientOptions options,
+            IProgress<HttpProgress> progress, CancellationToken cancellationToken)
         {
-            return SendAsync(request, ServiceHttpClientOptions.DownloadFilePathOption(downloadFilePath), cancellationToken);
+            return await SendAsync(request, options, HttpCompletionOption.ResponseContentRead, progress, cancellationToken);
         }
 
-        async Task<HttpResponseMessage> SendBaseHttpClientAsync(HttpRequestMessage request, ServiceHttpClientOptions options, IRetryPolicy.ShouldRetryResultChecker<HttpResponseMessage> responseValidator, CancellationToken cancellationToken = default)
+        async Task<HttpResponseMessage> SendBaseHttpClientAsync(HttpRequestMessage request, HttpCompletionOption completionOption, ServiceHttpClientOptions options,
+            IRetryPolicy.ShouldRetryResultChecker<HttpResponseMessage> responseValidator, IProgress<HttpProgress> progress = default,
+            CancellationToken cancellationToken = default)
         {
             try
             {
-                return await (options.DownloadFilePath is null
-                    ? ExecuteAsyncWithResultAndExceptionValidation(options.RetryPolicy,
-                        ct => m_BaseHttpClient.SendAsync(request, ct), responseValidator, cancellationToken)
-                    : ExecuteAsyncWithResultAndExceptionValidation(options.RetryPolicy,
-                        ct => m_BaseHttpClient.DownloadFileAsync(request, options.DownloadFilePath, ct),
-                        responseValidator, cancellationToken));
+                return await ExecuteAsyncWithResultAndExceptionValidation(options.RetryPolicy,
+                    ct => m_BaseHttpClient.SendAsync(request, completionOption, progress, ct), responseValidator,
+                    cancellationToken);
             }
             catch (RetryExecutionFailedException retryExecutionFailedException)
             {
@@ -255,11 +239,13 @@ namespace Unity.Cloud.Common
             return Task.FromResult(response.StatusCode == HttpStatusCode.RequestTimeout || (int)response.StatusCode >= 500);
         }
 
-        async Task<HttpResponseMessage> SendWithErrorProcessingAsync(HttpRequestMessage request, ServiceHttpClientOptions options, CancellationToken cancellationToken = default)
+        async Task<HttpResponseMessage> SendWithErrorProcessingAsync(HttpRequestMessage request, HttpCompletionOption completionOption, ServiceHttpClientOptions options,
+            IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
             try
             {
-                var response = await SendBaseHttpClientAsync(request, options, ResponseValidatorNoErrorProcessing, cancellationToken);
+                var response = await SendBaseHttpClientAsync(request, completionOption, options, ResponseValidatorNoErrorProcessing, progress,
+                    cancellationToken);
                 return await ProcessResponseErrorAsync(response);
             }
             catch (HttpRequestException e)

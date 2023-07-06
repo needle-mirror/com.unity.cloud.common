@@ -6,7 +6,8 @@ namespace Unity.Cloud.Common
     /// <summary>
     /// A class representing a configuration for the service environment for the application.
     /// </summary>
-    public sealed class ServiceHostConfiguration
+    [Obsolete("Use ServiceHostResolver instead.")]
+    public sealed class ServiceHostConfiguration : IServiceHostResolver
     {
         public const ServiceEnvironment k_DefaultEnvironment = ServiceEnvironment.Production;
 
@@ -20,8 +21,12 @@ namespace Unity.Cloud.Common
         /// </summary>
         public static string SystemOverrideProviderVariableName => "UNITY_CLOUD_SERVICES_DOMAIN_PROVIDER";
 
+        static readonly UCLogger s_Logger = LoggerProvider.GetLogger(typeof(ServiceHostConfiguration).FullName);
+
         readonly ServiceEnumOverride<ServiceEnvironment> m_EnvironmentOverride = new();
         readonly ServiceEnumOverride<ServiceDomainProvider> m_ProviderOverride = new();
+
+        readonly IHttpRequestUriModifier m_HttpRequestUriModifier;
 
         internal ServiceHostConfiguration(ServiceHost? applicationOverride = null)
             : this(ReadSystemOverrides(), applicationOverride ?? new ServiceHost())
@@ -31,6 +36,10 @@ namespace Unity.Cloud.Common
         {
             m_EnvironmentOverride.ResolveOverride(systemOverride.EnvironmentValue, applicationOverride.EnvironmentValue, ServiceEnvironmentUtils.ParseEnvironmentValue);
             m_ProviderOverride.ResolveOverride(systemOverride.ProviderValue, applicationOverride.ProviderValue, ServiceDomainUtils.ParseProviderValue);
+
+            m_HttpRequestUriModifier = HttpRequestUriModifierFactory.CreateFromEnvironmentVariable();
+            if (m_HttpRequestUriModifier != null)
+                s_Logger.LogInfo($"Installing {nameof(HttpRequestUriModifier)} on {nameof(ServiceHostConfiguration)}.");
         }
 
         static ServiceHost ReadSystemOverrides()
@@ -77,7 +86,7 @@ namespace Unity.Cloud.Common
             if (m_ProviderOverride.Result.HasValue)
                 return m_ProviderOverride.Result.Value;
 
-            return providerOverride ?? ServiceDomainUtils.DefaultDomainProvider;
+            return providerOverride ?? ServiceHostResolver.DefaultDomainProvider;
         }
 
         /// <summary>
@@ -87,7 +96,7 @@ namespace Unity.Cloud.Common
         /// <param name="serviceName">The service's name.</param>
         /// <returns>The service address.</returns>
         public string GetServiceAddress(ServiceProtocol protocol = ServiceProtocol.Http, string serviceName = "project")
-            => GetServiceAddress(k_DefaultEnvironment, ServiceDomainUtils.DefaultDomainProvider, protocol, serviceName);
+            => GetServiceAddress(k_DefaultEnvironment, ServiceHostResolver.DefaultDomainProvider, protocol, serviceName);
 
         /// <summary>
         /// Returns the service address for the specified inputs.
@@ -161,7 +170,7 @@ namespace Unity.Cloud.Common
         /// <returns>The domain for the specified provider.</returns>
         public string GetServiceDomain()
         {
-            return GetServiceDomain(m_ProviderOverride.Result ?? ServiceDomainUtils.DefaultDomainProvider);
+            return GetServiceDomain(m_ProviderOverride.Result ?? ServiceHostResolver.DefaultDomainProvider);
         }
 
         /// <summary>
@@ -180,6 +189,44 @@ namespace Unity.Cloud.Common
             {
                 throw new NotSupportedException($"The service domain provider is not supported: {serviceDomainProvider}");
             }
+        }
+
+        //* -----------------------------------------------------------------------------------------------
+        //* IServiceHostResolver Implementations
+        //* -----------------------------------------------------------------------------------------------
+
+        /// <inheritdoc/>
+        public ServiceEnvironment GetResolvedEnvironment()
+        {
+            return ResolveEnvironment().environment;
+        }
+
+        /// <inheritdoc/>
+        public ServiceDomainProvider GetResolvedDomainProvider()
+        {
+            return ResolveProvider();
+        }
+
+        /// <inheritdoc/>
+        public string GetResolvedAddress(ServiceProtocol protocol = ServiceProtocol.Http)
+        {
+            var serviceAddress = GetServiceAddress();
+
+            if (m_HttpRequestUriModifier != null)
+                serviceAddress = m_HttpRequestUriModifier.Modify(serviceAddress);
+
+            return serviceAddress;
+        }
+
+        /// <inheritdoc/>
+        public string GetResolvedRequestUri(string path, ServiceProtocol protocol = ServiceProtocol.Http)
+        {
+            var requestUri = $"{GetResolvedAddress(protocol)}{path}";
+
+            if (m_HttpRequestUriModifier != null)
+                requestUri = m_HttpRequestUriModifier.Modify(requestUri);
+
+            return requestUri;
         }
     }
 }
