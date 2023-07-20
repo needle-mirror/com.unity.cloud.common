@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Unity.Cloud.Common
 {
-    internal interface ITimeAwaiter
+    public interface ITimeAwaiter
     {
         Task AwaitTimeAsync(TimeSpan delay, CancellationToken cancellationToken);
     }
@@ -14,6 +14,14 @@ namespace Unity.Cloud.Common
         async Task ITimeAwaiter.AwaitTimeAsync(TimeSpan delay, CancellationToken cancellationToken)
         {
             await UnityTask.Delay(delay, cancellationToken).UnityConfigureAwait(false);
+        }
+    }
+
+    public class CoreTimeAwaiter : ITimeAwaiter
+    {
+        async Task ITimeAwaiter.AwaitTimeAsync(TimeSpan delay, CancellationToken cancellationToken)
+        {
+            await Task.Delay(delay, cancellationToken).UnityConfigureAwait(false);
         }
     }
 

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Unity.Cloud.Common
 {
-    class AsyncUrlRedirectAwaiter : IUrlRedirectAwaiter
+    public class AsyncUrlRedirectAwaiter : IUrlRedirectAwaiter
     {
         const int k_DefaultRefreshDelay = 500;
         const int k_DefaultTimeoutDelay = 600000; // 10 minutes

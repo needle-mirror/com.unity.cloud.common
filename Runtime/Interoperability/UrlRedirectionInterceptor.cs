@@ -150,7 +150,7 @@ namespace Unity.Cloud.Common.Runtime
         /// <inheritdoc />
         public void InterceptAwaitedUrl(string url, List<string> awaitedQueryArguments = null)
         {
-            ValidateUrlArgument(url, out Uri uri);
+            UrlRedirectUtils.ValidateUrlArgument(url, out Uri uri);
 
             s_Logger.LogInfo($"InterceptAwaitedUrl: '{url}'");
             UnitySynchronizationContextGrabber.s_UnitySynchronizationContext.Post(_ =>
@@ -191,24 +191,6 @@ namespace Unity.Cloud.Common.Runtime
             return m_Awaiter.RedirectResult.Value;
         }
 
-        bool UrlHasAwaitedQueryArguments(Dictionary<string, string> queryArgumentDictionary)
-        {
-            if (AwaitedQueryArguments == null)
-            {
-                return true;
-            }
-            var hasAllQueryArguments = true;
-            foreach (var keyName in AwaitedQueryArguments)
-            {
-                if (!queryArgumentDictionary.ContainsKey(keyName))
-                {
-                    hasAllQueryArguments = false;
-                    break;
-                }
-            }
-            return hasAllQueryArguments;
-        }
-
         bool TryInterceptRedirectionUrl(Uri uri, List<string> awaitedQueryArguments = null)
         {
             if (awaitedQueryArguments != null)
@@ -217,7 +199,7 @@ namespace Unity.Cloud.Common.Runtime
             }
 
             var queryArgs = QueryArgumentsParser.GetDictionaryFromArguments(uri);
-            if (AwaitedQueryArguments != null && UrlHasAwaitedQueryArguments(queryArgs))
+            if (AwaitedQueryArguments != null && UrlRedirectUtils.UrlHasAwaitedQueryArguments(queryArgs, AwaitedQueryArguments))
             {
                 var redirectResult = new UrlRedirectResult
                 {
@@ -240,18 +222,6 @@ namespace Unity.Cloud.Common.Runtime
             }
 
             return false;
-        }
-
-        static void ValidateUrlArgument(string url, out Uri uri)
-        {
-            if (url == null)
-                throw new ArgumentException("The url cannot be null.", nameof(url));
-
-            if (string.IsNullOrEmpty(url?.Trim()))
-                throw new ArgumentException("The url cannot be empty.", nameof(url));
-
-            if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
-                throw new ArgumentException("The url is not a valid uri.", nameof(url));
         }
 
         void PostResult(UrlRedirectResult redirectResult)

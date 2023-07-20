@@ -9,7 +9,7 @@ namespace Unity.Cloud.Common
     /// <typeparam name="T">The Service Enum type to resolve.</typeparam>
     class ServiceEnumOverride<T> where T : struct, Enum
     {
-        readonly UCLogger s_Logger = LoggerProvider.GetLogger<ServiceHostConfiguration>();
+        readonly UCLogger s_Logger = LoggerProvider.GetLogger<ServiceEnumOverride<T>>();
 
         internal string OverrideValue;
         internal T? Result;
@@ -22,7 +22,7 @@ namespace Unity.Cloud.Common
                 OverrideValue = systemOverride;
                 Result = resolvedSystemOverride;
 
-                s_Logger.LogInfo($"{nameof(ServiceHostConfiguration)} created with system override value: {systemOverride} and {typeof(T).Name}: {Result}");
+                s_Logger.LogInfo($"{nameof(ServiceEnumOverride<T>)} created with system override value: {systemOverride} and {typeof(T).Name}: {Result}");
             }
             else
             {
@@ -32,10 +32,10 @@ namespace Unity.Cloud.Common
                     OverrideValue = applicationOverride;
                     Result = resolveApplicationOverride;
 
-                    s_Logger.LogInfo($"{nameof(ServiceHostConfiguration)} created with application override value: {applicationOverride} and {typeof(T).Name}: {Result}");
+                    s_Logger.LogInfo($"{nameof(ServiceEnumOverride<T>)} created with application override value: {applicationOverride} and {typeof(T).Name}: {Result}");
                 }
                 else
-                    s_Logger.LogInfo($"{nameof(ServiceHostConfiguration)} created without override value for {typeof(T).Name}");
+                    s_Logger.LogInfo($"{nameof(ServiceEnumOverride<T>)} created without override value for {typeof(T).Name}");
             }
         }
     }

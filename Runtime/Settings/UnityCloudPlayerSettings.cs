@@ -6,7 +6,7 @@ using UnityEngine;
     /// <summary>
     /// A class containing Unity Player Settings for a Unity Cloud app.
     /// </summary>
-    public class UnityCloudPlayerSettings : ScriptableObject, IAppIdProvider, IAppNameProvider
+    public class UnityCloudPlayerSettings : ScriptableObject, IAppIdProvider, IAppNameProvider, IAppDisplayNameProvider
     {
         /// <summary>
         /// The asset name for the <see cref="UnityCloudPlayerSettings"/> scriptable object.
@@ -90,7 +90,17 @@ using UnityEngine;
         /// Gets the app display name.
         /// </summary>
         /// <returns>The app display name.</returns>
+        [Obsolete("Replaced by GetAppDisplayName() method")]
         public string GetDisplayName()
+        {
+            return Instance.AppDisplayName;
+        }
+
+        /// <summary>
+        /// Gets the app display name.
+        /// </summary>
+        /// <returns>The app display name.</returns>
+        public string GetAppDisplayName()
         {
             return Instance.AppDisplayName;
         }

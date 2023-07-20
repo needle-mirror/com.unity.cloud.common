@@ -5,6 +5,7 @@ namespace Unity.Cloud.Common
     /// <summary>
     /// A factory class used to create a <see cref="ServiceHostConfiguration"/>.
     /// </summary>
+    [Obsolete("Use ServiceHostResolverFactory instead.")]
     public static class ServiceHostConfigurationFactory
     {
         /// <summary>

@@ -22,7 +22,6 @@ namespace Unity.Cloud.Common.Editor
 #pragma warning disable S1144 // Remove the unused private method
             void OnPreprocessAsset()
             {
-                Debug.Log(assetPath);
                 OnAssetWillImport?.Invoke(assetPath);
             }
 #pragma warning restore S1144

@@ -1,6 +1,6 @@
 {
   "name": "com.unity.cloud.common",
-  "version": "0.13.1",
+  "version": "0.14.1",
   "displayName": "Unity Cloud Common",
   "description": "Common functionalities needed by the Unity Cloud SDKs",
   "unity": "2021.3",
@@ -9,18 +9,18 @@
     "com.unity.modules.unitywebrequest": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.cloud.common.tests": "0.13.1"
+    "com.unity.cloud.common.tests": "0.14.1"
   },
   "_upm": {
-    "changelog": "### Changed\n- Disabled manual redirection for WebGL to fix GCP support.\n- Support for internal debug options."
+    "changelog": "### Added\n- `IUrlProcessor` interface along `CoreUrlProcessor`, `UrlProcessor` and `UrlRedirectUtils` classes.\n- `CoreTimeAwaiter` class.\n- `IAppDisplayNameProvider` interface.\n- Added `ForceCompleteContent` method to use in the event of an error that prevents the download handler from calling complete content.\n\n### Changed\n- `ITimeAwaiter`, `IUrlRedirectAwaiter`, `AsyncUrlRedirectAwaiter` are now public.\n- `UnityCloudPlayerSettings` now implements `IAppDisplayNameProvider` interface."
   },
   "upmCi": {
-    "footprint": "ed845cefded9fed1566434e9fbfa06c845f5cb15"
+    "footprint": "c86e980faeae8354eeb90b15a30e1bd5984287ea"
   },
-  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@0.13/manual/index.html",
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@0.14/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/digital-twins-sdk.git",
     "type": "git",
-    "revision": "56bb14b1d8cccd0d7c56a4a05a4b2c65f72e6617"
+    "revision": "7bccfadbd3adbd5c73d2de247b801883ff447742"
   }
 }

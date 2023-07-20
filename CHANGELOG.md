@@ -4,11 +4,48 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.14.1] - 2023-07-20
+
+### Added
+- `IUrlProcessor` interface along `CoreUrlProcessor`, `UrlProcessor` and `UrlRedirectUtils` classes.
+- `CoreTimeAwaiter` class.
+- `IAppDisplayNameProvider` interface.
+- Added `ForceCompleteContent` method to use in the event of an error that prevents the download handler from calling complete content.
+
+### Changed
+- `ITimeAwaiter`, `IUrlRedirectAwaiter`, `AsyncUrlRedirectAwaiter` are now public.
+- `UnityCloudPlayerSettings` now implements `IAppDisplayNameProvider` interface.
+
+## [0.14.0] - 2023-07-06
+
+### Added
+- Added download/upload support for IHttpClient.SendAsync
+- Added custom DownloadHandler to UnityHttpClient
+
+### Changed
+- [Breaking] `IServiceHostResolver` added to replace `ServiceHostConfiguration`.
+- [Deprecated] `ServiceHostConfiguration` is now deprecated in facor of `IServiceHostResolver`.
+- `ServiceHostConfiguration` implements `IServiceHostResolver` to maintain backwars compatibility.
+- Uses of `ServiceHostConfiguration` have been replaced for `IServiceHostResolver`.
+- [Deprecated] `ServiceEnvironment.Url` and `ServiceEnvironment.Local` are deprecated.
+- [BREAKING] Exposed IProgress in IHttpClient.SendAsync
+- [BREAKING] Exposed HttpCompletionOption in IHttpClient.SendAsync
+- Optimized UploadHandler selection for UnityHttpClient
+- Adapted the way we serialize HTTP content for WebGL builds.
+
+### Removed
+- Removed needless log from sample import.
+- [BREAKING] Removed DownloadFileAsync from IHttpClient
+- Removed deprecated code related to HTTP response message with no content
+
 ## [0.13.1] - 2023-06-22
 
 ### Changed
 - Disabled manual redirection for WebGL to fix GCP support.
 - Support for internal debug options.
+
+### Fixed
+- When a request URI is pointing to endpoints external to unity.com, custom headers are no longer added.
 
 ## [0.13.0] - 2023-05-25
 

@@ -6,17 +6,17 @@ using UnityEngine;
 namespace Unity.Cloud.Common.Runtime
 {
     /// <summary>
-    /// A factory class used to create a <see cref="ServiceHostConfiguration"/>.
+    /// A factory class used to create a <see cref="ServiceHostResolver"/>.
     /// </summary>
-    public static class UnityRuntimeServiceHostConfigurationFactory
+    public static class UnityRuntimeServiceHostResolverFactory
     {
 #if UNITY_WEBGL && !UNITY_EDITOR
-/// <summary>
-        /// Create a <see cref="ServiceHostConfiguration"/> with default values.
+        /// <summary>
+        /// Create a <see cref="ServiceHostResolver"/> with default values.
         /// Any system-level overrides set via environment variables will take priority.
         /// </summary>
         /// <returns>The created configuration.</returns>
-        public static ServiceHostConfiguration Create()
+        public static ServiceHostResolver Create()
         {
             var systemEnvironmentOverrideValue = ReadLocalCacheForSystemEnvironmentOverride();
             var systemProviderOverrideValue = ReadLocalCacheForSystemProviderOverride();
@@ -30,16 +30,16 @@ namespace Unity.Cloud.Common.Runtime
                 ProviderValue = systemProviderOverrideValue
             };
 
-            return new ServiceHostConfiguration(hostOverride);
+            return new ServiceHostResolver(hostOverride);
         }
 
         /// <summary>
-        /// Create a <see cref="ServiceHostConfiguration"/> with an optional application-level override for service host options.
+        /// Create a <see cref="ServiceHostResolver"/> with an optional application-level override for service host options.
         /// Any system-level overrides set via environment variables will take priority.
         /// </summary>
         /// <param name="applicationOverride">An application-level override value for for service host options.</param>
         /// <returns>The created configuration.</returns>
-        public static ServiceHostConfiguration CreateWithOverride(ServiceHost applicationOverride)
+        internal static ServiceHostResolver CreateWithOverride(ServiceHost applicationOverride)
         {
             var systemEnvironmentOverrideValue = ReadLocalCacheForSystemEnvironmentOverride();
             var systemProviderOverrideValue = ReadLocalCacheForSystemProviderOverride();
@@ -53,27 +53,27 @@ namespace Unity.Cloud.Common.Runtime
                 ProviderValue = systemProviderOverrideValue ?? applicationOverride.ProviderValue
             };
 
-            return new ServiceHostConfiguration(hostOverride);
+            return new ServiceHostResolver(hostOverride);
         }
 #else
         /// <summary>
-        /// Create a <see cref="ServiceHostConfiguration"/> with default values.
+        /// Create a <see cref="IServiceHostResolver"/> with default values.
         /// Any system-level overrides set via environment variables will take priority.
         /// </summary>
         /// <returns>The created configuration.</returns>
-        public static ServiceHostConfiguration Create()
+        public static IServiceHostResolver Create()
         {
-            return ServiceHostConfigurationFactory.Create();
+            return ServiceHostResolverFactory.Create();
         }
 
         /// <summary>
-        /// Create a <see cref="ServiceHostConfiguration"/> with an optional application-level for service host options.
+        /// Create a <see cref="IServiceHostResolver"/> with an optional application-level for service host options.
         /// </summary>
         /// <param name="applicationOverride">An application-level override value for for service host options.</param>
         /// <returns>The created configuration.</returns>
-        public static ServiceHostConfiguration CreateWithOverride(ServiceHost applicationOverride)
+        internal static IServiceHostResolver CreateWithOverride(ServiceHost applicationOverride)
         {
-            return ServiceHostConfigurationFactory.CreateWithOverride(applicationOverride);
+            return ServiceHostResolverFactory.CreateWithOverride(applicationOverride);
         }
 #endif
 
@@ -132,14 +132,14 @@ namespace Unity.Cloud.Common.Runtime
 
         internal static IEnumerable<string> EnvironmentVariableNames()
         {
-            yield return ServiceHostConfiguration.SystemOverrideEnvironmentVariableName;
-            yield return ServiceHostConfiguration.SystemOverrideEnvironmentVariableName.ToLower();
+            yield return ServiceHostResolver.SystemOverrideEnvironmentVariableName;
+            yield return ServiceHostResolver.SystemOverrideEnvironmentVariableName.ToLower();
         }
 
         internal static IEnumerable<string> ProviderVariableNames()
         {
-            yield return ServiceHostConfiguration.SystemOverrideProviderVariableName;
-            yield return ServiceHostConfiguration.SystemOverrideProviderVariableName.ToLower();
+            yield return ServiceHostResolver.SystemOverrideDomainProviderVariableName;
+            yield return ServiceHostResolver.SystemOverrideDomainProviderVariableName.ToLower();
         }
     }
 }

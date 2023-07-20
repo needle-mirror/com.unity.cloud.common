@@ -36,17 +36,11 @@ namespace Unity.Cloud.Common
         }
 
         /// <inheritdoc />
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, HttpCompletionOption completionOption,
+            IProgress<HttpProgress> progress, CancellationToken cancellationToken)
         {
             AddHeaders(request);
-            return m_BaseClient.SendAsync(request, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<HttpResponseMessage> DownloadFileAsync(HttpRequestMessage request, string downloadFilePath, CancellationToken cancellationToken = default)
-        {
-            AddHeaders(request);
-            return m_BaseClient.DownloadFileAsync(request, downloadFilePath, cancellationToken);
+            return m_BaseClient.SendAsync(request, completionOption, progress, cancellationToken);
         }
 
         protected void AddHeaders(HttpRequestMessage request)

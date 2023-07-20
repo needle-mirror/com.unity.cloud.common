@@ -30,15 +30,18 @@ namespace Unity.Cloud.Common
         /// <param name="httpClient">The HTTP client.</param>
         /// <typeparam name="TModel">The type the response is deserialized to</typeparam>
         /// <param name="requestUri">The Uri the request is sent to</param>
+        /// <param name="completionOption">When the operation should complete.</param>
+        /// <param name="progress">The progress provider.</param>
         /// <param name="cancellationToken">Optional cancellation token that will try to cancel the operation.</param>
         /// <returns>A task that will hold the <typeparamref name="TModel"/> once the request is completed</returns>
         /// <exception cref="ArgumentException">Thrown when the requestUri is null or empty.</exception>
         /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
         /// <exception cref="TaskCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
         /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
-        public static async Task<TModel> GetJsonAsync<TModel>(this IHttpClient httpClient, string requestUri, CancellationToken cancellationToken = default)
+        public static async Task<TModel> GetJsonAsync<TModel>(this IHttpClient httpClient, string requestUri, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead,
+            IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
-            var response = await httpClient.GetAsync(requestUri, cancellationToken);
+            var response = await httpClient.GetAsync(requestUri, completionOption, progress, cancellationToken);
             return await response.JsonDeserializeAsync<TModel>();
         }
 
@@ -48,6 +51,8 @@ namespace Unity.Cloud.Common
         /// <param name="httpClient">The HTTP client.</param>
         /// <typeparam name="TModel">The type the response is deserialized to</typeparam>
         /// <param name="requestUri">The Uri the request is sent to</param>
+        /// <param name="completionOption">When the operation should complete.</param>
+        /// <param name="progress">The progress provider.</param>
         /// <param name="payload">Optional <see cref="object"/> that will be used as content of the request message</param>
         /// <param name="cancellationToken">Optional cancellation token that will try to cancel the operation.</param>
         /// <returns>A task that will hold the <typeparamref name="TModel"/> once the request is completed</returns>
@@ -55,9 +60,10 @@ namespace Unity.Cloud.Common
         /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
         /// <exception cref="TaskCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
         /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
-        public static async Task<TModel> PostJsonAsync<TModel>(this IHttpClient httpClient, string requestUri, object payload = null, CancellationToken cancellationToken = default)
+        public static async Task<TModel> PostJsonAsync<TModel>(this IHttpClient httpClient, string requestUri, object payload = null,  HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead,
+            IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
-            var response = await httpClient.PostAsync(requestUri, GetJsonContent(payload), null, cancellationToken);
+            var response = await httpClient.PostAsync(requestUri, GetJsonContent(payload), completionOption, progress, cancellationToken);
             return await response.JsonDeserializeAsync<TModel>();
         }
 
@@ -68,15 +74,18 @@ namespace Unity.Cloud.Common
         /// <typeparam name="TModel">The type the response is deserialized to</typeparam>
         /// <param name="requestUri">The Uri the request is sent to</param>
         /// <param name="payload">Optional <see cref="object"/> that will be used as content of the request message</param>
+        /// <param name="completionOption">When the operation should complete.</param>
+        /// <param name="progress">The progress provider.</param>
         /// <param name="cancellationToken">Optional cancellation token that will try to cancel the operation.</param>
         /// <returns>A task that will hold the <typeparamref name="TModel"/> once the request is completed</returns>
         /// <exception cref="ArgumentException">Thrown when the requestUri is null or empty.</exception>
         /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
         /// <exception cref="TaskCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
         /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
-        public static async Task<TModel> PutJsonAsync<TModel>(this IHttpClient httpClient, string requestUri, object payload = null, CancellationToken cancellationToken = default)
+        public static async Task<TModel> PutJsonAsync<TModel>(this IHttpClient httpClient, string requestUri, object payload = null, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead,
+            IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
-            var response = await httpClient.PutAsync(requestUri, GetJsonContent(payload), cancellationToken);
+            var response = await httpClient.PutAsync(requestUri, GetJsonContent(payload), completionOption, progress, cancellationToken);
             return await response.JsonDeserializeAsync<TModel>();
         }
 
@@ -87,15 +96,18 @@ namespace Unity.Cloud.Common
         /// <typeparam name="TModel">The type the response is deserialized to</typeparam>
         /// <param name="requestUri">The Uri the request is sent to</param>
         /// <param name="payload">Optional <see cref="object"/> that will be used as content of the request message</param>
+        /// <param name="completionOption">When the operation should complete.</param>
+        /// <param name="progress">The progress provider.</param>
         /// <param name="cancellationToken">Optional cancellation token that will try to cancel the operation.</param>
         /// <returns>A task that will hold the <typeparamref name="TModel"/> once the request is completed</returns>
         /// <exception cref="ArgumentException">Thrown when the requestUri is null or empty.</exception>
         /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
         /// <exception cref="TaskCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
         /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
-        public static async Task<TModel> PatchJsonAsync<TModel>(this IHttpClient httpClient, string requestUri, object payload = null, CancellationToken cancellationToken = default)
+        public static async Task<TModel> PatchJsonAsync<TModel>(this IHttpClient httpClient, string requestUri, object payload = null, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead,
+            IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
-            var response = await httpClient.PatchAsync(requestUri, GetJsonContent(payload), cancellationToken);
+            var response = await httpClient.PatchAsync(requestUri, GetJsonContent(payload), completionOption, progress, cancellationToken);
             return await response.JsonDeserializeAsync<TModel>();
         }
 
@@ -106,15 +118,18 @@ namespace Unity.Cloud.Common
         /// <typeparam name="TModel">The type the response is deserialized to</typeparam>
         /// <param name="requestUri">The Uri the request is sent to</param>
         /// <param name="payload">Optional <see cref="object"/> that will be used as content of the request message</param>
+        /// <param name="completionOption">When the operation should complete.</param>
+        /// <param name="progress">The progress provider.</param>
         /// <param name="cancellationToken">Optional cancellation token that will try to cancel the operation.</param>
         /// <returns>A task that will hold the <typeparamref name="TModel"/> once the request is completed</returns>
         /// <exception cref="ArgumentException">Thrown when the requestUri is null or empty.</exception>
         /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
         /// <exception cref="TaskCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
         /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
-        public static async Task<TModel> DeleteJsonAsync<TModel>(this IHttpClient httpClient, string requestUri, object payload = null, CancellationToken cancellationToken = default)
+        public static async Task<TModel> DeleteJsonAsync<TModel>(this IHttpClient httpClient, string requestUri, object payload = null, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead,
+            IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
-            var response = await httpClient.DeleteAsync(requestUri, GetJsonContent(payload), cancellationToken);
+            var response = await httpClient.DeleteAsync(requestUri, GetJsonContent(payload), completionOption, progress, cancellationToken);
             return await response.JsonDeserializeAsync<TModel>();
         }
 
@@ -124,15 +139,18 @@ namespace Unity.Cloud.Common
         /// <param name="httpClient">The HTTP client.</param>
         /// <param name="requestUri">The Uri the request is sent to</param>
         /// <param name="payload">Optional <see cref="object"/> that will be used as content of the request message</param>
+        /// <param name="completionOption">When the operation should complete.</param>
+        /// <param name="progress">The progress provider.</param>
         /// <param name="cancellationToken">Optional cancellation token that will try to cancel the operation.</param>
         /// <returns>A task that will hold the <see cref ="HttpResponseMessage"/> once the request is completed</returns>
         /// <exception cref="ArgumentException">Thrown when the requestUri is null or empty.</exception>
         /// <exception cref="HttpRequestException">Thrown when an HTTP response can't be obtained from the server.</exception>
         /// <exception cref="TaskCanceledException">Thrown when the request is cancelled by a cancellation token.</exception>
         /// <exception cref="TimeoutException">Thrown when the request failed due to timeout.</exception>
-        public static Task<HttpResponseMessage> DeleteJsonAsync(this IHttpClient httpClient, string requestUri, object payload, CancellationToken cancellationToken = default)
+        public static Task<HttpResponseMessage> DeleteJsonAsync(this IHttpClient httpClient, string requestUri, object payload, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead,
+            IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
-            return httpClient.DeleteAsync(requestUri, GetJsonContent(payload), cancellationToken);
+            return httpClient.DeleteAsync(requestUri, GetJsonContent(payload), completionOption, progress, cancellationToken);
         }
     }
 }

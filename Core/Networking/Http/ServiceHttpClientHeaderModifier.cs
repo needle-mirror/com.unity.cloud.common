@@ -28,10 +28,11 @@ namespace Unity.Cloud.Common
         }
 
         /// <inheritdoc />
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, ServiceHttpClientOptions options, CancellationToken cancellationToken = default)
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,  ServiceHttpClientOptions options, HttpCompletionOption completionOption,
+            IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
             AddHeaders(request);
-            return m_BaseServiceClient.SendAsync(request, options, cancellationToken);
+            return m_BaseServiceClient.SendAsync(request, options, completionOption, progress, cancellationToken);
         }
     }
 }

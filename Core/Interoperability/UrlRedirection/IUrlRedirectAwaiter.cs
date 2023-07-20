@@ -7,7 +7,7 @@ namespace Unity.Cloud.Common
     /// <summary>
     /// Configures the refresh rate and timeout delay for awaiting a <see cref="UrlRedirectResult"/>.
     /// </summary>
-    interface IUrlRedirectAwaiter
+    public interface IUrlRedirectAwaiter
     {
         /// <summary>
         /// The delay in milliseconds between checking for a <see cref="UrlRedirectResult"/>.
