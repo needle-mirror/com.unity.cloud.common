@@ -11,7 +11,8 @@ namespace Unity.Cloud.Common.Editor
     /// </summary>
     public static class BuildUtils
     {
-        const string k_AppRegistrationBuildExceptionMessage = "Missing App Name value in Unity Cloud/App Registration player settings.";
+        const string k_AppRegistrationBuildExceptionMessageAppName = "Missing App Name value in Unity Cloud/App Registration player settings.";
+        const string k_AppRegistrationBuildExceptionMessageAppId = "Missing App ID value in Unity Cloud/App Registration player settings.";
         const string k_DisableExceptionOnMissingAppNameCmdLineParameter = "-disableExceptionOnMissingAppName";
 
         static bool? s_ShouldThrowBuildFailedException = null;
@@ -39,10 +40,16 @@ namespace Unity.Cloud.Common.Editor
         /// <exception cref="System.InvalidOperationException">Thrown if App Name value is default value.</exception>
         public static string GetCustomUriScheme()
         {
-            if (UnityCloudPlayerSettings.Instance.AppName.Equals(UnityCloudPlayerSettings.k_DefaultAppName) &&
+            if ((UnityCloudPlayerSettings.Instance.AppName.Equals(UnityCloudPlayerSettings.k_DefaultAppName)
+                || string.IsNullOrEmpty(UnityCloudPlayerSettings.Instance.AppName)) &&
                 ShouldThrowBuildFailedException)
             {
-                throw new BuildFailedException(k_AppRegistrationBuildExceptionMessage);
+                throw new BuildFailedException(k_AppRegistrationBuildExceptionMessageAppName);
+            }
+            else if (string.IsNullOrEmpty(UnityCloudPlayerSettings.Instance.AppId) &&
+                ShouldThrowBuildFailedException)
+            {
+                throw new BuildFailedException(k_AppRegistrationBuildExceptionMessageAppId);
             }
             return UnityCloudPlayerSettings.Instance.AppName;
         }
@@ -56,10 +63,16 @@ namespace Unity.Cloud.Common.Editor
         /// <exception cref="System.InvalidOperationException">Thrown if App Name value is default value.</exception>
         public static string GetNamespacedUriScheme()
         {
-            if (UnityCloudPlayerSettings.Instance.AppName.Equals(UnityCloudPlayerSettings.k_DefaultAppName) &&
+            if ((UnityCloudPlayerSettings.Instance.AppName.Equals(UnityCloudPlayerSettings.k_DefaultAppName)
+                || string.IsNullOrEmpty(UnityCloudPlayerSettings.Instance.AppName)) &&
                 ShouldThrowBuildFailedException)
             {
-                throw new BuildFailedException(k_AppRegistrationBuildExceptionMessage);
+                throw new BuildFailedException(k_AppRegistrationBuildExceptionMessageAppName);
+            }
+            else if (string.IsNullOrEmpty(UnityCloudPlayerSettings.Instance.AppId) &&
+                ShouldThrowBuildFailedException)
+            {
+                throw new BuildFailedException(k_AppRegistrationBuildExceptionMessageAppId);
             }
             return $"{UriSchemeRedirection.s_UriSchemePrefix}{UnityCloudPlayerSettings.Instance.AppName}";
         }

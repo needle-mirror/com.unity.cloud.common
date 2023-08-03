@@ -378,7 +378,7 @@ namespace Unity.Cloud.Common
 
             logger.LogInfo($"Creating a {nameof(HttpClientHeaderModifier)} to add source headers for {apiSourceVersion.GetHeaderValue()}");
 
-            return new HttpClientHeaderModifier(baseHttpClient, sourceHeaders);
+            return new HttpClientHeaderModifier(baseHttpClient, sourceHeaders, ServiceHeaderUtils.k_UnityApiPattern);
         }
 
         /// <summary>

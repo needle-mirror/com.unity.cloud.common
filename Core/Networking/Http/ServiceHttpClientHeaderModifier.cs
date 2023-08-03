@@ -20,9 +20,10 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="serviceHttpClient">The client who's requests will have headers added.</param>
         /// <param name="headers">The headers to add to each request.</param>
+        /// <param name="urlFilter">The optional url filter to determine which requests should have the headers added. A null or empty filter will add the headers to all requests.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="serviceHttpClient"/> or any key in <paramref name="headers"/> is null.</exception>
-        public ServiceHttpClientHeaderModifier(IServiceHttpClient serviceHttpClient, Dictionary<string, string> headers)
-            : base(serviceHttpClient, headers)
+        public ServiceHttpClientHeaderModifier(IServiceHttpClient serviceHttpClient, Dictionary<string, string> headers, string urlFilter = null)
+            : base(serviceHttpClient, headers, urlFilter)
         {
             m_BaseServiceClient = serviceHttpClient ?? throw new ArgumentNullException(nameof(serviceHttpClient));
         }

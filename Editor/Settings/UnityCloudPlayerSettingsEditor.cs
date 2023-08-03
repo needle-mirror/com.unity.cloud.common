@@ -10,26 +10,32 @@ namespace Unity.Cloud.Common.Editor
     [CustomEditor(typeof(UnityCloudPlayerSettings))]
     public class UnityCloudPlayerSettingsEditor : UnityEditor.Editor
     {
-        const string k_AppRegistrationMissingId = "Missing App Id";
-        const string k_AppRegistrationWrongId = "Wrong App Id";
-        const string k_AppRegistrationHelpInstruction = "Please enter the App Id assigned to this Unity Project in the Unity Cloud Portal and click the Refresh button to fetch its Name and Display Name values";
-
         const string k_DocumentationUriScheme = "https://";
         const string k_DocumentationLastestUrl = "docs.unity3d.com/Packages/com.unity.cloud.identity@latest/index.html";
         const string k_DocumentationGetStartedPageQueryArgument = "?subfolder=/manual/getting-started.html";
 
-        SerializedProperty m_AppIdProperty;
+        [ReadOnly] SerializedProperty m_AppIdProperty;
         [ReadOnly] SerializedProperty m_AppNameProperty;
         [ReadOnly] SerializedProperty m_AppDisplayNameProperty;
+        
+        string m_ManualEntryAppId = string.Empty;
+        string m_ManualEntryErrorMessage = string.Empty;
 
-        UnityHttpClient m_HttpClient;
-        IAppInfoProvider m_AppInfoProvider;
+        bool m_ManualEntryErrorFlag = false;
+
+        UnityCloudAppRegistration m_AppRegistration;
 
         void OnEnable()
         {
             m_AppIdProperty = serializedObject.FindProperty(nameof(UnityCloudPlayerSettings.AppId));
             m_AppNameProperty = serializedObject.FindProperty(nameof(UnityCloudPlayerSettings.AppName));
             m_AppDisplayNameProperty = serializedObject.FindProperty(nameof(UnityCloudPlayerSettings.AppDisplayName));
+        }
+
+        async Task Awake()
+        {
+            m_AppRegistration = CreateInstance<UnityCloudAppRegistration>();
+            await m_AppRegistration.Initialize(SelectApp);
         }
 
         public override void OnInspectorGUI()
@@ -41,22 +47,21 @@ namespace Unity.Cloud.Common.Editor
         {
             serializedObject.Update();
 
-            if (string.IsNullOrEmpty(m_AppIdProperty.stringValue))
-            {
-                EditorGUILayout.HelpBox(
-                    $"{k_AppRegistrationMissingId}.\n{k_AppRegistrationHelpInstruction}.",
-                    MessageType.Warning);
-            }
-            else
-            {
-                if (m_AppNameProperty.stringValue.Equals(UnityCloudPlayerSettings.k_DefaultAppName))
-                {
-                    EditorGUILayout.HelpBox(
-                        $"{k_AppRegistrationWrongId}.\n{k_AppRegistrationHelpInstruction}.",
-                        MessageType.Warning);
-                }
-            }
+            ShowManualUI();
 
+            ShowCurrentCloudPlayerSettingsUI();
+
+            GUILayout.Space(10);
+
+            ManualAppEntry();
+
+            m_AppRegistration.DrawGUI();
+
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        void ShowManualUI()
+        {
             if (GUILayout.Button("See manual for detailed information..."))
             {
                 SynchronizationContext.Current.Send(_ =>
@@ -64,53 +69,61 @@ namespace Unity.Cloud.Common.Editor
                     Application.OpenURL($"{k_DocumentationUriScheme}{k_DocumentationLastestUrl}{k_DocumentationGetStartedPageQueryArgument}");
                 }, null);
             }
+        }
 
-            EditorGUILayout.PropertyField(m_AppIdProperty);
-
-            if (GUILayout.Button("Refresh"))
+        void ManualAppEntry()
+        {
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Enter Application ID: ", GUILayout.Width(200));
+            m_ManualEntryAppId = EditorGUILayout.TextField(m_ManualEntryAppId);
+            if (GUILayout.Button("Select", GUILayout.Width(100)))
             {
                 SynchronizationContext.Current.Send(async _ =>
                 {
-                    await RefreshAppName();
+                    await GetAppInformation();
                 }, null);
             }
-
-            EditorGUILayout.PropertyField(m_AppDisplayNameProperty);
-            EditorGUILayout.PropertyField(m_AppNameProperty);
-            serializedObject.ApplyModifiedProperties();
+            GUILayout.EndHorizontal();
+            if (m_ManualEntryErrorFlag)
+            {
+                EditorGUILayout.HelpBox($"Error: {m_ManualEntryErrorMessage}", MessageType.Error);
+            }
         }
 
-        async Task RefreshAppName()
+        async Task GetAppInformation()
         {
-            if (m_HttpClient == null)
+            try
             {
-                var serviceHostResolver = UnityRuntimeServiceHostResolverFactory.Create();
-                m_HttpClient = new UnityHttpClient();
-                var serviceHttpClient = new ServiceHttpClient(m_HttpClient, null, UnityCloudPlayerSettings.Instance);
-                m_AppInfoProvider = new AppInfoProvider(serviceHttpClient, serviceHostResolver);
+                var appInfo = await m_AppRegistration.m_AppInfoProvider.GetAppInfoAsync(m_ManualEntryAppId);
+                SelectApp(appInfo.Id, appInfo.Name, appInfo.DisplayName);
+                m_ManualEntryErrorFlag = false;
             }
-
-            if (m_AppIdProperty.stringValue.Length > 0)
+            catch (NotFoundException)
             {
-                try
-                {
-                    var m_AppInfo = await m_AppInfoProvider.GetAppInfoAsync(m_AppIdProperty.stringValue);
-                    m_AppNameProperty.stringValue = m_AppInfo.Name;
-                    m_AppDisplayNameProperty.stringValue = m_AppInfo.DisplayName;
-                    serializedObject.ApplyModifiedProperties();
-
-                    UnityCloudPlayerSettings.Instance.AppName = m_AppInfo.Name;
-                    UnityCloudPlayerSettings.Instance.AppDisplayName = m_AppInfo.DisplayName;
-                }
-                catch (NotFoundException)
-                {
-                    Debug.LogWarning($"{k_AppRegistrationWrongId}.\n{k_AppRegistrationHelpInstruction}.");
-                    UnityCloudPlayerSettings.Instance.AppName = UnityCloudPlayerSettings.k_DefaultAppName;
-                    UnityCloudPlayerSettings.Instance.AppDisplayName = UnityCloudPlayerSettings.k_DefaultAppDisplayName;
-                }
+                m_ManualEntryErrorFlag = true;
+                m_ManualEntryErrorMessage = "Application ID Not Found";
             }
+        }
+
+        void ShowCurrentCloudPlayerSettingsUI()
+        {
+            EditorGUILayout.PropertyField(m_AppNameProperty);
+            EditorGUILayout.PropertyField(m_AppDisplayNameProperty);
+            EditorGUILayout.PropertyField(m_AppIdProperty);
+        }
+
+        void SelectApp(string appId, string appName, string displayName)
+        {
+            m_AppIdProperty.stringValue = appId;
+            m_AppNameProperty.stringValue = appName;
+            m_AppDisplayNameProperty.stringValue = displayName;
+
+            UnityCloudPlayerSettings.Instance.AppId = appId;
+            UnityCloudPlayerSettings.Instance.AppName = appName;
+            UnityCloudPlayerSettings.Instance.AppDisplayName = displayName;
         }
     }
+
 
     [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
     public class ReadOnlyDrawer : PropertyDrawer

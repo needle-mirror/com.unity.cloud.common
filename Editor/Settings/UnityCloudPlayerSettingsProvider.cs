@@ -19,7 +19,7 @@ namespace Unity.Cloud.Common.Editor
         [SettingsProvider]
         public static SettingsProvider CreateUnityCloudPlayerSettingsProvider()
         {
-            return new UnityCloudPlayerSettingsProvider("Project/Unity Cloud/App Registration", SettingsScope.Project)
+            return new UnityCloudPlayerSettingsProvider("Project/Unity Cloud/App Information", SettingsScope.Project)
             {
                 keywords = new[]
                 {

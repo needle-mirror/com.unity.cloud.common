@@ -146,8 +146,7 @@ namespace Unity.Cloud.Common
             }
 
             // Only add custom headers if the request URI points to internal unity.com APIs
-            const string k_UnityApiPattern = @"https.*\.unity\.com/api/.*|localhost:.*\/api/.*";
-            if (Regex.IsMatch(request.RequestUri.ToString(), k_UnityApiPattern))
+            if (ServiceHeaderUtils.IsUnityApi(request.RequestUri))
             {
                 if (!options.SkipDefaultHeaders)
                 {

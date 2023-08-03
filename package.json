@@ -1,6 +1,6 @@
 {
   "name": "com.unity.cloud.common",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "displayName": "Unity Cloud Common",
   "description": "Common functionalities needed by the Unity Cloud SDKs",
   "unity": "2021.3",
@@ -9,18 +9,18 @@
     "com.unity.modules.unitywebrequest": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.cloud.common.tests": "0.14.1"
+    "com.unity.cloud.common.tests": "0.14.2"
   },
   "_upm": {
-    "changelog": "### Added\n- `IUrlProcessor` interface along `CoreUrlProcessor`, `UrlProcessor` and `UrlRedirectUtils` classes.\n- `CoreTimeAwaiter` class.\n- `IAppDisplayNameProvider` interface.\n- Added `ForceCompleteContent` method to use in the event of an error that prevents the download handler from calling complete content.\n\n### Changed\n- `ITimeAwaiter`, `IUrlRedirectAwaiter`, `AsyncUrlRedirectAwaiter` are now public.\n- `UnityCloudPlayerSettings` now implements `IAppDisplayNameProvider` interface."
+    "changelog": "### Changed\n- Explicitly set disposeDownload/UploadHandlerOnDispose to true.\n\n### Fixed\n- The `HttpClientHeaderModifier` and derived classes now accept a uri filter to specify which requests to add custom headers to.\n- The `WithApiSourceHeaders()` extension methods for adding analytics headers to `IHttpClient` and `IServiceHttpClient` automatically add a filter to only add the headers to Unity API calls.\n- Fixed memory leak that happened whenever we were trying to send a delete request."
   },
   "upmCi": {
-    "footprint": "c86e980faeae8354eeb90b15a30e1bd5984287ea"
+    "footprint": "e60641e3b7ccb73e94781f38f8909ace99ea0d30"
   },
   "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@0.14/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/digital-twins-sdk.git",
     "type": "git",
-    "revision": "7bccfadbd3adbd5c73d2de247b801883ff447742"
+    "revision": "eac08175d17311a464766a8041c3d706f4069ef5"
   }
 }

@@ -4,6 +4,16 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.14.2] - 2023-08-03
+
+### Changed
+- Explicitly set disposeDownload/UploadHandlerOnDispose to true.
+
+### Fixed
+- The `HttpClientHeaderModifier` and derived classes now accept a uri filter to specify which requests to add custom headers to.
+- The `WithApiSourceHeaders()` extension methods for adding analytics headers to `IHttpClient` and `IServiceHttpClient` automatically add a filter to only add the headers to Unity API calls.
+- Fixed memory leak that happened whenever we were trying to send a delete request.
+
 ## [0.14.1] - 2023-07-20
 
 ### Added
@@ -15,6 +25,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - `ITimeAwaiter`, `IUrlRedirectAwaiter`, `AsyncUrlRedirectAwaiter` are now public.
 - `UnityCloudPlayerSettings` now implements `IAppDisplayNameProvider` interface.
+- Changed `UnityCloudPlayerSettings` editor window (Unity Cloud/ App Information) to let user select/edit/delete existing applications and register new applications.
+- `BuildUtils` now also checks for empty/null app name and app ID fields in `UnityCloudPlayerSettings`.
+
+### Fixed
+- Fixed the error thrown from including `progress` parameter on `UnityHttpClient` requests
+
+### Fixed
+- Added missing implementations for `TwoWayMemoryStream`
 
 ## [0.14.0] - 2023-07-06
 

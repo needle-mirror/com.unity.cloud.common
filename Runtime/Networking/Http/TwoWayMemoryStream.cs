@@ -7,7 +7,7 @@ namespace Unity.Cloud.Common.Runtime
     /// <summary>
     /// A memory stream wrapper that allows simultaneous reading and writing.
     /// </summary>
-    internal class TwoWayMemoryStream : Stream
+    internal class TwoWayMemoryStream : MemoryStream
     {
         static AutoResetEvent m_AutoResetEvent = new (false);
 
@@ -29,7 +29,10 @@ namespace Unity.Cloud.Common.Runtime
 
         public override bool CanWrite => true;
 
-        public override void Flush() => throw new NotSupportedException();
+        public override void Flush()
+        {
+            throw new NotSupportedException();
+        }
 
         public override long Length => throw new NotSupportedException();
 
@@ -52,7 +55,7 @@ namespace Unity.Cloud.Common.Runtime
                 else
                     break;
             }
-
+            
             try
             {
                 m_InnerStream.Position = m_ReadPosition;
@@ -69,7 +72,7 @@ namespace Unity.Cloud.Common.Runtime
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            throw new NotSupportedException();
+            return m_InnerStream.Seek(offset, origin);
         }
 
         public override void SetLength(long value)
