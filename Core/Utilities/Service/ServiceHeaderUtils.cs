@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Text.RegularExpressions;
 
 namespace Unity.Cloud.Common
 {
@@ -11,12 +12,15 @@ namespace Unity.Cloud.Common
     public static class ServiceHeaderUtils
     {
         public const string k_ApiSourceHeader = "X-Unity-Cloud-Api-Source";
+        public const string k_UnityApiPattern = @"https.*(?:[./])unity\.com/api/.*|localhost:.*\/api/.*";
+
         const string k_AuthScheme = "Bearer";
         const string k_AuthHeader = "Authorization";
         const string k_AppIdHeader = "X-Digital-Twins-AppId";
         const string k_ClientTraceHeader = "X-Digital-Twins-ClientTrace";
         const string k_TraceHeader = "X-Digital-Twins-Trace";
         const string k_TraceEnvVarName = "UNITY_CLOUD_TRACE";
+
 
         static Dictionary<string, string> s_HeaderToQueryMapping = new()
         {
@@ -107,6 +111,28 @@ namespace Unity.Cloud.Common
         /// <param name="apiSourceVersion">The version information with which to generate the header value.</param>
         /// <returns>The contents <see cref="ApiSourceVersion"/> formatted as a string for the HTTP header value.</returns>
         public static string GetHeaderValue(this ApiSourceVersion apiSourceVersion) => $"{apiSourceVersion.Name}@{apiSourceVersion.Version}";
+
+
+        /// <summary>
+        /// Returns whether the specified URL is a Unity API URL.
+        /// </summary>
+        /// <param name="url">The url to verify.</param>
+        /// <returns>Whether the specified URL is a Unity API URL.</returns>
+        /// <remarks>Some custom headers should only be added to requests to Unity APIs.</remarks>
+        internal static bool IsUnityApi(string url)
+        {
+            return Regex.IsMatch(url, k_UnityApiPattern, RegexOptions.IgnoreCase);
+        }
+        /// <summary>
+        /// Returns whether the specified URI is a Unity API URL.
+        /// </summary>
+        /// <param name="uri">The url to verify.</param>
+        /// <returns>Whether the specified URI is a Unity API URL.</returns>
+        /// <remarks>Some custom headers should only be added to requests to Unity APIs.</remarks>
+        internal static bool IsUnityApi(Uri uri)
+        {
+            return IsUnityApi(uri.ToString());
+        }
     }
 }
 

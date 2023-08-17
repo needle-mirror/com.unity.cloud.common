@@ -27,11 +27,14 @@ namespace Unity.Cloud.Common
                         args.ErrorContext.Handled = true;
                     }
                 });
+
                 return result;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // Trapping everything since we're returning default(T) if we cannot deserialize
+                // Trapping everything since we're returning default(T) if we cannot deserialize, but we are still logging the exception
+                var logger = LoggerProvider.GetLogger(typeof(JsonSerialization).FullName);
+                logger.LogError(e);
             }
 
             return default;

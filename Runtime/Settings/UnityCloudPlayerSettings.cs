@@ -23,13 +23,17 @@ using UnityEngine;
         /// </summary>
         public const string k_DefaultAppDisplayName = "Default";
 
-#pragma warning disable S1104 // Make this field 'private' and encapsulate it in a 'public' property.
+        /// <summary>
+        /// The default app display name.
+        /// </summary>
+        public const string k_DefaultOrganizationID = "Default";
 
+#pragma warning disable S1104 // Make this field 'private' and encapsulate it in a 'public' property.
+        
         /// <summary>
         /// The Unity Cloud app ID.
         /// </summary>
-        [Tooltip("Must match the App Id assigned to this Unity Project in the Unity Cloud Portal.")]
-        public string AppId;
+        [ReadOnly] public string AppId;
 
         /// <summary>
         /// The Unity Cloud app name.
@@ -40,6 +44,7 @@ using UnityEngine;
         /// The Unity Cloud App display name.
         /// </summary>
         [ReadOnly] public string AppDisplayName = k_DefaultAppDisplayName;
+
 #pragma warning restore S1104
 
         static UnityCloudPlayerSettings s_Instance;

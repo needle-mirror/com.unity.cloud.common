@@ -133,7 +133,7 @@ namespace Unity.Cloud.Common
         public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, HttpCompletionOption completionOption,
             IProgress<HttpProgress> progress, CancellationToken cancellationToken)
         {
-            return SendAsync(request, ServiceHttpClientOptions.NoRetryOption(), completionOption, progress, cancellationToken);
+            return SendAsync(request, ServiceHttpClientOptions.Default(), completionOption, progress, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -146,8 +146,7 @@ namespace Unity.Cloud.Common
             }
 
             // Only add custom headers if the request URI points to internal unity.com APIs
-            const string k_UnityApiPattern = @"https.*\.unity\.com/api/.*|localhost:.*\/api/.*";
-            if (Regex.IsMatch(request.RequestUri.ToString(), k_UnityApiPattern))
+            if (ServiceHeaderUtils.IsUnityApi(request.RequestUri))
             {
                 if (!options.SkipDefaultHeaders)
                 {

@@ -198,39 +198,12 @@ namespace Unity.Cloud.Common.Runtime
             await tcs.Task;
         }
 
-        static UnityWebRequest CreateDeleteRequest(Uri requestUri, string stringContent = null, byte[] bytesContent = null)
-        {
-            var request = new UnityWebRequest(requestUri, k_HttpVerbDelete);
-
-            byte[] requestContent = bytesContent;
-            if (stringContent != null)
-            {
-                requestContent = Encoding.UTF8.GetBytes(stringContent);
-            }
-            if (requestContent != null)
-            {
-                request.uploadHandler = new UploadHandlerRaw(requestContent);
-            }
-            return request;
-        }
-
         static async Task PrepareAndStartRequest(RequestState state, Action onHeadersReceived, Action onCompleted, UploadHandler uploadHandler,
             IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
             var httpRequestMessage = state.HttpRequestMessage;
-            var bytesContent = state.BytesContent;
 
-            var methodString = httpRequestMessage.Method.ToString();
-            var request = methodString switch
-            {
-                UnityWebRequest.kHttpVerbGET => UnityWebRequest.Get(httpRequestMessage.RequestUri),
-                // We are using new UnityWebRequest() instead of UnityWebRequest.Method to prevent memory leaks linked with conflicting uploadHandlers.
-                UnityWebRequest.kHttpVerbPUT or UnityWebRequest.kHttpVerbPOST or k_HttpVerbPatch => new UnityWebRequest(httpRequestMessage.RequestUri, methodString),
-                UnityWebRequest.kHttpVerbDELETE when bytesContent != null => CreateDeleteRequest(httpRequestMessage.RequestUri, bytesContent: state.BytesContent),
-                UnityWebRequest.kHttpVerbDELETE => CreateDeleteRequest(httpRequestMessage.RequestUri, stringContent: state.StringContent),
-                _ => throw new NotImplementedException()
-            };
-
+            var request = new UnityWebRequest(httpRequestMessage.RequestUri, httpRequestMessage.Method.ToString());
             state.Request = request;
 
             foreach (var header in httpRequestMessage.Headers)
@@ -253,9 +226,12 @@ namespace Unity.Cloud.Common.Runtime
 
             var memoryStreamDownloadHandler = new MemoryStreamDownloadHandler();
             memoryStreamDownloadHandler.HeadersReceived += onHeadersReceived;
+
             request.downloadHandler = memoryStreamDownloadHandler;
             if (uploadHandler != null)
                 request.uploadHandler = uploadHandler;
+            request.disposeDownloadHandlerOnDispose = true;
+            request.disposeUploadHandlerOnDispose = true;
 
 #if !UNITY_WEBGL || UNITY_EDITOR
             // Force handling the Redirect response from server
@@ -278,6 +254,11 @@ namespace Unity.Cloud.Common.Runtime
             response.Content = new StreamContent(memoryStreamDownloadHandler.OutputStream);
             state.Response = response;
 
+            await HandleRequestAndProgress(request, onCompleted, memoryStreamDownloadHandler, progress);
+        }
+
+        static async Task HandleRequestAndProgress(UnityWebRequest request, Action onCompleted, MemoryStreamDownloadHandler memoryStreamDownloadHandler, IProgress<HttpProgress> progress)
+        {
             var asyncOp = request.SendWebRequest();
             asyncOp.completed += asyncop => { onCompleted(); };
 
@@ -291,11 +272,10 @@ namespace Unity.Cloud.Common.Runtime
             while (!asyncOp.isDone)
             {
                 progress.Report(new HttpProgress(request.downloadProgress, isUpload ? request.uploadProgress : null));
-
                 await Task.Yield();
             }
 
-            float? finalDownloadProgress = memoryStreamDownloadHandler.OutputStream.Length > 0 ? 1 : null;
+            float? finalDownloadProgress = memoryStreamDownloadHandler.DataReceived ? 1 : null;
             float? finalUploadProgress = isUpload ? 1 : null;
             progress.Report(new HttpProgress(finalDownloadProgress,
                 finalUploadProgress));

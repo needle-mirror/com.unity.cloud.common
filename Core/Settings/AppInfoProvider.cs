@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Unity.Cloud.Common
 {
     /// <summary>
-    /// A class which provides access to App information as registered on the Unity Cloud Portal.
+    /// A class which provides access to App information as registered on the Digital Twin Dashboard.
     /// </summary>
     public class AppInfoProvider : IAppInfoProvider
     {
@@ -25,7 +25,7 @@ namespace Unity.Cloud.Common
         }
 
         /// <summary>
-        /// Returns information related to an App registered on the Unity Cloud Portal.
+        /// Returns information related to an App registered on the Digital Twin Dashboard.
         /// </summary>
         /// <exception cref="System.Net.Http.HttpRequestException">This exception is thrown when the request fails to complete. See returned StatusCode for more details.</exception>
         /// <exception cref="UnauthorizedException"></exception>

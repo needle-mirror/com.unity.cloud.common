@@ -12,6 +12,8 @@ namespace Unity.Cloud.Common.Runtime
 
         public TwoWayMemoryStream OutputStream { get; private set; }
 
+        public bool DataReceived { get; private set; }
+
         int m_ContentLength;
         int m_BytesReceived;
         bool m_HeadersReceivedInvoked;
@@ -21,6 +23,7 @@ namespace Unity.Cloud.Common.Runtime
             m_ContentLength = -1;
             m_BytesReceived = 0;
             m_HeadersReceivedInvoked = false;
+            DataReceived = false;
 
             OutputStream = new TwoWayMemoryStream();
         }
@@ -44,7 +47,8 @@ namespace Unity.Cloud.Common.Runtime
 
             m_BytesReceived += dataLength;
             OutputStream.Write(data, 0, dataLength);
-
+            
+            DataReceived = true;
             return true;
         }
 
