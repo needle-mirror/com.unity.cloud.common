@@ -22,6 +22,9 @@ namespace Unity.Cloud.Common.Runtime
         public static extern void ClearCache(string key);
 
         [DllImport("__Internal")]
+        public static extern void SaveAuthorizationCookie(string token);
+
+        [DllImport("__Internal")]
         public static extern void Navigate(string url, string windowId = "_self");
 
         [DllImport("__Internal")]
@@ -36,6 +39,8 @@ namespace Unity.Cloud.Common.Runtime
         public static void CacheValue(string key, string value) => throw new PlatformNotSupportedException();
 
         public static void ClearCache(string key) => throw new PlatformNotSupportedException();
+
+        public static void SaveAuthorizationCookie(string token) => throw new PlatformNotSupportedException();
 
         public static void Navigate(string url, string windowId = "_self") => throw new PlatformNotSupportedException();
 

@@ -95,6 +95,7 @@ namespace Unity.Cloud.Common
         /// <param name="auth">The authorization value.</param>
         public static void AddAuthorization(this HttpHeaders headers, string auth)
         {
+#if !UNITY_WEBGL || UNITY_EDITOR
             if (headers is HttpRequestHeaders casted)
             {
                 casted.Authorization = new AuthenticationHeaderValue(k_AuthScheme, auth);
@@ -103,6 +104,7 @@ namespace Unity.Cloud.Common
             {
                 headers.Add(k_AuthHeader, $"{k_AuthScheme} {auth}");
             }
+#endif
         }
 
         /// <summary>
@@ -121,7 +123,7 @@ namespace Unity.Cloud.Common
         /// <remarks>Some custom headers should only be added to requests to Unity APIs.</remarks>
         internal static bool IsUnityApi(string url)
         {
-            return Regex.IsMatch(url, k_UnityApiPattern, RegexOptions.IgnoreCase);
+            return Regex.IsMatch(url, k_UnityApiPattern, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100));
         }
         /// <summary>
         /// Returns whether the specified URI is a Unity API URL.

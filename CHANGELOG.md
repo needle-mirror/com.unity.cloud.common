@@ -4,6 +4,17 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.14.4] - 2023-08-31
+
+### Fixed
+- Added missing compile flags in `ServiceHeaderUtils`.
+
+### Added
+- Added official support for the latest LTS Editor 2022.3 while maintaining support for 2021.3.
+
+### Changed
+- `UrlRedirectionInterceptor` internal `AsyncUrlRedirectAwaiter` default timeout delay set to 10 minutes instead of 1 minute.
+
 ## [0.14.3] - 2023-08-17
 
 ### Added
@@ -12,9 +23,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Simplified ServiceHost tests by removing a needless test defaults class and directly referencing the correct values.
 - Changed ServiceHttpClient's default retry policy (NoRetryPolicy) to ExponentialBackoffRetryPolicy.
+- [BREAKING] `ServiceHeaderUtils.AddAuthorization` method no longer add HTTP authorization headers on WebGL.
 
 ### Fixed
 - Added missing dependency to `com.unity.modules.imgui` to package manifest.
+- Added a timeout to the Uri regex filter for header modification.
 
 ## [0.14.2] - 2023-08-03
 

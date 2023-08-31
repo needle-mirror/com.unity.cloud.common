@@ -85,7 +85,7 @@ namespace Unity.Cloud.Common.Runtime
         /// <param name="hostDomain">Optional string value of current host domain.</param>
         /// <param name="refreshDelay">The interval in ms to refresh while awaiting for a redirection</param>
         /// <param name="timeoutDelay">The timeout in ms before timing out while awaiting for a redirection</param>
-        internal UrlRedirectionInterceptor(string hostDomain = null, int refreshDelay = 500, int timeoutDelay = 60000)
+        internal UrlRedirectionInterceptor(string hostDomain = null, int refreshDelay = 500, int timeoutDelay = 600000)
             : this(new AsyncUrlRedirectAwaiter(refreshDelay, timeoutDelay), hostDomain)
         { }
 

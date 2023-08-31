@@ -42,6 +42,12 @@ mergeInto(LibraryManager.library, {
         localStorage.setItem(keyString, valueString);
     },
 
+    SaveAuthorizationCookie: function (value) {
+        const valueString = UTF8ToString(value);
+        console.log("Should write cookie portalAccessToken: " + valueString);
+        document.cookie = "portalAccessToken="+valueString+"; Secure; SameSite=strict; Path=/; Domain=.unity.com; Session=true";
+    },
+
     ClearCache: function (key) {
         const keyString = UTF8ToString(key);
         console.log("Should clear cache for key " + keyString);

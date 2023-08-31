@@ -49,7 +49,7 @@ namespace Unity.Cloud.Common
 
         protected void AddHeaders(HttpRequestMessage request)
         {
-            if (string.IsNullOrEmpty(m_UrlFilter)|| Regex.IsMatch(request.RequestUri.ToString(), m_UrlFilter, RegexOptions.IgnoreCase))
+            if (string.IsNullOrEmpty(m_UrlFilter)|| Regex.IsMatch(request.RequestUri.ToString(), m_UrlFilter, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100)))
             {
                 foreach (var header in m_Headers)
                 {
