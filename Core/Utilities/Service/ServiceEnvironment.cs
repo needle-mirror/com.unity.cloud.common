@@ -8,21 +8,6 @@ namespace Unity.Cloud.Common
     public enum ServiceEnvironment
     {
         /// <summary>
-        /// Url service environment.
-        /// </summary>
-        /// <remarks>
-        /// Used when UNITY_CLOUD_SERVICES_ENV is set to a URL instead of a specific environment
-        /// </remarks>
-        [Obsolete("This value is deprecated and will be removed in a future release.")]
-        Url,
-
-        /// <summary>
-        /// Local service environment.
-        /// </summary>
-        [Obsolete("This value is deprecated and will be removed in a future release.")]
-        Local,
-
-        /// <summary>
         /// Test service environment.
         /// </summary>
         Test,

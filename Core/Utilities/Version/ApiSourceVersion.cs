@@ -43,7 +43,7 @@ namespace Unity.Cloud.Common
         /// <exception cref="ArgumentNullException">Thrown if the <paramref name="assembly"/> is null or if the name or version defined in the retrieved <see cref="ApiSourceVersionAttribute"/> are null or white space.</exception>
         /// <exception cref="InvalidOperationException">Thrown if <see cref="ApiSourceVersionAttribute"/> does not exist or is not initialized in the calling assembly.</exception>
         /// <exception cref="InvalidArgumentException">Thrown if <see cref="ApiSourceVersionAttribute"/> is initialized with null or empty values in the calling assembly.</exception>
-        internal static ApiSourceVersion GetApiSourceVersionForAssembly(Assembly assembly)
+        public static ApiSourceVersion GetApiSourceVersionForAssembly(Assembly assembly)
         {
             if (assembly == null)
                 throw new ArgumentNullException(nameof(assembly));

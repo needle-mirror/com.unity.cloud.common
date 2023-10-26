@@ -39,7 +39,7 @@ namespace Unity.Cloud.Common.Runtime
         /// </summary>
         /// <param name="applicationOverride">An application-level override value for for service host options.</param>
         /// <returns>The created configuration.</returns>
-        internal static ServiceHostResolver CreateWithOverride(ServiceHost applicationOverride)
+        public static ServiceHostResolver CreateWithOverride(ServiceHost applicationOverride)
         {
             var systemEnvironmentOverrideValue = ReadLocalCacheForSystemEnvironmentOverride();
             var systemProviderOverrideValue = ReadLocalCacheForSystemProviderOverride();
@@ -81,11 +81,11 @@ namespace Unity.Cloud.Common.Runtime
         {
             if (Uri.TryCreate(uriString, UriKind.Absolute, out var uri))
             {
-                if (Regex.IsMatch(uri.Host, @"^.*stg\..*\.unity\.com$", RegexOptions.IgnoreCase))
+                if (Regex.IsMatch(uri.Host, @"^.*staging\..*\.unity\.com$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1)))
                     return ServiceEnvironment.Staging.ToString().ToLower();
-                if (Regex.IsMatch(uri.Host, @"^.*test\..*\.unity\.com$", RegexOptions.IgnoreCase))
+                if (Regex.IsMatch(uri.Host, @"^.*test\..*\.unity\.com$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1)))
                     return ServiceEnvironment.Test.ToString().ToLower();
-                if (Regex.IsMatch(uri.Host, @"^.*\.unity\.com$", RegexOptions.IgnoreCase))
+                if (Regex.IsMatch(uri.Host, @"^.*\.unity\.com$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1)))
                     return ServiceEnvironment.Production.ToString().ToLower();
             }
             return null;
@@ -95,10 +95,8 @@ namespace Unity.Cloud.Common.Runtime
         {
             if (Uri.TryCreate(uriString, UriKind.Absolute, out var uri))
             {
-                if (uri.Host.EndsWith("dt.unity.com"))
-                    return ServiceDomainProvider.GCP.ToString().ToLower();
-                if (uri.Host.EndsWith("transformation.unity.com"))
-                    return ServiceDomainProvider.Azure.ToString().ToLower();
+                if (uri.Host.EndsWith("services.unity.com") || uri.Host.EndsWith("services.api.unity.com"))
+                    return ServiceDomainProvider.UnityServices.ToString().ToLower();
             }
 
             return null;

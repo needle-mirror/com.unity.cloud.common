@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -352,54 +350,6 @@ namespace Unity.Cloud.Common
                 throw new ArgumentNullException(nameof(uri));
 
             return new HttpRequestMessage(httpMethod, uri);
-        }
-
-        /// <summary>
-        /// Creates an instance of <see cref="HttpClientHeaderModifier"/> which adds the API source headers to each request.
-        /// </summary>
-        /// <param name="baseHttpClient">The client for which to modify the request headers.</param>
-        /// <param name="name">The API source name.</param>
-        /// <param name="version">The API source version.</param>
-        /// <returns>The created <see cref="HttpClientHeaderModifier"/>.</returns>
-        /// <exception cref="ArgumentNullException">Thrown is <paramref name="name"/> or <paramref name="version"/> are null or empty.</exception>
-        public static IHttpClient WithApiSourceHeaders(this IHttpClient baseHttpClient, string name, string version)
-        {
-            var logger = LoggerProvider.GetLogger(typeof(HttpClientExtensions).FullName);
-
-            if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException(nameof(name));
-
-            if (string.IsNullOrEmpty(version))
-                throw new ArgumentNullException(nameof(version));
-
-            // Create a header based on the API source name and version.
-            var apiSourceVersion = new ApiSourceVersion(name, version);
-            var sourceHeaders = new Dictionary<string, string>() {{ServiceHeaderUtils.k_ApiSourceHeader, apiSourceVersion.GetHeaderValue()}};
-
-            logger.LogInfo($"Creating a {nameof(HttpClientHeaderModifier)} to add source headers for {apiSourceVersion.GetHeaderValue()}");
-
-            return new HttpClientHeaderModifier(baseHttpClient, sourceHeaders, ServiceHeaderUtils.k_UnityApiPattern);
-        }
-
-        /// <summary>
-        /// Creates an instance of <see cref="HttpClientHeaderModifier"/> which adds the API source headers to each request.
-        /// The source values are retrieved from the <see cref="ApiSourceVersionAttribute"/> which must be defined in the calling <see cref="Assembly"/>.
-        /// </summary>
-        /// <remarks>An instance of the <see cref="ApiSourceVersionAttribute"/> must be defined at the assembly-level in the calling <see cref="Assembly"/> in order
-        /// for the correct API source values to be added as a header.</remarks>
-        /// <param name="baseHttpClient">The client for which to modify the request headers.</param>
-        /// <param name="assembly">The target assembly.</param>
-        /// <returns>The created <see cref="HttpClientHeaderModifier"/>.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="assembly"/> is null or the name or version defined in the retrieved <see cref="ApiSourceVersionAttribute"/> are null or white space.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if <see cref="ApiSourceVersionAttribute"/> does not exist or is not initialized in the calling assembly.</exception>
-        /// <exception cref="InvalidArgumentException">Thrown if <see cref="ApiSourceVersionAttribute"/> is initialized with null or empty values in the calling assembly.</exception>
-        public static IHttpClient WithApiSourceHeadersFromAssembly(this IHttpClient baseHttpClient, Assembly assembly)
-        {
-            if (assembly == null)
-                throw new ArgumentNullException(nameof(assembly));
-
-            var apiSourceVersion = ApiSourceVersion.GetApiSourceVersionForAssembly(assembly ?? Assembly.GetCallingAssembly());
-            return baseHttpClient.WithApiSourceHeaders(apiSourceVersion.Name, apiSourceVersion.Version);
         }
     }
 }

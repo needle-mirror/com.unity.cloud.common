@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 namespace Unity.Cloud.Common
 {
     /// <summary>
-    /// A class which provides access to App information as registered on the Digital Twin Dashboard.
+    /// A class which provides access to registered App information.
     /// </summary>
     public class AppInfoProvider : IAppInfoProvider
     {
+        const string k_ApiVersion = "v1";
         readonly IServiceHttpClient m_ServiceHttpClient;
         readonly IServiceHostResolver m_ServiceHostResolver;
 
@@ -24,33 +25,18 @@ namespace Unity.Cloud.Common
             m_ServiceHostResolver = serviceHostResolver;
         }
 
-        /// <summary>
-        /// Returns information related to an App registered on the Digital Twin Dashboard.
-        /// </summary>
-        /// <exception cref="System.Net.Http.HttpRequestException">This exception is thrown when the request fails to complete. See returned StatusCode for more details.</exception>
-        /// <exception cref="UnauthorizedException"></exception>
-        /// <exception cref="ConnectionException"></exception>
-        /// <exception cref="ForbiddenException"></exception>
-        public async Task<AppInfo> GetAppInfoAsync(string id)
+        /// <inheritdoc/>
+        public async Task<AppInfo> GetAppInfoAsync(OrganizationId organizationId, AppId applicationId)
         {
-            var requestUri = m_ServiceHostResolver.GetResolvedRequestUri($"/api/applications/{id}");
-            var response = await m_ServiceHttpClient.GetAsync(requestUri, ServiceHttpClientOptions.SkipDefaultAuthenticationOption());
+            var requestUri = m_ServiceHostResolver.GetResolvedRequestUri($"/app-linking/{k_ApiVersion}/organizations/{organizationId}/applications/{applicationId}");
+            var response = await m_ServiceHttpClient.GetAsync(requestUri);
             return await response.JsonDeserializeAsync<AppInfo>();
         }
 
-        /// <summary>
-        /// Get list of all apps inside an organization.
-        /// </summary>
-        /// <remarks>
-        /// Only apps that user has read access to will be returned.
-        /// </remarks>
-        /// <exception cref="System.Net.Http.HttpRequestException">This exception is thrown when the request fails to complete. See returned StatusCode for more details.</exception>
-        /// <exception cref="UnauthorizedException"></exception>
-        /// <exception cref="ConnectionException"></exception>
-        /// <exception cref="ForbiddenException"></exception>
-        public async Task<List<AppInfo>> GetAppsInfoAsync(OrganizationId userOrgId)
+        /// <inheritdoc/>
+        public async Task<List<AppInfo>> GetAppsInfoAsync(OrganizationId organizationId)
         {
-            var requestUri = m_ServiceHostResolver.GetResolvedRequestUri($"/api/applications?orgId={userOrgId}");
+            var requestUri = m_ServiceHostResolver.GetResolvedRequestUri($"/app-linking/{k_ApiVersion}/organizations/{organizationId}/applications");
             var response = await m_ServiceHttpClient.GetAsync(requestUri);
             var appInfoList = await response.JsonDeserializeAsync<AppInfoListJson>();
             return appInfoList.Applications;

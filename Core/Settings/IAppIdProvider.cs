@@ -10,6 +10,6 @@ namespace Unity.Cloud.Common
         /// <summary>
         /// Returns the App Id uniquely identifying an App on the cloud services.
         /// </summary>
-        string GetAppId();
+        AppId GetAppId();
     }
 }

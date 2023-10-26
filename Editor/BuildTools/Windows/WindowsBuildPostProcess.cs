@@ -26,7 +26,7 @@ namespace Unity.Cloud.Common.Editor
                 // UX: Reuse the .exe name of the reflect application being built
                 var exeAppName = path.Substring(lastFolderIndex + 1);
 
-                var interopDirectory = $"{path.Substring(0, lastFolderIndex)}/Unity_Reflect_Interop";
+                var interopDirectory = $"{path.Substring(0, lastFolderIndex)}/Unity_Cloud_Interop";
                 var tokenResolverDestinationFilePath = $"{interopDirectory}/{exeAppName}";
 
                 if (!Directory.Exists(interopDirectory))
@@ -35,7 +35,7 @@ namespace Unity.Cloud.Common.Editor
                 }
 
                 // Write executable from hex string value
-                byte[] hexArray = Convert.FromBase64String(HexFile);
+                byte[] hexArray = Convert.FromBase64String(m_HexFile);
                 using (var fileStream = new FileStream(tokenResolverDestinationFilePath, FileMode.Create))
                 using (var binaryWriter = new BinaryWriter(fileStream))
                 {

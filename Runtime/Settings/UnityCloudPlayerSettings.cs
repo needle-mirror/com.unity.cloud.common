@@ -6,7 +6,7 @@ using UnityEngine;
     /// <summary>
     /// A class containing Unity Player Settings for a Unity Cloud app.
     /// </summary>
-    public class UnityCloudPlayerSettings : ScriptableObject, IAppIdProvider, IAppNameProvider, IAppDisplayNameProvider
+    public class UnityCloudPlayerSettings : ScriptableObject, IAppIdProvider, IAppNameProvider, IAppDisplayNameProvider, IAppNamespaceProvider
     {
         /// <summary>
         /// The asset name for the <see cref="UnityCloudPlayerSettings"/> scriptable object.
@@ -28,8 +28,13 @@ using UnityEngine;
         /// </summary>
         public const string k_DefaultOrganizationID = "Default";
 
+        /// <summary>
+        /// The default app namespace.
+        /// </summary>
+        public const string k_DefaultNamespace = "com.unity.cloud";
+
 #pragma warning disable S1104 // Make this field 'private' and encapsulate it in a 'public' property.
-        
+
         /// <summary>
         /// The Unity Cloud app ID.
         /// </summary>
@@ -41,9 +46,18 @@ using UnityEngine;
         [ReadOnly] public string AppName = k_DefaultAppName;
 
         /// <summary>
-        /// The Unity Cloud App display name.
+        /// The Unity Cloud app display name.
         /// </summary>
         [ReadOnly] public string AppDisplayName = k_DefaultAppDisplayName;
+
+        /// <summary>
+        /// The Unity Cloud app organization ID.
+        /// </summary>
+        [ReadOnly] public string AppOrganizationID = k_DefaultOrganizationID;
+
+        /// The Unity Cloud namespace to uniquely identify the app on the device.
+        /// </summary>
+        public string AppNamespace = k_DefaultNamespace;
 
 #pragma warning restore S1104
 
@@ -77,9 +91,9 @@ using UnityEngine;
         /// Gets the app ID.
         /// </summary>
         /// <returns>The app ID.</returns>
-        public string GetAppId()
+        public AppId GetAppId()
         {
-            return Instance.AppId;
+            return new AppId(Instance.AppId);
         }
 
         /// <summary>
@@ -95,19 +109,27 @@ using UnityEngine;
         /// Gets the app display name.
         /// </summary>
         /// <returns>The app display name.</returns>
-        [Obsolete("Replaced by GetAppDisplayName() method")]
-        public string GetDisplayName()
+        public string GetAppDisplayName()
         {
             return Instance.AppDisplayName;
         }
 
         /// <summary>
-        /// Gets the app display name.
+        /// Gets the app organization ID.
         /// </summary>
-        /// <returns>The app display name.</returns>
-        public string GetAppDisplayName()
+        /// <returns>The app organization ID.</returns>
+        public string GetAppOrganization()
         {
-            return Instance.AppDisplayName;
+            return Instance.AppOrganizationID;
+        }
+
+        /// <summary>
+        /// Gets the app name namespace.
+        /// </summary>
+        /// <returns>The app namespace.</returns>
+        public string GetAppNamespace()
+        {
+            return Instance.AppNamespace;
         }
     }
 

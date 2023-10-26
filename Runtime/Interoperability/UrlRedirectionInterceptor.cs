@@ -113,12 +113,12 @@ namespace Unity.Cloud.Common.Runtime
 
         /// <inheritdoc />
         /// <remarks>Only used for windows applications.</remarks>
-        public string GetRedirectProcessId()
+        public ProcessId GetRedirectProcessId()
         {
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
-            return $"{m_MainWindowPtr}";
+            return new ProcessId($"{m_MainWindowPtr}");
 #else
-            return string.Empty;
+            return ProcessId.None;
 #endif
         }
 
@@ -284,13 +284,13 @@ namespace Unity.Cloud.Common.Runtime
             var lastFolderIndex = subPath.LastIndexOf("\\");
             var exePathRoot = subPath.Substring(0, lastFolderIndex + 1);
             var exeAppName = subPath.Substring(lastFolderIndex + 1);
-            return $"{exePathRoot}Unity_Reflect_Interop\\{exeAppName}.exe";
+            return $"{exePathRoot}Unity_Cloud_Interop\\{exeAppName}.exe";
         }
 
         void AddRegistryKeys()
         {
             var resolverLocation = GetResolverPath();
-            var uniqueCustomUriCommand = $"register {UriSchemeRedirection.s_UriSchemePrefix}{UnityCloudPlayerSettings.Instance.AppName}";
+            var uniqueCustomUriCommand = $"register {UnityCloudPlayerSettings.Instance.AppNamespace}.{UnityCloudPlayerSettings.Instance.AppName}";
 #if ENABLE_MONO
             Process.Start(new ProcessStartInfo(resolverLocation, uniqueCustomUriCommand));
 #else

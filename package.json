@@ -1,27 +1,27 @@
 {
   "name": "com.unity.cloud.common",
-  "version": "0.14.4",
+  "version": "1.0.0-exp.1",
   "displayName": "Unity Cloud Common",
   "description": "Common functionalities needed by the Unity Cloud SDKs",
-  "unity": "2021.3",
+  "unity": "2022.3",
   "dependencies": {
-    "com.unity.nuget.newtonsoft-json": "3.0.2",
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.unity.modules.unitywebrequest": "1.0.0",
     "com.unity.modules.imgui": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.cloud.common.tests": "0.14.4"
+    "com.unity.cloud.common.tests": "1.0.0-exp.1"
   },
   "_upm": {
-    "changelog": "### Fixed\n- Added missing compile flags in `ServiceHeaderUtils`.\n\n### Added\n- Added official support for the latest LTS Editor 2022.3 while maintaining support for 2021.3.\n\n### Changed\n- `UrlRedirectionInterceptor` internal `AsyncUrlRedirectAwaiter` default timeout delay set to 10 minutes instead of 1 minute."
+    "changelog": "### Added\n- Made `ServiceHttpClientModifier` public.\n- Added new methods to `HttpResponseMessageExtensions`.\n- Importing assets with a StreamingAssets directory will copy those files, on approval, in the project StreamingAssets directory.\n- Added new properties to `ServiceException` in order to access all necessary information on errors.\n\n### Changed\n- Upgrade to newtonsoft-json 3.2.1.\n- [Breaking] `UrlRedirectionInterceptor` now expects to find the custom uri resolver executable under the `Unity_Cloud_Interop` folder.\n- Improved the error-messaging whe a `IRetryPolicy` has expired.\n- Change minimal Unity version to 2022.3\n\n### Removed\n- [Breaking] Removing obsolete `UriSchemeRedirection` class.\n- [Breaking] Removing obsolete `GetDisplayName()` method from `UnityCloudPlayerSettings`.\n\n### Fixed\n- Fixing regex parameters.\n- Removing redundant `AssetDatabase.Refresh()` call in sample import."
   },
   "upmCi": {
-    "footprint": "e814ed94e832d597a6764abc958ff30f13e9b9e3"
+    "footprint": "3fd566728a36299932a64ff251b294b065f5dc99"
   },
-  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@0.14/manual/index.html",
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@1.0/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/digital-twins-sdk.git",
     "type": "git",
-    "revision": "79b157f6b3eb32e2a5884c36fde102fd115e85d5"
+    "revision": "400f78287aeb53a6435b1936d0686b069fa3c02f"
   }
 }

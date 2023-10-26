@@ -80,10 +80,10 @@ namespace Unity.Cloud.Common
         public static bool operator !=(InstanceId left, InstanceId right) => !left.Equals(right);
 
         /// <summary>
-        /// Explicitly cast a <see cref="InstanceId"/ to a <see cref="string"/>>
+        /// Explicitly cast a <see cref="InstanceId"/> to a <see cref="string"/>
         /// </summary>
-        /// <param name="sId">Object to cast</param>
+        /// <param name="iId">Object to cast</param>
         /// <returns>The resulting <see cref="string"/></returns>
-        public static explicit operator string(InstanceId sId) => sId.m_String;
+        public static explicit operator string(InstanceId iId) => iId.m_String;
     }
 }

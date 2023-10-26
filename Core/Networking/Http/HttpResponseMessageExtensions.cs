@@ -16,19 +16,27 @@ namespace Unity.Cloud.Common
         /// <param name="response">The HTTP response message to deserialize.</param>
         /// <typeparam name="T">The type to deserialize to.</typeparam>
         /// <returns></returns>
-        public async static Task<T> JsonDeserializeAsync<T>(this HttpResponseMessage response)
+        public static async Task<T> JsonDeserializeAsync<T>(this HttpResponseMessage response)
         {
-            string content;
+            var content = await response.GetContentAsString();
 
+            return JsonSerialization.Deserialize<T>(content);
+        }
+
+        /// <summary>
+        /// Gets a string representing the content of an <see cref="HttpResponseMessage"/>.
+        /// </summary>
+        /// <param name="response">The HTTP response message.</param>
+        /// <returns></returns>
+        public static async Task<string> GetContentAsString(this HttpResponseMessage response)
+        {
 #if UNITY_WEBGL && !UNITY_EDITOR
             var stream = await response.Content.ReadAsStreamAsync();
             using var reader = new StreamReader(stream);
-            content = reader.ReadToEnd();
+            return reader.ReadToEnd();
 #else
-            content = await response.Content.ReadAsStringAsync();
+            return await response.Content.ReadAsStringAsync();
 #endif
-
-            return JsonSerialization.Deserialize<T>(content);
         }
     }
 }

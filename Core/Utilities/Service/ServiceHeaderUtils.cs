@@ -12,19 +12,28 @@ namespace Unity.Cloud.Common
     public static class ServiceHeaderUtils
     {
         public const string k_ApiSourceHeader = "X-Unity-Cloud-Api-Source";
-        public const string k_UnityApiPattern = @"https.*(?:[./])unity\.com/api/.*|localhost:.*\/api/.*";
+        public const string k_UnityApiPattern = @"https.*(?:[./])unity\.com/api/.*|localhost:.*\/api/.*|services.(?:api.)?unity.com";
 
-        const string k_AuthScheme = "Bearer";
+        public const string k_BearerScheme = "Bearer";
+        public const string k_BasicScheme = "Basic";
+
         const string k_AuthHeader = "Authorization";
-        const string k_AppIdHeader = "X-Digital-Twins-AppId";
-        const string k_ClientTraceHeader = "X-Digital-Twins-ClientTrace";
-        const string k_TraceHeader = "X-Digital-Twins-Trace";
+        const string k_AppIdHeader = "X-Unity-Cloud-AppId";
+        const string k_ClientTraceHeader = "X-Unity-Cloud-ClientTrace";
+        const string k_TraceHeader = "X-Unity-Cloud-Trace";
         const string k_TraceEnvVarName = "UNITY_CLOUD_TRACE";
+
+        // TODO: Remove these once the back-end has dropped them in favor of the X-Unity-Cloud-* headers.
+        const string k_DeprecatedAppIdHeader = "X-Digital-Twins-AppId";
+        const string k_DeprecatedClientTraceHeader = "X-Digital-Twins-ClientTrace";
+        const string k_DeprecatedTraceHeader = "X-Digital-Twins-Trace";
 
 
         static Dictionary<string, string> s_HeaderToQueryMapping = new()
         {
             {k_AuthHeader, "authorization"},
+            {k_DeprecatedAppIdHeader, "app_id"},
+            {k_DeprecatedClientTraceHeader, "client_trace"},
             {k_AppIdHeader, "app_id"},
             {k_ClientTraceHeader, "client_trace"},
         };
@@ -51,7 +60,10 @@ namespace Unity.Cloud.Common
 
                         if (name == k_AuthHeader)
                         {
-                            escapedValue = escapedValue.Remove(0, k_AuthScheme.Length);
+                            if (escapedValue.Contains(k_BearerScheme))
+                                escapedValue = escapedValue.Remove(0, k_BearerScheme.Length);
+                            else if (escapedValue.Contains(k_BasicScheme))
+                                escapedValue = escapedValue.Remove(0, k_BasicScheme.Length);
                         }
 
                         query += $"{queryPrefix}{queryName}={escapedValue}";
@@ -71,40 +83,57 @@ namespace Unity.Cloud.Common
         /// <param name="headers">The HTTP headers to add to.</param>
         /// <param name="appId">The app Id.</param>
         /// <param name="clientTrace">The client trace.</param>
-        public static void AddAppIdAndClientTrace(this HttpHeaders headers, string appId, string clientTrace)
+        public static void AddAppIdAndClientTrace(this HttpHeaders headers, AppId appId, string clientTrace)
         {
-            if (!string.IsNullOrEmpty(appId))
+            var appIdString = appId.ToString();
+            if (!string.IsNullOrEmpty(appIdString))
             {
-                headers.Add(k_AppIdHeader, appId);
+                if (!headers.Contains(k_AppIdHeader))
+                    headers.Add(k_AppIdHeader, appIdString);
+
+                if (!headers.Contains(k_DeprecatedAppIdHeader))
+                    headers.Add(k_DeprecatedAppIdHeader, appIdString);
             }
+
             if (!string.IsNullOrEmpty(clientTrace))
             {
-                headers.Add(k_ClientTraceHeader, clientTrace);
+                if (!headers.Contains(k_ClientTraceHeader))
+                    headers.Add(k_ClientTraceHeader, clientTrace);
+
+                if (!headers.Contains(k_DeprecatedClientTraceHeader))
+                    headers.Add(k_DeprecatedClientTraceHeader, clientTrace);
             }
 
             // Value of user's trace environment variable
             var envTraceId = Environment.GetEnvironmentVariable(k_TraceEnvVarName);
             if (!string.IsNullOrEmpty(envTraceId))
-                headers.Add(k_TraceHeader, envTraceId);
+            {
+                if(!headers.Contains(k_TraceHeader))
+                    headers.Add(k_TraceHeader, envTraceId);
+
+                if(!headers.Contains(k_DeprecatedTraceHeader))
+                    headers.Add(k_DeprecatedTraceHeader, envTraceId);
+            }
         }
 
         /// <summary>
         /// Add the HTTP header with a specific value for authorization.
         /// </summary>
         /// <param name="headers">The HTTP headers to add to.</param>
-        /// <param name="auth">The authorization value.</param>
-        public static void AddAuthorization(this HttpHeaders headers, string auth)
+        /// <param name="authValue">The authorization value.</param>
+        /// <param name="authScheme">The authorization scheme. Set to "Bearer" by default.</param>
+        public static void AddAuthorization(this HttpHeaders headers, string authValue, string authScheme)
         {
-#if !UNITY_WEBGL || UNITY_EDITOR
             if (headers is HttpRequestHeaders casted)
             {
-                casted.Authorization = new AuthenticationHeaderValue(k_AuthScheme, auth);
+                if (!casted.Contains(k_AuthHeader))
+                    casted.Authorization = new AuthenticationHeaderValue(authScheme, authValue);
             }
             else
             {
-                headers.Add(k_AuthHeader, $"{k_AuthScheme} {auth}");
+                if (!headers.Contains(k_AuthHeader))
+                    headers.Add(k_AuthHeader, $"{authScheme} {authValue}");
             }
-#endif
         }
 
         /// <summary>

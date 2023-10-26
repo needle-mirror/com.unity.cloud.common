@@ -3,48 +3,48 @@ using System;
 namespace Unity.Cloud.Common
 {
     /// <summary>
-    /// This struct holds information about workspace identifier.
+    /// This struct holds information about asset version identifier.
     /// </summary>
-    public readonly struct WorkspaceId
+    public readonly struct AssetVersion
     {
         readonly string m_String;
 
         /// <summary>
-        /// Return the value of an identifier representing an invalid workspace id
+        /// Return the value of an identifier representing an invalid asset version
         /// </summary>
-        public static readonly WorkspaceId None = new(Guid.Empty);
+        public static readonly AssetVersion None = new (0);
 
         /// <summary>
-        /// Returns a <see cref="WorkspaceId"/> using a <see cref="string"/>.
+        /// Returns a <see cref="AssetVersion"/> using a <see cref="string"/>.
         /// </summary>
-        /// <param name="value">The string representing the workspace identifier</param>
-        public WorkspaceId(string value) => m_String = value;
+        /// <param name="value">The string representing the asset version</param>
+        public AssetVersion(string value) => m_String = value;
 
         /// <summary>
-        /// Returns a <see cref="WorkspaceId"/> using a <see cref="Guid"/>.
+        /// Returns a <see cref="AssetVersion"/> using an <see cref="int"/>.
         /// </summary>
-        /// <param name="value">The guid representing the workspace identifier</param>
-        public WorkspaceId(Guid value) => m_String = value.ToString();
+        /// <param name="value">The int representing the asset version. </param>
+        public AssetVersion(int value) => m_String = value.ToString();
 
         /// <summary>
-        /// Returns whether two <see cref="WorkspaceId"/> objects are equals.
+        /// Returns whether two <see cref="AssetVersion"/> objects are equals.
         /// </summary>
         /// <param name="other"></param>
         /// <returns>
         /// <see langword="true"/> if both instance have the same values;
         /// <see langword="false"/> otherwise.
         /// </returns>
-        public bool Equals(WorkspaceId other) => m_String == other.m_String;
+        public bool Equals(AssetVersion other) => m_String == other.m_String;
 
         /// <summary>
-        /// Validate <paramref name="obj"/> is a <see cref="WorkspaceId"/> instance and have the same values as this instance.
+        /// Validate <paramref name="obj"/> is a <see cref="AssetVersion"/> instance and have the same values as this instance.
         /// </summary>
         /// <param name="obj">Compare the values with this instance.</param>
         /// <returns>
         /// <see langword="true"/> if both instance have the same values;
         /// <see langword="false"/> otherwise.
         /// </returns>
-        public override bool Equals(object obj) => obj is WorkspaceId other && Equals(other);
+        public override bool Equals(object obj) => obj is AssetVersion other && Equals(other);
 
         /// <summary>
         /// Compute a hash code for the object.
@@ -58,13 +58,13 @@ namespace Unity.Cloud.Common
         public override int GetHashCode() => m_String != null ? m_String.GetHashCode() : 0;
 
         /// <summary>
-        /// Get the string representation of this <see cref="WorkspaceId"/>.
+        /// Get the string representation of this <see cref="AssetVersion"/>.
         /// </summary>
         /// <returns>The string result.</returns>
         public override string ToString() => m_String;
 
         /// <summary>
-        /// Get if two <see cref="WorkspaceId"/> represent the same.
+        /// Get if two <see cref="AssetVersion"/> represent the same.
         /// </summary>
         /// <param name="left">Compare with this first instance.</param>
         /// <param name="right">Compare with this other instance.</param>
@@ -72,10 +72,10 @@ namespace Unity.Cloud.Common
         /// <see langword="true"/> if both instances represent the same;
         /// <see langword="false"/> otherwise.
         /// </returns>
-        public static bool operator ==(WorkspaceId left, WorkspaceId right) => left.Equals(right);
+        public static bool operator ==(AssetVersion left, AssetVersion right) => left.Equals(right);
 
         /// <summary>
-        /// Get if two <see cref="WorkspaceId"/> does not represent the same.
+        /// Get if two <see cref="AssetVersion"/> does not represent the same.
         /// </summary>
         /// <param name="left">Compare with this first instance.</param>
         /// <param name="right">Compare with this other instance.</param>
@@ -83,13 +83,13 @@ namespace Unity.Cloud.Common
         /// <see langword="true"/> if both instances are not the same;
         /// <see langword="false"/> if both instances are the same.
         /// </returns>
-        public static bool operator !=(WorkspaceId left, WorkspaceId right) => !left.Equals(right);
+        public static bool operator !=(AssetVersion left, AssetVersion right) => !left.Equals(right);
 
         /// <summary>
-        /// Explicitly cast a <see cref="WorkspaceId"/ to a <see cref="string"/>>
+        /// Explicitly cast a <see cref="AssetVersion"/ to a <see cref="string"/>>
         /// </summary>
-        /// <param name="sId">Object to cast</param>
+        /// <param name="a">Object to cast</param>
         /// <returns>The resulting <see cref="string"/></returns>
-        public static explicit operator string(WorkspaceId sId) => sId.m_String;
+        public static explicit operator string(AssetVersion a) => a.m_String;
     }
 }

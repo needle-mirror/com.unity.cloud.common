@@ -1,13 +1,12 @@
 using System;
-using System.Collections.Generic;
 
 namespace Unity.Cloud.Common
 {
     /// <inheritdoc/>
     public class ServiceHostResolver : IServiceHostResolver
     {
+        internal const ServiceDomainProvider k_DefaultDomainProvider = ServiceDomainProvider.UnityServices;
         const ServiceEnvironment k_DefaultEnvironment = ServiceEnvironment.Production;
-        const ServiceDomainProvider k_DefaultDomainProvider = ServiceDomainProvider.Azure;
 
         /// <summary>
         /// Returns the Default Environment.
@@ -34,16 +33,23 @@ namespace Unity.Cloud.Common
         readonly ServiceEnumOverride<ServiceEnvironment> m_EnvironmentOverride = new();
         readonly ServiceEnumOverride<ServiceDomainProvider> m_ProviderOverride = new();
 
+        readonly IServiceDomainResolver m_DomainResolver;
         readonly IHttpRequestUriModifier m_HttpRequestUriModifier;
 
-        internal ServiceHostResolver(ServiceHost? applicationOverride = null)
-            : this(ReadSystemOverrides(), applicationOverride ?? new ServiceHost())
+        internal ServiceHostResolver(ServiceHost? applicationOverride = null, IServiceDomainResolver domainResolver = null)
+            : this(ReadSystemOverrides(), applicationOverride ?? new ServiceHost(), domainResolver ?? new ServiceDomainResolver())
         {}
 
-        ServiceHostResolver(ServiceHost systemOverride, ServiceHost applicationOverride)
+        internal ServiceHostResolver(IServiceHostResolver other, IServiceDomainResolver overrideDomainResolver = null)
+        : this(other.GetResolvedServiceHost(), overrideDomainResolver)
+        {}
+
+        ServiceHostResolver(ServiceHost systemOverride, ServiceHost applicationOverride, IServiceDomainResolver domainResolver)
         {
             m_EnvironmentOverride.ResolveOverride(systemOverride.EnvironmentValue, applicationOverride.EnvironmentValue, ServiceEnvironmentUtils.ParseEnvironmentValue);
             m_ProviderOverride.ResolveOverride(systemOverride.ProviderValue, applicationOverride.ProviderValue, ServiceDomainUtils.ParseProviderValue);
+
+            m_DomainResolver = domainResolver;
 
             m_HttpRequestUriModifier = HttpRequestUriModifierFactory.CreateFromEnvironmentVariable();
             if (m_HttpRequestUriModifier != null)
@@ -84,15 +90,12 @@ namespace Unity.Cloud.Common
                 _ => "https"
             };
 
-            var domain = GetResolvedDomain();
+            var resolvedProvider = GetResolvedDomainProvider();
 
-            var serviceAddress = environmentOverride switch
-            {
-                ServiceEnvironment.Production => $"{uriScheme}://{domain}",
-                ServiceEnvironment.Staging => $"{uriScheme}://stg.{domain}",
-                ServiceEnvironment.Test => $"{uriScheme}://test.{domain}",
-                _ => throw new ArgumentOutOfRangeException(nameof(environmentOverride), environmentOverride, "Invalid environment for GetServiceAddress")
-            };
+            var domain = m_DomainResolver.GetResolvedDomain(resolvedProvider);
+            var subdomain = m_DomainResolver.GetResolvedSubdomain(resolvedProvider, environmentOverride);
+
+            var serviceAddress = $"{uriScheme}://{subdomain}{domain}";
 
             if (m_HttpRequestUriModifier != null)
                 serviceAddress = m_HttpRequestUriModifier.Modify(serviceAddress);
@@ -109,20 +112,6 @@ namespace Unity.Cloud.Common
                 requestUri = m_HttpRequestUriModifier.Modify(requestUri);
 
             return requestUri;
-        }
-
-        string GetResolvedDomain()
-        {
-            var resolvedProvider = m_ProviderOverride.Result ?? DefaultDomainProvider;
-
-            try
-            {
-                return ServiceDomainUtils.s_ServerDomainMap[resolvedProvider];
-            }
-            catch (KeyNotFoundException)
-            {
-                throw new NotSupportedException($"The service domain provider is not supported: {resolvedProvider}");
-            }
         }
     }
 }

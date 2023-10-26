@@ -1,12 +1,12 @@
 # Get started
 
-This section explains how to open a project that will use your feature and start doing cool things with it.
+This section explains how to open a Project that will use your feature and start doing cool things with it.
 
 At the end of this section, a user should know where everything they need to be successful with your feature is located, and be ready to follow any instructions on accomplishing use cases.
 
 ## Verifying project settings
 
-Are there any project or editor settings that the user needs to modify or verify before they can do cool stuff? Describe them, and then offer specific instructions!
+Are there any Project or editor settings that the user needs to modify or verify before they can do cool stuff? Describe them, and then offer specific instructions!
 
 ## Identifying new content
 

@@ -3,14 +3,14 @@ using System;
 namespace Unity.Cloud.Common
 {
     /// <summary>
-    /// This struct holds information about organization identifier.
+    /// This struct holds information about the genesis organization identifier.
     /// </summary>
     public readonly struct OrganizationId
     {
         readonly string m_String;
 
         /// <summary>
-        /// Return the value of an identifier representing an invalid organization id
+        /// Return the value of an identifier representing a genesis organization id.
         /// </summary>
         public static readonly OrganizationId None = new(string.Empty);
 
@@ -80,10 +80,10 @@ namespace Unity.Cloud.Common
         public static bool operator !=(OrganizationId left, OrganizationId right) => !left.Equals(right);
 
         /// <summary>
-        /// Explicitly cast a <see cref="OrganizationId"/ to a <see cref="string"/>>
+        /// Explicitly cast a <see cref="OrganizationId"/> to a <see cref="string"/>>
         /// </summary>
-        /// <param name="sId">Object to cast</param>
+        /// <param name="oId">Object to cast</param>
         /// <returns>The resulting <see cref="string"/></returns>
-        public static explicit operator string(OrganizationId sId) => sId.m_String;
+        public static explicit operator string(OrganizationId oId) => oId.m_String;
     }
 }

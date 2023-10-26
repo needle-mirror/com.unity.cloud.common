@@ -27,7 +27,7 @@ namespace Unity.Cloud.Common
 
             try
             {
-                m_IsMatchRegex = new Regex(schema.IsMatch);
+                m_IsMatchRegex = new Regex(schema.IsMatch, RegexOptions.None, TimeSpan.FromMilliseconds(1000));
             }
             catch (ArgumentException)
             {

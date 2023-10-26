@@ -13,7 +13,7 @@ namespace Unity.Cloud.Common
     public class ServiceMessagingClient : IServiceMessagingClient, IDisposable
     {
         readonly IWebSocketClient m_WebSocketClient;
-        readonly IAccessTokenProvider m_AccessTokenProvider;
+        readonly IServiceAuthorizer m_ServiceAuthorizer;
         readonly IAppIdProvider m_AppIdProvider;
         readonly HashSet<string> m_SourceHeaders = new ();
         long m_CheckpointEpochMilliseconds;
@@ -34,12 +34,12 @@ namespace Unity.Cloud.Common
         /// Creates an instance of <see cref="ServiceMessagingClient"/>
         /// </summary>
         /// <param name="webSocketClient">IWebSocketClient provided. </param>
-        /// <param name="accessTokenProvider">Provider of access tokens. </param>
+        /// <param name="serviceAuthorizer">Authorizer to add authorization information to requests. </param>
         /// <param name="appIdProvider">Provider of the application identifier. </param>
-        public ServiceMessagingClient(IWebSocketClient webSocketClient, IAccessTokenProvider accessTokenProvider = null, IAppIdProvider appIdProvider = null)
+        public ServiceMessagingClient(IWebSocketClient webSocketClient, IServiceAuthorizer serviceAuthorizer = null, IAppIdProvider appIdProvider = null)
         {
             m_WebSocketClient = webSocketClient;
-            m_AccessTokenProvider = accessTokenProvider;
+            m_ServiceAuthorizer = serviceAuthorizer;
             m_AppIdProvider = appIdProvider;
 
             m_WebSocketClient.ConnectionErrorOccured += OnWebSocketClientError;
@@ -56,13 +56,10 @@ namespace Unity.Cloud.Common
             var headers = new WebSocketHeaders();
             ApplyDefaultHeaders(headers, m_SourceHeaders);
 
-            if (m_AccessTokenProvider != null)
-            {
-                var accessToken = await m_AccessTokenProvider.GetAccessTokenAsync();
-                headers.AddAuthorization(accessToken);
-            }
+            if (m_ServiceAuthorizer != null)
+                await m_ServiceAuthorizer.AddAuthorization(headers);
 
-            headers.AddAppIdAndClientTrace(m_AppIdProvider?.GetAppId(), ServiceHttpClient.k_ClientTrace);
+            headers.AddAppIdAndClientTrace(m_AppIdProvider?.GetAppId() ?? AppId.None, ServiceHttpClient.ClientTrace);
 
 #if UNITY_WEBGL
             uri = uri.AddHeadersAsQuery(headers);

@@ -3,42 +3,48 @@ using System;
 namespace Unity.Cloud.Common
 {
     /// <summary>
-    /// This struct holds information about scene version identifier.
+    /// This struct holds information about project identifier.
     /// </summary>
-    public readonly struct SceneVersionId
+    public readonly struct ProjectId
     {
         readonly string m_String;
 
         /// <summary>
-        /// Return the value of an identifier representing an invalid scene version id
+        /// Return the value of an identifier representing an invalid project id
         /// </summary>
-        public static readonly SceneVersionId None = new(Guid.Empty.ToString());
-
-         /// <summary>
-        /// Returns a <see cref="SceneVersionId"/> using a <see cref="string"/>.
-        /// </summary>
-        /// <param name="value">The string representing the version identifier</param>
-        public SceneVersionId(string value) => m_String = value;
+        public static readonly ProjectId None = new(Guid.Empty);
 
         /// <summary>
-        /// Returns whether two <see cref="SceneVersionId"/> objects are equals.
+        /// Returns a <see cref="ProjectId"/> using a <see cref="string"/>.
+        /// </summary>
+        /// <param name="value">The string representing the project identifier</param>
+        public ProjectId(string value) => m_String = value;
+
+        /// <summary>
+        /// Returns a <see cref="ProjectId"/> using a <see cref="Guid"/>.
+        /// </summary>
+        /// <param name="value">The guid representing the project identifier</param>
+        public ProjectId(Guid value) => m_String = value.ToString();
+
+        /// <summary>
+        /// Returns whether two <see cref="ProjectId"/> objects are equals.
         /// </summary>
         /// <param name="other"></param>
         /// <returns>
         /// <see langword="true"/> if both instance have the same values;
         /// <see langword="false"/> otherwise.
         /// </returns>
-        public bool Equals(SceneVersionId other) => m_String == other.m_String;
+        public bool Equals(ProjectId other) => m_String == other.m_String;
 
         /// <summary>
-        /// Validate <paramref name="obj"/> is a <see cref="SceneVersionId"/> instance and have the same values as this instance.
+        /// Validate <paramref name="obj"/> is a <see cref="ProjectId"/> instance and have the same values as this instance.
         /// </summary>
         /// <param name="obj">Compare the values with this instance.</param>
         /// <returns>
         /// <see langword="true"/> if both instance have the same values;
         /// <see langword="false"/> otherwise.
         /// </returns>
-        public override bool Equals(object obj) => obj is SceneVersionId other && Equals(other);
+        public override bool Equals(object obj) => obj is ProjectId other && Equals(other);
 
         /// <summary>
         /// Compute a hash code for the object.
@@ -52,13 +58,13 @@ namespace Unity.Cloud.Common
         public override int GetHashCode() => m_String != null ? m_String.GetHashCode() : 0;
 
         /// <summary>
-        /// Get the string representation of this <see cref="SceneVersionId"/>.
+        /// Get the string representation of this <see cref="ProjectId"/>.
         /// </summary>
         /// <returns>The string result.</returns>
         public override string ToString() => m_String;
 
         /// <summary>
-        /// Get if two <see cref="SceneVersionId"/> represent the same.
+        /// Get if two <see cref="ProjectId"/> represent the same.
         /// </summary>
         /// <param name="left">Compare with this first instance.</param>
         /// <param name="right">Compare with this other instance.</param>
@@ -66,10 +72,10 @@ namespace Unity.Cloud.Common
         /// <see langword="true"/> if both instances represent the same;
         /// <see langword="false"/> otherwise.
         /// </returns>
-        public static bool operator ==(SceneVersionId left, SceneVersionId right) => left.Equals(right);
+        public static bool operator ==(ProjectId left, ProjectId right) => left.Equals(right);
 
         /// <summary>
-        /// Get if two <see cref="SceneVersionId"/> does not represent the same.
+        /// Get if two <see cref="ProjectId"/> does not represent the same.
         /// </summary>
         /// <param name="left">Compare with this first instance.</param>
         /// <param name="right">Compare with this other instance.</param>
@@ -77,13 +83,13 @@ namespace Unity.Cloud.Common
         /// <see langword="true"/> if both instances are not the same;
         /// <see langword="false"/> if both instances are the same.
         /// </returns>
-        public static bool operator !=(SceneVersionId left, SceneVersionId right) => !left.Equals(right);
+        public static bool operator !=(ProjectId left, ProjectId right) => !left.Equals(right);
 
         /// <summary>
-        /// Explicitly cast a <see cref="SceneVersionId"/ to a <see cref="string"/>>
+        /// Explicitly cast a <see cref="ProjectId"/ to a <see cref="string"/>>
         /// </summary>
-        /// <param name="sId">Object to cast</param>
+        /// <param name="pId">Object to cast</param>
         /// <returns>The resulting <see cref="string"/></returns>
-        public static explicit operator string(SceneVersionId sId) => sId.m_String;
+        public static explicit operator string(ProjectId pId) => pId.m_String;
     }
 }

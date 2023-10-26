@@ -31,7 +31,7 @@ namespace Unity.Cloud.Common
         /// <returns>
         /// A string representation of the current process id or main window id.
         /// </returns>
-        string GetRedirectProcessId();
+        ProcessId GetRedirectProcessId();
 
         /// <summary>
         /// Gets a nullable <see cref="UrlRedirectResult"/> value.

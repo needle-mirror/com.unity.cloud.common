@@ -6,13 +6,8 @@ namespace Unity.Cloud.Common
     public enum ServiceDomainProvider
     {
         /// <summary>
-        /// Azure provider.
+        /// Unity Services provider.
         /// </summary>
-        Azure,
-
-        /// <summary>
-        /// GCP provider.
-        /// </summary>
-        GCP,
+        UnityServices,
     }
 }

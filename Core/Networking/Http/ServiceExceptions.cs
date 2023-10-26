@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Runtime.Serialization;
 
@@ -11,24 +12,44 @@ namespace Unity.Cloud.Common
     public class ServiceError
     {
         /// <summary>
-        /// The error message.
+        /// The error title.
         /// </summary>
-        public string Message { get; set; } = "";
+        public string Title { get; set; } = "";
+
+        /// <summary>
+        /// The ID of the failed request.
+        /// </summary>
+        public string RequestId { get; set; } = "";
+
+        /// <summary>
+        /// The error detail.
+        /// </summary>
+        public string Detail { get; set; } = "";
 
         /// <summary>
         /// The error code.
         /// </summary>
-        public Code ErrorCode { get; set; } = 0;
+        public ErrorCode Code { get; set; } = 0;
 
         /// <summary>
         /// The HTTP status code.
         /// </summary>
-        public HttpStatusCode? HttpStatusCode { get; set; } = 0;
+        public HttpStatusCode Status { get; set; } = 0;
+
+        /// <summary>
+        /// The error details.
+        /// </summary>
+        public List<ErrorDetails> Details { get; set; } = new ();
+
+        /// <summary>
+        /// The error type.
+        /// </summary>
+        public string Type { get; set; } = "";
 
         /// <summary>
         /// Enum of all known error codes that can be thrown by a service.
         /// </summary>
-        public enum Code
+        public enum ErrorCode
         {
             // Don't forget to add any new error code to the documentation at docs/UnifiedErrors.md
             // New errors also need to be added to the HttpExceptionFactory, HttpErrorFactory and
@@ -133,21 +154,33 @@ namespace Unity.Cloud.Common
         /// <summary>
         /// Returns true if it's a licensing error.
         /// </summary>
-        public bool IsLicensingError => (int)ErrorCode >= 100 && (int)ErrorCode < 200;
+        public bool IsLicensingError => (int)Code >= 100 && (int)Code < 200;
 
         /// <summary>
         /// Returns true if it's an authentication error.
         /// </summary>
-        public bool IsAuthError => (int)ErrorCode >= 200 && (int)ErrorCode < 300;
+        public bool IsAuthError => (int)Code >= 200 && (int)Code < 300;
+
+        /// <summary>
+        /// Represents the details of an error.
+        /// </summary>
+        [Serializable]
+        public class ErrorDetails
+        {
+            public ErrorCode ErrorCode { get; set; } = new();
+            public string ErrorMessage { get; set; } = "";
+        }
     }
+
+
 
     [AttributeUsage(AttributeTargets.Class)]
     public class ServiceErrorAttribute : Attribute
     {
-        public ServiceError.Code ErrorCode { get; }
+        public ServiceError.ErrorCode ErrorCode { get; }
         public HttpStatusCode HttpStatusCode { get; }
 
-        public ServiceErrorAttribute(ServiceError.Code errorCode, HttpStatusCode httpStatusCode)
+        public ServiceErrorAttribute(ServiceError.ErrorCode errorCode, HttpStatusCode httpStatusCode)
         {
             ErrorCode = errorCode;
             HttpStatusCode = httpStatusCode;
@@ -208,25 +241,30 @@ namespace Unity.Cloud.Common
 
             return new ServiceError
             {
-                Message = exception.Message,
-                ErrorCode = attribute.ErrorCode,
-                HttpStatusCode = attribute.HttpStatusCode,
+                Title = exception.Message,
+                Code = attribute.ErrorCode,
+                Status = attribute.HttpStatusCode,
             };
         }
     }
 
     [Serializable]
-    [ServiceError(ServiceError.Code.Unknown, HttpStatusCode.BadRequest)]
+    [ServiceError(ServiceError.ErrorCode.Unknown, HttpStatusCode.BadRequest)]
     public class ServiceException : Exception
     {
-        ServiceError serviceError { get; set; } = new () { ErrorCode = ServiceError.Code.Unknown };
+        ServiceError serviceError { get; set; } = new () { Code = ServiceError.ErrorCode.Unknown };
 
-        public ServiceError.Code ErrorCode => serviceError.ErrorCode;
-        public HttpStatusCode? StatusCode => serviceError.HttpStatusCode;
+        public string Title => serviceError.Title;
+        public string RequestId => serviceError.RequestId;
+        public string Detail => serviceError.Detail;
+        public ServiceError.ErrorCode ErrorCode => serviceError.Code;
+        public HttpStatusCode? StatusCode => serviceError.Status;
+        public List<ServiceError.ErrorDetails> Details => serviceError.Details;
+        public string Type => serviceError.Type;
 
         protected ServiceException() {}
 
-        public ServiceException(ServiceError error) : base(error.Message)
+        public ServiceException(ServiceError error) : base(error.Title)
         {
             serviceError = error;
         }
@@ -268,53 +306,53 @@ namespace Unity.Cloud.Common
             if (error == null)
                 throw new ArgumentNullException(nameof(error));
 
-            switch (error.ErrorCode)
+            switch (error.Code)
             {
                 // If the error code is unknown, try to throw a more generic exception using http codes
-                case ServiceError.Code.Unknown:
+                case ServiceError.ErrorCode.Unknown:
                     break;
-                case ServiceError.Code.LicensingMaximumSeatReached:
+                case ServiceError.ErrorCode.LicensingMaximumSeatReached:
                     return new MaxSeatReachedException(error);
-                case ServiceError.Code.LicensingNoSeat:
+                case ServiceError.ErrorCode.LicensingNoSeat:
                     return new NoSeatEntitlementException(error);
-                case ServiceError.Code.LicensingNoEntitlementAvailable:
+                case ServiceError.ErrorCode.LicensingNoEntitlementAvailable:
                     return new NoEntitlementAvailableException(error);
                 // Auth
-                case ServiceError.Code.AuthUnauthorized:
+                case ServiceError.ErrorCode.AuthUnauthorized:
                     return new UnauthorizedException(error);
-                case ServiceError.Code.AuthForbidden:
+                case ServiceError.ErrorCode.AuthForbidden:
                     return new ForbiddenException(error);
-                case ServiceError.Code.DeviceCodeExpired:
+                case ServiceError.ErrorCode.DeviceCodeExpired:
                     return new DeviceCodeExpiredException(error);
-                case ServiceError.Code.GenericBadRequest:
+                case ServiceError.ErrorCode.GenericBadRequest:
                     return new InvalidArgumentException(error);
-                case ServiceError.Code.GenericNotFound:
+                case ServiceError.ErrorCode.GenericNotFound:
                     return new NotFoundException(error);
-                case ServiceError.Code.GenericUnknownApp:
+                case ServiceError.ErrorCode.GenericUnknownApp:
                     return new UnknownApplicationException(error);
-                case ServiceError.Code.GenericServerError:
+                case ServiceError.ErrorCode.GenericServerError:
                     return new ServerException(error);
             }
 
-            switch (error.HttpStatusCode)
+            switch (error.Status)
             {
                 case HttpStatusCode.BadRequest:
-                    error.ErrorCode = ServiceError.Code.GenericBadRequest;
+                    error.Code = ServiceError.ErrorCode.GenericBadRequest;
                     return new InvalidArgumentException(error);
                 case HttpStatusCode.Unauthorized:
-                    error.ErrorCode = ServiceError.Code.AuthUnauthorized;
+                    error.Code = ServiceError.ErrorCode.AuthUnauthorized;
                     return new UnauthorizedException(error);
                 case HttpStatusCode.Forbidden:
-                    error.ErrorCode = ServiceError.Code.AuthForbidden;
+                    error.Code = ServiceError.ErrorCode.AuthForbidden;
                     return new ForbiddenException(error);
                 case HttpStatusCode.NotFound:
-                    error.ErrorCode = ServiceError.Code.GenericNotFound;
+                    error.Code = ServiceError.ErrorCode.GenericNotFound;
                     return new NotFoundException(error);
                 case HttpStatusCode.RequestTimeout:
-                    error.ErrorCode = ServiceError.Code.DeviceCodeExpired;
+                    error.Code = ServiceError.ErrorCode.DeviceCodeExpired;
                     return new DeviceCodeExpiredException(error);
                 case HttpStatusCode.InternalServerError:
-                    error.ErrorCode = ServiceError.Code.GenericServerError;
+                    error.Code = ServiceError.ErrorCode.GenericServerError;
                     return new ServerException(error);
             }
 
@@ -326,7 +364,7 @@ namespace Unity.Cloud.Common
     /// This exception is thrown when an unauthenticated user tries to access a resource that requires authentication.
     /// </summary>
     [Serializable]
-    [ServiceError(ServiceError.Code.AuthUnauthorized, HttpStatusCode.Unauthorized)]
+    [ServiceError(ServiceError.ErrorCode.AuthUnauthorized, HttpStatusCode.Unauthorized)]
     public class UnauthorizedException : ServiceException
     {
         public UnauthorizedException() : base(ServiceErrorMessage.UnauthorizedAccess) {}
@@ -351,7 +389,7 @@ namespace Unity.Cloud.Common
     /// This exception is thrown when a user request a resource but does not have the right to access it.
     /// </summary>
     [Serializable]
-    [ServiceError(ServiceError.Code.AuthForbidden, HttpStatusCode.Forbidden)]
+    [ServiceError(ServiceError.ErrorCode.AuthForbidden, HttpStatusCode.Forbidden)]
     public class ForbiddenException : ServiceException
     {
         public ForbiddenException() : base(ServiceErrorMessage.ResourceAccessForbidden) {}
@@ -377,7 +415,7 @@ namespace Unity.Cloud.Common
     /// sent to the server is invalid or expired.
     /// </summary>
     [Serializable]
-    [ServiceError(ServiceError.Code.AuthFailed, HttpStatusCode.Unauthorized)]
+    [ServiceError(ServiceError.ErrorCode.AuthFailed, HttpStatusCode.Unauthorized)]
     public class AuthenticationFailedException : ServiceException
     {
         public AuthenticationFailedException() : base(ServiceErrorMessage.AuthenticationFailed) {}
@@ -402,7 +440,7 @@ namespace Unity.Cloud.Common
     /// This exception is thrown when a device code is expired.
     /// </summary>
     [Serializable]
-    [ServiceError(ServiceError.Code.DeviceCodeExpired, HttpStatusCode.RequestTimeout)]
+    [ServiceError(ServiceError.ErrorCode.DeviceCodeExpired, HttpStatusCode.RequestTimeout)]
     public class DeviceCodeExpiredException : ServiceException
     {
         public DeviceCodeExpiredException() : base(ServiceErrorMessage.DeviceCodeExpired) {}
@@ -428,7 +466,7 @@ namespace Unity.Cloud.Common
     /// This exception is thrown by <see cref="ProjectServerClient"/> when a license is requested but none is available.
     /// </summary>
     [Serializable]
-    [ServiceError(ServiceError.Code.LicensingNoEntitlementAvailable, HttpStatusCode.PaymentRequired)]
+    [ServiceError(ServiceError.ErrorCode.LicensingNoEntitlementAvailable, HttpStatusCode.PaymentRequired)]
     public class LicenseUnavailableException : ServiceException
     {
         public LicenseUnavailableException() : base (ServiceErrorMessage.NoLicenseAvailable) {}
@@ -455,7 +493,7 @@ namespace Unity.Cloud.Common
     /// This exception is thrown when some floating licenses exist, but are all taken.
     /// </summary>
     [Serializable]
-    [ServiceError(ServiceError.Code.LicensingMaximumSeatReached, HttpStatusCode.Forbidden)]
+    [ServiceError(ServiceError.ErrorCode.LicensingMaximumSeatReached, HttpStatusCode.Forbidden)]
     public class MaxSeatReachedException : ServiceException
     {
         public MaxSeatReachedException(string message) :
@@ -485,7 +523,7 @@ namespace Unity.Cloud.Common
     /// This exception is thrown when no entitlement exist for the requested floating license.
     /// </summary>
     [Serializable]
-    [ServiceError(ServiceError.Code.LegacyNotCompliant, HttpStatusCode.BadRequest)]
+    [ServiceError(ServiceError.ErrorCode.LegacyNotCompliant, HttpStatusCode.BadRequest)]
     public class NoSeatEntitlementException : ServiceException
     {
         public NoSeatEntitlementException(string message) :
@@ -515,7 +553,7 @@ namespace Unity.Cloud.Common
     /// This exception is thrown when the requested entitlement is not available.
     /// </summary>
     [Serializable]
-    [ServiceError(ServiceError.Code.LicensingNoEntitlementAvailable, HttpStatusCode.PaymentRequired)]
+    [ServiceError(ServiceError.ErrorCode.LicensingNoEntitlementAvailable, HttpStatusCode.PaymentRequired)]
     public class NoEntitlementAvailableException : ServiceException
     {
         public NoEntitlementAvailableException(string message) :
@@ -570,7 +608,7 @@ namespace Unity.Cloud.Common
     }
 
     [Serializable]
-    [ServiceError(ServiceError.Code.GenericNotFound, HttpStatusCode.NotFound)]
+    [ServiceError(ServiceError.ErrorCode.GenericNotFound, HttpStatusCode.NotFound)]
     public class NotFoundException : ServiceException
     {
         public NotFoundException(string message) :
@@ -601,7 +639,7 @@ namespace Unity.Cloud.Common
     /// This exception is thrown when the request sent is missing some values or arguments.
     /// </summary>
     [Serializable]
-    [ServiceError(ServiceError.Code.GenericBadRequest, HttpStatusCode.BadRequest)]
+    [ServiceError(ServiceError.ErrorCode.GenericBadRequest, HttpStatusCode.BadRequest)]
     public class InvalidArgumentException : ServiceException
     {
         public InvalidArgumentException() : base(ServiceErrorMessage.InvalidArgument) {}
@@ -626,7 +664,7 @@ namespace Unity.Cloud.Common
     /// This exception is thrown when the server encountered an unexpected error.
     /// </summary>
     [Serializable]
-    [ServiceError(ServiceError.Code.GenericServerError, HttpStatusCode.InternalServerError)]
+    [ServiceError(ServiceError.ErrorCode.GenericServerError, HttpStatusCode.InternalServerError)]
     public class ServerException : ServiceException
     {
         public ServerException() : base(ServiceErrorMessage.UnexpectedServerError) {}
@@ -651,7 +689,7 @@ namespace Unity.Cloud.Common
     /// This exception is thrown when the application ID header is not valid.
     /// </summary>
     [Serializable]
-    [ServiceError(ServiceError.Code.GenericUnknownApp, HttpStatusCode.BadRequest)]
+    [ServiceError(ServiceError.ErrorCode.GenericUnknownApp, HttpStatusCode.BadRequest)]
     public class UnknownApplicationException : ServiceException
     {
         public UnknownApplicationException(string message) :

@@ -64,11 +64,9 @@ namespace Unity.Cloud.Common
                 // If none of the above is valid, we assume the execution failed.
                 throw new RetryExecutionFailedException(actionTask.Exception.InnerException);
             }
-            else
-            {
-                // RetryPolicy expired.
-                throw new TimeoutException();
-            }
+
+            // RetryPolicy expired.
+            throw new TimeoutException("The retry policy for the operation has expired.", actionTask.Exception?.InnerException);
         }
     }
 }

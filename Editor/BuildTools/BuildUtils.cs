@@ -13,6 +13,7 @@ namespace Unity.Cloud.Common.Editor
     {
         const string k_AppRegistrationBuildExceptionMessageAppName = "Missing App Name value in Unity Cloud/App Registration player settings.";
         const string k_AppRegistrationBuildExceptionMessageAppId = "Missing App ID value in Unity Cloud/App Registration player settings.";
+        const string k_AppRegistrationBuildExceptionMessageAppNamespace = "Missing App Namespace value in Unity Cloud/App Registration player settings.";
         const string k_DisableExceptionOnMissingAppNameCmdLineParameter = "-disableExceptionOnMissingAppName";
 
         static bool? s_ShouldThrowBuildFailedException = null;
@@ -55,10 +56,10 @@ namespace Unity.Cloud.Common.Editor
         }
 
         /// <summary>
-        /// Get the uri scheme uniquely identifying this app inside the <see cref="UriSchemeRedirection.s_UriSchemePrefix"/> namespace.
+        /// Get the uri scheme uniquely identifying this app inside the namespace.
         /// </summary>
         /// <returns>
-        /// The uri scheme uniquely identifying this app inside the <see cref="UriSchemeRedirection.s_UriSchemePrefix"/> namespace.
+        /// The uri scheme uniquely identifying this app inside the namespace.
         /// </returns>
         /// <exception cref="System.InvalidOperationException">Thrown if App Name value is default value.</exception>
         public static string GetNamespacedUriScheme()
@@ -69,12 +70,17 @@ namespace Unity.Cloud.Common.Editor
             {
                 throw new BuildFailedException(k_AppRegistrationBuildExceptionMessageAppName);
             }
-            else if (string.IsNullOrEmpty(UnityCloudPlayerSettings.Instance.AppId) &&
+            if (string.IsNullOrEmpty(UnityCloudPlayerSettings.Instance.AppId) &&
                 ShouldThrowBuildFailedException)
             {
                 throw new BuildFailedException(k_AppRegistrationBuildExceptionMessageAppId);
             }
-            return $"{UriSchemeRedirection.s_UriSchemePrefix}{UnityCloudPlayerSettings.Instance.AppName}";
+            if (string.IsNullOrEmpty(UnityCloudPlayerSettings.Instance.AppNamespace) &&
+                ShouldThrowBuildFailedException)
+            {
+                throw new BuildFailedException(k_AppRegistrationBuildExceptionMessageAppNamespace);
+            }
+            return $"{UnityCloudPlayerSettings.Instance.GetAppNamespace()}.{UnityCloudPlayerSettings.Instance.AppName}";
         }
     }
 }

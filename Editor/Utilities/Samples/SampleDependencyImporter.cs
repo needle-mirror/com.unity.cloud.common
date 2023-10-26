@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
+using UnityEditor.Compilation;
 using UnityEditor.PackageManager.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
+
 using PackageInfo = UnityEditor.PackageManager.PackageInfo;
 
 namespace Unity.Cloud.Common.Editor
@@ -89,10 +91,10 @@ namespace Unity.Cloud.Common.Editor
         /// </summary>
         void LoadOnAssetDependencies(string assetPath)
         {
+            var newFilesImported = false;
+
             if (m_SampleConfiguration != null)
             {
-                var assetsImported = false;
-
                 for (int i = 0; i < m_Samples.Count; ++i)
                 {
                     // Import dependencies if we are importing the root directory of the sample
@@ -103,16 +105,41 @@ namespace Unity.Cloud.Common.Editor
                         if (sampleEntry != null)
                         {
                             // Import the common asset dependencies
-                            assetsImported = ImportDependencies(m_PackageInfo, m_SampleConfiguration.SharedAssetDependencies);
+                            newFilesImported |= ImportDependencies(m_PackageInfo, m_SampleConfiguration.SharedAssetDependencies);
 
                             // Import the sample-specific dependencies
-                            assetsImported |= ImportDependencies(m_PackageInfo, sampleEntry.AssetDependencies);
+                            newFilesImported |= ImportDependencies(m_PackageInfo, sampleEntry.AssetDependencies);
                         }
+
+                        CopyStreamingAssets(m_Samples[i].displayName, m_Samples[i].resolvedPath);
                     }
                 }
+            }
 
-                if (assetsImported)
-                    AssetDatabase.Refresh();
+            if (newFilesImported)
+                CompilationPipeline.RequestScriptCompilation();
+        }
+
+        /// <summary>
+        /// Copy the StreamingAssets directory content from the package into the project.
+        /// </summary>
+        static void CopyStreamingAssets(string sampleName, string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            foreach (var streamingAssets in new []{ "StreamingAssets", "StreamingAssets~" })
+            {
+                var source = Path.GetFullPath($"{path}/{streamingAssets}");
+                if (!Directory.Exists(source))
+                    continue;
+
+                if (!EditorUtility.DisplayDialog("Copy StreamingAssets", $"Copy StreamingAssets content from {sampleName} to your project StreamingAssets directory?", "Yes", "No"))
+                    return;
+
+                var destination = Path.GetFullPath($"{Application.dataPath}/StreamingAssets");
+
+                CopyDirectory(source, destination);
             }
         }
 

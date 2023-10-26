@@ -100,23 +100,24 @@ namespace Unity.Cloud.Common
     public class ServiceHttpClient : IServiceHttpClient
     {
         readonly IHttpClient m_BaseHttpClient;
-        readonly IAccessTokenProvider m_AccessTokenProvider;
+        readonly IServiceAuthorizer m_ServiceAuthorizer;
         readonly IAppIdProvider m_AppIdProvider;
 
-        internal static readonly string k_ClientTrace = Guid.NewGuid().ToString("N");
+        public static readonly string ClientTrace = Guid.NewGuid().ToString("N");
 
         /// <summary>
         /// Initializes and returns an instance of <see cref="ServiceHttpClient"/>
         /// </summary>
         /// <param name="baseHttpClient">The base HTTP client.</param>
-        /// <param name="accessTokenProvider">The access token provider to authenticate requests.</param>
+        /// <param name="serviceAuthorizer">The authorizer to apply the authorization information to requests.</param>
         /// <param name="appIdProvider">The App ID provider.</param>
+        /// <exception cref="ArgumentNullException">Thrown if either <paramref name="baseHttpClient"/> or <paramref name="serviceAuthorizer"/> are null.</exception>
         public ServiceHttpClient(IHttpClient baseHttpClient,
-            IAccessTokenProvider accessTokenProvider,
+            IServiceAuthorizer serviceAuthorizer,
             IAppIdProvider appIdProvider)
         {
-            m_BaseHttpClient = baseHttpClient;
-            m_AccessTokenProvider = accessTokenProvider;
+            m_BaseHttpClient = baseHttpClient ?? throw new ArgumentNullException(nameof(baseHttpClient));
+            m_ServiceAuthorizer = serviceAuthorizer ?? throw new ArgumentNullException(nameof(serviceAuthorizer));
             m_AppIdProvider = appIdProvider;
         }
 
@@ -150,19 +151,12 @@ namespace Unity.Cloud.Common
             {
                 if (!options.SkipDefaultHeaders)
                 {
-                    request.Headers.AddAppIdAndClientTrace(m_AppIdProvider?.GetAppId(), k_ClientTrace);
+                    request.Headers.AddAppIdAndClientTrace(m_AppIdProvider?.GetAppId() ?? AppId.None, ClientTrace);
                 }
 
                 if (!options.SkipDefaultAuthentication)
                 {
-                    if (m_AccessTokenProvider != null)
-                    {
-                        var accessToken = await m_AccessTokenProvider.GetAccessTokenAsync();
-                        if (!string.IsNullOrEmpty(accessToken))
-                        {
-                            request.Headers.AddAuthorization(accessToken);
-                        }
-                    }
+                    await m_ServiceAuthorizer.AddAuthorization(request.Headers);
                 }
             }
 
@@ -219,14 +213,17 @@ namespace Unity.Cloud.Common
                 {
                     return true;
                 }
-                catch (TimeoutException)
+                catch (OperationCanceledException operationCanceledException)
                 {
-                    return true;
+                    if (operationCanceledException.InnerException is TimeoutException)
+                        return true;
+
+                    throw new RetryExecutionFailedException(operationCanceledException);
                 }
-                catch (Exception e)
+                catch (Exception exception)
                 {
                     // Stop the retry and bubble up the exception
-                    throw new RetryExecutionFailedException(e);
+                    throw new RetryExecutionFailedException(exception);
                 }
 
                 return await shouldRetryResultChecker(taskResult);
@@ -264,13 +261,11 @@ namespace Unity.Cloud.Common
             try
             {
                 var content = await response.Content.ReadAsStringAsync();
-
                 serviceError = JsonSerialization.Deserialize<ServiceError>(content);
-                serviceError.HttpStatusCode = response.StatusCode;
             }
             catch (Exception)
             {
-                serviceError = new ServiceError { HttpStatusCode = response.StatusCode };
+                serviceError = new ServiceError { Status = response.StatusCode };
 
                 throw ServiceExceptionFactory.Build(serviceError);
             }

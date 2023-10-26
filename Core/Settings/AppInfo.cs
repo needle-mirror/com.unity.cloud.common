@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 
 namespace Unity.Cloud.Common
 {
@@ -11,7 +12,8 @@ namespace Unity.Cloud.Common
         /// <summary>
         /// The App's ID.
         /// </summary>
-        public string Id { get; set; }
+        [JsonConverter(typeof(AppIdConverter))]
+        public AppId Id { get; set; }
 
         /// <summary>
         /// The App's name.

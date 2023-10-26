@@ -15,8 +15,6 @@ namespace Unity.Cloud.Common.Runtime
 
     class LegacyRequestHandler
     {
-        const string k_HttpVerbPatch = "PATCH";
-        const string k_HttpVerbDelete = "DELETE";
         const string k_ContentLengthHeaderKey = "Content-Length";
         const string k_TimeoutErrorMessage = "Request timeout";
 
@@ -287,22 +285,18 @@ namespace Unity.Cloud.Common.Runtime
 
             var request = state.Request;
 
-            var errorMessage = request.error;
             if (request.result != UnityWebRequest.Result.Success)
             {
                 if (request.downloadHandler is MemoryStreamDownloadHandler memoryStreamDownloadHandler)
-                {
                     memoryStreamDownloadHandler.ForceCompleteContent();
-                }
 
                 if (request.result == UnityWebRequest.Result.ConnectionError)
                 {
+                    var errorMessage = request.error;
                     request.Dispose();
 
                     if (errorMessage == k_TimeoutErrorMessage)
-                    {
-                        throw new TimeoutException(errorMessage);
-                    }
+                        throw new TaskCanceledException(errorMessage, new TimeoutException(errorMessage));
 
                     throw new HttpRequestException(errorMessage);
                 }
@@ -317,8 +311,6 @@ namespace Unity.Cloud.Common.Runtime
         {
             public HttpRequestMessage HttpRequestMessage;
             public HttpRequestMessage OriginalHttpRequestMessage;
-            public string StringContent;
-            public byte[] BytesContent;
             public UnityWebRequest Request;
             public HttpResponseMessage Response;
             public IDisposable CancellationTokenRegistration;
@@ -329,8 +321,6 @@ namespace Unity.Cloud.Common.Runtime
             {
                 HttpRequestMessage = httpRequestMessage;
                 OriginalHttpRequestMessage = httpRequestMessage;
-                StringContent = stringContent;
-                BytesContent = bytesContent;
                 Request = request;
                 Response = response;
                 Timeout = timeout;

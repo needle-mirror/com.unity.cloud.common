@@ -4,6 +4,76 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.0.0-exp.1] - 2023-10-26
+
+### Added
+- Made `ServiceHttpClientModifier` public.
+- Added new methods to `HttpResponseMessageExtensions`.
+- Importing assets with a StreamingAssets directory will copy those files, on approval, in the project StreamingAssets directory.
+- Added new properties to `ServiceException` in order to access all necessary information on errors.
+
+### Changed
+- Upgrade to newtonsoft-json 3.2.1.
+- [Breaking] `UrlRedirectionInterceptor` now expects to find the custom uri resolver executable under the `Unity_Cloud_Interop` folder.
+- Improved the error-messaging whe a `IRetryPolicy` has expired.
+- Change minimal Unity version to 2022.3
+
+### Removed
+- [Breaking] Removing obsolete `UriSchemeRedirection` class.
+- [Breaking] Removing obsolete `GetDisplayName()` method from `UnityCloudPlayerSettings`.
+
+### Fixed
+- Fixing regex parameters.
+- Removing redundant `AssetDatabase.Refresh()` call in sample import.
+
+## [0.16.0] - 2023-10-18
+
+### Added
+- Added `IAppNamespaceProvider` interface and a `DefaultAppNamespaceProvider` implementation.
+- [Breaking] Added ProcessId and AppId classes to replace string IDs.
+- [Breaking] Added support for the `services.api.unity.com` domain through the `UnityServices` service provider. This is the default service provider.
+- [Breaking] Removed unsupported `Azure` and `GCP` service providers.
+- Added `IServiceDomainResolver` to allow the possibility to instantiate a `ServiceHostResolver` implementation with specific domain mapping.
+- Added public constructor for the `UnityRuntimeServiceHostResolverFactory` with override.
+- Added support for new IDs: `ProjectId`, `AssetId`, and `DatasetId`.
+- Changed HeaderUtils regex to also match UCF endpoints when checking if IsUnityApi
+- Exposed the App's organization ID in `UnityCloudPlayerSettings`.
+- [Breaking] `ServiceHttpClient` constructor will throw an `ArgumentNullException` for null parameters.
+- Added support for `X-Unity-Cloud-*` headers.
+- Added `FileDescriptor`
+- Added properties to all descriptors to easily access nested IDs.
+
+### Changed
+- `UnityCloudPlayerSettings` implements `IAppNamespaceProvider` and provides a default namespace value of "com.unity.cloud".
+- [Breaking] default app namespace is now com.unity.cloud.
+- [Breaking] Changed public field name `UnityCloudAppRegistration.m_AppInfoProvider` to `UnityCloudAppRegistration.AppInfoProvider`.
+- Changed HeaderUtils regex to also match UCF endpoints when checking if IsUnityApi
+- [Breaking] Remove the AssetVersionId and AssetVersionDescriptor structs and replace by AssetVersion in the AssetDescriptor.
+- [Breaking] AppInfoProvider now expects the organizationId as a parameter.
+- ServiceHttpClient: ClientTrace becomes public.
+- ApiSourceVersion: GetApiSourceVersionForAssembly becomes public.
+- [Breaking] Refactored IHttpClient so Http Status Codes are no longer triggering exceptions.
+- Removed flooding log when receiving message in NativeWebSocketClient.
+
+### Fixed
+- Fixed an issue in `UnityCloudPlayerSettings` editor window where changes were not saved between sessions.
+- Fixed an issue in `UnityCloudPlayerSettings` editor window where edits and deletions of the current application were not updated in the UI and the asset.
+- Fixed Service Error deserialization.
+
+### Removed
+- [Breaking] Removed `HttpClientHeaderModifier` and `IHttpClient.WithApiSourceHeaders` extension.
+- [Breaking] Removed deprecated `ServiceHostConfiguration` class. Use `IServiceHostResolver` instead.
+
+## [0.15.0] - 2023-09-15
+
+### Fixed
+- Fixed upload progress in DotNetHttpClient.
+
+### Changed
+- [BREAKING] The `ServiceHttpClient` now expects an `IServiceAuthorizer` instead of the deleted `IAccessTokenProvider`.
+- [BREAKING] The `AddAuthroization` method in `ServiceHeaderUtils` now expects an additional authorization scheme parameters.
+- The "Basic" and "Bearer" authorization constants are now public in `ServiceDomainUtils`.
+
 ## [0.14.4] - 2023-08-31
 
 ### Fixed
@@ -14,6 +84,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - `UrlRedirectionInterceptor` internal `AsyncUrlRedirectAwaiter` default timeout delay set to 10 minutes instead of 1 minute.
+
+### Deprecated
+- `SceneId`, `SceneVersionId`, `WorkspaceId`, and `IScene` have been marked deprecated. They are to be replaced with IDs related to the Asset Manager SDK.
 
 ## [0.14.3] - 2023-08-17
 

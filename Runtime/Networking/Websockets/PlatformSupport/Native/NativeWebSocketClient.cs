@@ -277,13 +277,11 @@ namespace Unity.Cloud.Common.Runtime
 
         void OnDataReceived(byte[] data)
         {
-            s_Logger.LogDebug("Messages received");
             DataReceived?.Invoke(data);
         }
 
         void OnMessageReceived(string jsonMessages)
         {
-            s_Logger.LogDebug("Messages received");
             MessageReceived?.Invoke(jsonMessages);
         }
 

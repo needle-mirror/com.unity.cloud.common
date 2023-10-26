@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -14,6 +15,8 @@ namespace Unity.Cloud.Common
     /// </summary>
     public class DotNetHttpClient : IHttpClient, IDisposable
     {
+        const string k_TimeoutMessage = "The operation has timed out.";
+
         HttpClient m_HttpClient;
 
         /// <summary>
@@ -79,6 +82,10 @@ namespace Unity.Cloud.Common
             try
             {
                 var requestContentLength = request.Content?.Headers.ContentLength;
+                await using var uploadStream =
+                    request.Content != null ? await request.Content.ReadAsStreamAsync() : null;
+                var keepReportingProgress = true;
+
                 if (progress != null)
                 {
                     float? initialUploadProgress = requestContentLength.HasValue ? 0 : null;
@@ -86,44 +93,23 @@ namespace Unity.Cloud.Common
 
                     if (requestContentLength.HasValue)
                     {
-                        await using var uploadStream = await request.Content.ReadAsStreamAsync();
-                        new Task(() => { ReportUploadProgressAsync(uploadStream, progress); }).Start();
+                        new Task(() =>
+                        {
+                            ReportUploadProgressAsync(uploadStream, progress, ref keepReportingProgress);
+                        }).Start();
                     }
                 }
 
                 response = await m_HttpClient.SendAsync(request, completionOption, cancellationToken);
+                keepReportingProgress = false;
 
-
-                var responseContentLength = response.Content?.Headers.ContentLength;
-                float? finalUploadProgress = requestContentLength.HasValue ? 1 : null;
-                if (progress != null)
-                {
-                    if (responseContentLength.HasValue)
-                    {
-                        await using var downloadStream = await response.Content.ReadAsStreamAsync();
-                        await ReportDownloadProgressAsync(downloadStream, responseContentLength.Value, finalUploadProgress,
-                            progress, cancellationToken);
-                    }
-
-                    float? finalDownloadProgress = responseContentLength.HasValue ? 1 : null;
-                    progress.Report(new HttpProgress(finalDownloadProgress, finalUploadProgress));
-                }
+                await HandleDownloadProgressAsync(response, requestContentLength, progress, cancellationToken);
             }
             catch (Exception exception)
             {
-                if (exception is TaskCanceledException)
-                {
-                    if (cancellationToken.IsCancellationRequested)
-                        throw new TaskCanceledException(exception.Message);
-
-                    throw new TimeoutException(exception.Message);
-                }
-
-                if (exception is HttpRequestException && exception.InnerException is WebException webException)
-                {
-                    if (webException.Status == WebExceptionStatus.Timeout)
-                        throw new TimeoutException(webException.Message);
-                }
+                if ((exception is TaskCanceledException && !cancellationToken.IsCancellationRequested) ||
+                    (exception.InnerException is WebException webException && webException.Status == WebExceptionStatus.Timeout))
+                    throw new TaskCanceledException(exception.Message, new TimeoutException(k_TimeoutMessage));
 
                 throw;
             }
@@ -131,11 +117,34 @@ namespace Unity.Cloud.Common
             return response;
         }
 
-        void ReportUploadProgressAsync(Stream stream, IProgress<HttpProgress> progress)
+        void ReportUploadProgressAsync(Stream stream, IProgress<HttpProgress> progress, ref bool keepReportingProgress)
         {
-            while (stream.Position < stream.Length)
+            while (keepReportingProgress)
             {
                 progress.Report(new HttpProgress(0, (float)stream.Position / stream.Length));
+
+                Thread.Sleep(100);
+            }
+        }
+
+        async Task HandleDownloadProgressAsync(HttpResponseMessage response, long? requestContentLength, IProgress<HttpProgress> progress,
+            CancellationToken cancellationToken = default)
+        {
+            var responseContentLength = response.Content?.Headers.ContentLength;
+            float? finalUploadProgress = requestContentLength.HasValue ? 1 : null;
+
+            if (progress != null)
+            {
+                if (responseContentLength.HasValue)
+                {
+                    var downloadStream = await response.Content.ReadAsStreamAsync();
+                    await ReportDownloadProgressAsync(downloadStream, responseContentLength.Value,
+                        finalUploadProgress, progress, cancellationToken);
+                    downloadStream.Position = 0;
+                }
+
+                float? finalDownloadProgress = responseContentLength.HasValue ? 1 : null;
+                progress.Report(new HttpProgress(finalDownloadProgress, finalUploadProgress));
             }
         }
 
