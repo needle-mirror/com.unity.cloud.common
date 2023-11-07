@@ -29,8 +29,12 @@ namespace Unity.Cloud.Common
         { }
 
         /// <summary>
-        /// Creates a <see cref="ExponentialBackoffRetryPolicy"/> with customized behavior.
+        /// Creates a &lt;see cref="ExponentialBackoffRetryPolicy"/&gt; with customized behavior.
         /// </summary>
+        /// <param name="initialWaitTime">The initial wait time.</param>
+        /// <param name="maxWaitTime">The maximum wait time per backoff.</param>
+        /// <param name="maxTotalWaitTime">The maximum total wait time.</param>
+        /// <param name="maxJitter">The maximum jitter.</param>
         public ExponentialBackoffRetryPolicy(TimeSpan initialWaitTime, TimeSpan maxWaitTime, TimeSpan maxTotalWaitTime, TimeSpan maxJitter = default(TimeSpan))
             : this(TimeSeriesBuilder.ExponentialBackoffWithJitter(initialWaitTime, maxWaitTime, maxTotalWaitTime, maxJitter)(), new TimeAwaiter())
         { }

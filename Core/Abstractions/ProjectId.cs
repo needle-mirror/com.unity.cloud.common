@@ -86,7 +86,7 @@ namespace Unity.Cloud.Common
         public static bool operator !=(ProjectId left, ProjectId right) => !left.Equals(right);
 
         /// <summary>
-        /// Explicitly cast a <see cref="ProjectId"/ to a <see cref="string"/>>
+        /// Explicitly cast a <see cref="ProjectId"/> to a <see cref="string"/>>
         /// </summary>
         /// <param name="pId">Object to cast</param>
         /// <returns>The resulting <see cref="string"/></returns>

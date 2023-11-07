@@ -6,6 +6,9 @@ using UnityEngine.UIElements;
 
 namespace Unity.Cloud.Common.Editor
 {
+    /// <summary>
+    /// A <see cref="SettingsProvider"/> implementation for Unity Cloud settings.
+    /// </summary>
     public class UnityCloudPlayerSettingsProvider : SettingsProvider
     {
         const string k_ResourcesDirectory = "Assets/Unity Cloud/Resources/";
@@ -16,6 +19,10 @@ namespace Unity.Cloud.Common.Editor
         UnityCloudPlayerSettingsProvider(string path, SettingsScope scope = SettingsScope.User)
             : base(path, scope) {}
 
+        /// <summary>
+        /// Creates an instance of <see cref="UnityCloudPlayerSettingsProvider"/>.
+        /// </summary>
+        /// <returns>The created instance.</returns>
         [SettingsProvider]
         public static SettingsProvider CreateUnityCloudPlayerSettingsProvider()
         {
@@ -28,6 +35,7 @@ namespace Unity.Cloud.Common.Editor
             };
         }
 
+        /// <inheritdoc/>
         public override void OnActivate(string searchContext, VisualElement rootElement)
         {
             var settings = Resources.Load<UnityCloudPlayerSettings>(UnityCloudPlayerSettings.k_AssetName);
@@ -46,6 +54,7 @@ namespace Unity.Cloud.Common.Editor
             m_UnityCloudPlayerSettingsEditor = UnityEditor.Editor.CreateEditor(settings) as UnityCloudPlayerSettingsEditor;
         }
 
+        /// <inheritdoc/>
         public override void OnGUI(string searchContext)
         {
             base.OnGUI(searchContext);

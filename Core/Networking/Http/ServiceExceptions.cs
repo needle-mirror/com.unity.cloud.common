@@ -167,19 +167,39 @@ namespace Unity.Cloud.Common
         [Serializable]
         public class ErrorDetails
         {
+            /// <summary>
+            /// The error code.
+            /// </summary>
             public ErrorCode ErrorCode { get; set; } = new();
+
+            /// <summary>
+            /// The error message.
+            /// </summary>
             public string ErrorMessage { get; set; } = "";
         }
     }
 
-
-
+    /// <summary>
+    /// An attribute for defining a <see cref="ServiceError"/> for a specific error code and HTTP status code.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
     public class ServiceErrorAttribute : Attribute
     {
+        /// <summary>
+        /// The error code of the service error.
+        /// </summary>
         public ServiceError.ErrorCode ErrorCode { get; }
+
+        /// <summary>
+        /// The HTTP status code of the service error.
+        /// </summary>
         public HttpStatusCode HttpStatusCode { get; }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="errorCode"></param>
+        /// <param name="httpStatusCode"></param>
         public ServiceErrorAttribute(ServiceError.ErrorCode errorCode, HttpStatusCode httpStatusCode)
         {
             ErrorCode = errorCode;
@@ -192,38 +212,123 @@ namespace Unity.Cloud.Common
     /// </summary>
     public static class ServiceErrorMessage
     {
+        ////////////////////
         // Project
+
+        /// <summary>
+        /// Project not found error message.
+        /// </summary>
         public const string ProjectNotFound = "Project not found";
+
+        /// <summary>
+        /// Link not found error message.
+        /// </summary>
         public const string LinkNotFound = "Link not found";
 
+        ////////////////////
         // Sync
+
+        /// <summary>
+        /// Model not supported error message.
+        /// </summary>
         public const string ModelNotSupported = "Model not supported";
 
+        ////////////////////
         // Auth
+
+        /// <summary>
+        /// Resource access forbidden error message.
+        /// </summary>
         public const string ResourceAccessForbidden = "Resource access forbidden";
+
+        /// <summary>
+        /// Unauthorized access error message.
+        /// </summary>
         public const string UnauthorizedAccess = "Unauthorized access";
+
+        /// <summary>
+        /// Authentication failed error message.
+        /// </summary>
         public const string AuthenticationFailed = "Authentication failed";
+
+        /// <summary>
+        /// Device code expired error message.
+        /// </summary>
         public const string DeviceCodeExpired = "The device code has expired";
+
+        /// <summary>
+        /// Device code pending error message.
+        /// </summary>
         public const string DeviceCodePending = "Authorization pending";
 
+        ////////////////////
         // Licensing
+
+        /// <summary>
+        /// Maximum number of seats reached error message.
+        /// </summary>
         public const string MaxSeatReached = "Maximum number of seats reached";
+
+        /// <summary>
+        /// Maximum number of devices reached error message.
+        /// </summary>
         public const string MaxDeviceReached = "Maximum number of devices reached";
+
+        /// <summary>
+        /// No floating seats entitlement error message.
+        /// </summary>
         public const string NoSeatEntitlement = "No floating seats entitlement";
+
+        /// <summary>
+        /// No entitlement available error message.
+        /// </summary>
         public const string NoEntitlementAvailable = "No entitlement available";
+
+        /// <summary>
+        /// No license available error message.
+        /// </summary>
         public const string NoLicenseAvailable = "No license available";
 
+        ////////////////////
         // Generic
+
+        /// <summary>
+        /// Invalid argument error message.
+        /// </summary>
         public const string InvalidArgument = "Invalid argument";
+
+        /// <summary>
+        /// Unexpected server error message.
+        /// </summary>
         public const string UnexpectedServerError = "Unexpected server error";
+
+        /// <summary>
+        /// Unknown application error message.
+        /// </summary>
         public const string UnknownApplication = "Unknown application";
+
+        /// <summary>
+        /// Resource not found error message.
+        /// </summary>
         public const string ResourceNotFound = "Requested resource not found";
 
+        ////////////////////
         // Connection
+
+        /// <summary>
+        /// Connection to cloud services failed error message.
+        /// </summary>
         public const string ConnectionFailed = "Connection to cloud services failed";
+
+        /// <summary>
+        /// Maximum capacity reached error message.
+        /// </summary>
         public const string MaxCapacityReached = "The server is at maximum capacity";
     }
 
+    /// <summary>
+    /// A factory for creating <see cref="ServiceError"/>s.
+    /// </summary>
     static class ServiceErrorFactory
     {
         /// <summary>
@@ -232,6 +337,8 @@ namespace Unity.Cloud.Common
         /// specific exception. If the child exception does not have an attribute, it defaults to the one defined for
         /// the base <see cref="ServiceException"/> class.
         /// </summary>
+        /// <param name="exception">The exception from which to build a service error.</param>
+        /// <returns>The resulting service error.</returns>
         public static ServiceError Build(ServiceException exception)
         {
             var attribute = (ServiceErrorAttribute)Attribute.GetCustomAttribute(
@@ -248,43 +355,95 @@ namespace Unity.Cloud.Common
         }
     }
 
+    /// <summary>
+    /// An exception related to a <see cref="ServiceError"/> returned by a service.
+    /// </summary>
     [Serializable]
     [ServiceError(ServiceError.ErrorCode.Unknown, HttpStatusCode.BadRequest)]
     public class ServiceException : Exception
     {
         ServiceError serviceError { get; set; } = new () { Code = ServiceError.ErrorCode.Unknown };
 
+        /// <summary>
+        /// The service error title.
+        /// </summary>
         public string Title => serviceError.Title;
+
+        /// <summary>
+        /// The ID of the failed request.
+        /// </summary>
         public string RequestId => serviceError.RequestId;
+
+        /// <summary>
+        /// The service error detail.
+        /// </summary>
         public string Detail => serviceError.Detail;
+
+        /// <summary>
+        /// The service error code.
+        /// </summary>
         public ServiceError.ErrorCode ErrorCode => serviceError.Code;
+
+        /// <summary>
+        /// The service error HTTP status code.
+        /// </summary>
         public HttpStatusCode? StatusCode => serviceError.Status;
+
+        /// <summary>
+        /// The service error details.
+        /// </summary>
         public List<ServiceError.ErrorDetails> Details => serviceError.Details;
+
+        /// <summary>
+        /// The service error type.
+        /// </summary>
         public string Type => serviceError.Type;
 
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         protected ServiceException() {}
 
+        /// <summary>
+        /// Creates and returns a <see cref="ServiceException"/> from the provided <see cref="ServiceError"/>.
+        /// </summary>
+        /// <param name="error">The service error.</param>
         public ServiceException(ServiceError error) : base(error.Title)
         {
             serviceError = error;
         }
 
+        /// <summary>
+        /// Creates and returns a <see cref="ServiceException"/> from the provided error message.
+        /// </summary>
+        /// <param name="message">The exception message.</param>
         protected ServiceException(string message) : base(message)
         {
             serviceError = ServiceErrorFactory.Build(this);
         }
 
+        /// <summary>
+        /// Creates and returns a <see cref="ServiceException"/> from the provided error message and inner exception.
+        /// </summary>
+        /// <param name="message">The exception message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public ServiceException(string message, Exception innerException) : base(message, innerException)
         {
             serviceError = ServiceErrorFactory.Build(this);
         }
 
+        /// <summary>
+        /// Creates and returns a <see cref="ServiceException"/> from the provided serialization info and streaming context.
+        /// </summary>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">the streaming context.</param>
         protected ServiceException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             serviceError = (ServiceError) info.GetValue(nameof(serviceError), typeof(ServiceError));
         }
 
+        /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -292,6 +451,9 @@ namespace Unity.Cloud.Common
         }
     }
 
+    /// <summary>
+    /// A factory for creating <see cref="ServiceException"/>s.
+    /// </summary>
     public static class ServiceExceptionFactory
     {
         /// <summary>
@@ -367,18 +529,39 @@ namespace Unity.Cloud.Common
     [ServiceError(ServiceError.ErrorCode.AuthUnauthorized, HttpStatusCode.Unauthorized)]
     public class UnauthorizedException : ServiceException
     {
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public UnauthorizedException() : base(ServiceErrorMessage.UnauthorizedAccess) {}
 
+        /// <summary>
+        /// Creates an instance from the provided <see cref="ServiceError"/>.
+        /// </summary>
+        /// <param name="error">The service error.</param>
         public UnauthorizedException(ServiceError error) : base(error)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided error message.
+        /// </summary>
+        /// <param name="msg">The error message.</param>
         public UnauthorizedException(string msg) : base(msg) {}
 
+        /// <summary>
+        /// Creates an instance from the provided error message and inner exception.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public UnauthorizedException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided serialization info and streaming context.
+        /// </summary>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context.</param>
         protected UnauthorizedException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -392,18 +575,39 @@ namespace Unity.Cloud.Common
     [ServiceError(ServiceError.ErrorCode.AuthForbidden, HttpStatusCode.Forbidden)]
     public class ForbiddenException : ServiceException
     {
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public ForbiddenException() : base(ServiceErrorMessage.ResourceAccessForbidden) {}
 
+        /// <summary>
+        /// Creates an instance from the provided <see cref="ServiceError"/>.
+        /// </summary>
+        /// <param name="error">The service error.</param>
         public ForbiddenException(ServiceError error) : base(error)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided error message.
+        /// </summary>
+        /// <param name="msg">The error message.</param>
         public ForbiddenException(string msg) : base(msg) {}
 
+        /// <summary>
+        /// Creates an instance from the provided error message and inner exception.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public ForbiddenException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided serialization info and streaming context.
+        /// </summary>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context.</param>
         protected ForbiddenException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -418,18 +622,39 @@ namespace Unity.Cloud.Common
     [ServiceError(ServiceError.ErrorCode.AuthFailed, HttpStatusCode.Unauthorized)]
     public class AuthenticationFailedException : ServiceException
     {
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public AuthenticationFailedException() : base(ServiceErrorMessage.AuthenticationFailed) {}
 
+        /// <summary>
+        /// Creates an instance from the provided <see cref="ServiceError"/>.
+        /// </summary>
+        /// <param name="error">The service error.</param>
         public AuthenticationFailedException(ServiceError error) : base(error)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided error message.
+        /// </summary>
+        /// <param name="msg">The error message.</param>
         public AuthenticationFailedException(string msg) : base(msg) {}
 
+        /// <summary>
+        /// Creates an instance from the provided error message and inner exception.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public AuthenticationFailedException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided serialization info and streaming context.
+        /// </summary>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context.</param>
         protected AuthenticationFailedException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -443,18 +668,39 @@ namespace Unity.Cloud.Common
     [ServiceError(ServiceError.ErrorCode.DeviceCodeExpired, HttpStatusCode.RequestTimeout)]
     public class DeviceCodeExpiredException : ServiceException
     {
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public DeviceCodeExpiredException() : base(ServiceErrorMessage.DeviceCodeExpired) {}
 
+        /// <summary>
+        /// Creates an instance from the provided <see cref="ServiceError"/>.
+        /// </summary>
+        /// <param name="error">The service error.</param>
         public DeviceCodeExpiredException(ServiceError error) : base(error)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided error message.
+        /// </summary>
+        /// <param name="msg">The error message.</param>
         public DeviceCodeExpiredException(string msg) : base(msg) {}
 
+        /// <summary>
+        /// Creates an instance from the provided error message and inner exception.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public DeviceCodeExpiredException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided serialization info and streaming context.
+        /// </summary>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context.</param>
         protected DeviceCodeExpiredException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -463,26 +709,47 @@ namespace Unity.Cloud.Common
 
 
     /// <summary>
-    /// This exception is thrown by <see cref="ProjectServerClient"/> when a license is requested but none is available.
+    /// This exception is thrown when a license is requested but none is available.
     /// </summary>
     [Serializable]
     [ServiceError(ServiceError.ErrorCode.LicensingNoEntitlementAvailable, HttpStatusCode.PaymentRequired)]
     public class LicenseUnavailableException : ServiceException
     {
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public LicenseUnavailableException() : base (ServiceErrorMessage.NoLicenseAvailable) {}
 
+        /// <summary>
+        /// Creates an instance from the provided error message.
+        /// </summary>
+        /// <param name="message">The error message.</param>
         public LicenseUnavailableException(string message) : base(message)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided <see cref="ServiceError"/>.
+        /// </summary>
+        /// <param name="error">The service error.</param>
         public LicenseUnavailableException(ServiceError error) : base(error)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided error message and inner exception.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public LicenseUnavailableException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided serialization info and streaming context.
+        /// </summary>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context.</param>
         protected LicenseUnavailableException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -496,23 +763,44 @@ namespace Unity.Cloud.Common
     [ServiceError(ServiceError.ErrorCode.LicensingMaximumSeatReached, HttpStatusCode.Forbidden)]
     public class MaxSeatReachedException : ServiceException
     {
+        /// <summary>
+        /// Creates an instance from the provided error message.
+        /// </summary>
+        /// <param name="message">The error message.</param>
         public MaxSeatReachedException(string message) :
             base(message)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided <see cref="ServiceError"/>.
+        /// </summary>
+        /// <param name="error">The service error.</param>
         public MaxSeatReachedException(ServiceError error) : base(error)
         {
         }
 
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public MaxSeatReachedException() : base(ServiceErrorMessage.MaxSeatReached)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided error message and inner exception.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public MaxSeatReachedException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided serialization info and streaming context.
+        /// </summary>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context.</param>
         protected MaxSeatReachedException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -526,23 +814,45 @@ namespace Unity.Cloud.Common
     [ServiceError(ServiceError.ErrorCode.LegacyNotCompliant, HttpStatusCode.BadRequest)]
     public class NoSeatEntitlementException : ServiceException
     {
+        /// <summary>
+        /// Creates an instance from the provided error message.
+        /// </summary>
+        /// <param name="message">The error message.</param>
         public NoSeatEntitlementException(string message) :
             base(message)
         {
         }
 
+
+        /// <summary>
+        /// Creates an instance from the provided <see cref="ServiceError"/>.
+        /// </summary>
+        /// <param name="error">The service error.</param>
         public NoSeatEntitlementException(ServiceError error) : base(error)
         {
         }
 
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public NoSeatEntitlementException() : base(ServiceErrorMessage.NoSeatEntitlement)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided error message and inner exception.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public NoSeatEntitlementException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided serialization info and streaming context.
+        /// </summary>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context.</param>
         protected NoSeatEntitlementException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -556,23 +866,44 @@ namespace Unity.Cloud.Common
     [ServiceError(ServiceError.ErrorCode.LicensingNoEntitlementAvailable, HttpStatusCode.PaymentRequired)]
     public class NoEntitlementAvailableException : ServiceException
     {
+        /// <summary>
+        /// Creates an instance from the provided error message.
+        /// </summary>
+        /// <param name="message">The error message.</param>
         public NoEntitlementAvailableException(string message) :
             base(message)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided <see cref="ServiceError"/>.
+        /// </summary>
+        /// <param name="error">The service error.</param>
         public NoEntitlementAvailableException(ServiceError error) : base(error)
         {
         }
 
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public NoEntitlementAvailableException() : base(ServiceErrorMessage.NoEntitlementAvailable)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided error message and inner exception.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public NoEntitlementAvailableException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided serialization info and streaming context.
+        /// </summary>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context.</param>
         protected NoEntitlementAvailableException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -585,50 +916,95 @@ namespace Unity.Cloud.Common
     [Serializable]
     public class ConnectionException : ServiceException
     {
+        /// <summary>
+        /// Creates an instance from the provided <see cref="ServiceError"/>.
+        /// </summary>
+        /// <param name="error">The service error.</param>
         public ConnectionException(ServiceError error) : base(error)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided error message and inner exception.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public ConnectionException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided error message.
+        /// </summary>
+        /// <param name="message">The error message.</param>
         public ConnectionException(string message) : base(message)
         {
         }
 
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public ConnectionException() : base(ServiceErrorMessage.ConnectionFailed)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided serialization info and streaming context.
+        /// </summary>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context.</param>
         protected ConnectionException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
     }
 
+    /// <summary>
+    /// This exception is thrown if the resource is not found.
+    /// </summary>
     [Serializable]
     [ServiceError(ServiceError.ErrorCode.GenericNotFound, HttpStatusCode.NotFound)]
     public class NotFoundException : ServiceException
     {
+        /// <summary>
+        /// Creates an instance from the provided error message.
+        /// </summary>
+        /// <param name="message">The error message.</param>
         public NotFoundException(string message) :
             base(message)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided <see cref="ServiceError"/>.
+        /// </summary>
+        /// <param name="error">The service error.</param>
         public NotFoundException(ServiceError error) : base(error)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided error message and inner exception.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public NotFoundException(string message, Exception innerException) :
             base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public NotFoundException() : base(ServiceErrorMessage.ResourceNotFound)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided serialization info and streaming context.
+        /// </summary>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context.</param>
         protected NotFoundException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -642,18 +1018,39 @@ namespace Unity.Cloud.Common
     [ServiceError(ServiceError.ErrorCode.GenericBadRequest, HttpStatusCode.BadRequest)]
     public class InvalidArgumentException : ServiceException
     {
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public InvalidArgumentException() : base(ServiceErrorMessage.InvalidArgument) {}
 
+        /// <summary>
+        /// Creates an instance from the provided <see cref="ServiceError"/>.
+        /// </summary>
+        /// <param name="error">The service error.</param>
         public InvalidArgumentException(ServiceError error) : base(error)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided error message.
+        /// </summary>
+        /// <param name="msg">The error message.</param>
         public InvalidArgumentException(string msg) : base(msg) {}
 
+        /// <summary>
+        /// Creates an instance from the provided error message and inner exception.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public InvalidArgumentException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided serialization info and streaming context.
+        /// </summary>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context.</param>
         protected InvalidArgumentException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -667,18 +1064,39 @@ namespace Unity.Cloud.Common
     [ServiceError(ServiceError.ErrorCode.GenericServerError, HttpStatusCode.InternalServerError)]
     public class ServerException : ServiceException
     {
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public ServerException() : base(ServiceErrorMessage.UnexpectedServerError) {}
 
+        /// <summary>
+        /// Creates an instance from the provided <see cref="ServiceError"/>.
+        /// </summary>
+        /// <param name="error">The service error.</param>
         public ServerException(ServiceError error) : base(error)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided error message.
+        /// </summary>
+        /// <param name="msg">The error message.</param>
         public ServerException(string msg) : base(msg) {}
 
+        /// <summary>
+        /// Creates an instance from the provided error message and inner exception.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public ServerException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided serialization info and streaming context.
+        /// </summary>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context.</param>
         protected ServerException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -692,23 +1110,44 @@ namespace Unity.Cloud.Common
     [ServiceError(ServiceError.ErrorCode.GenericUnknownApp, HttpStatusCode.BadRequest)]
     public class UnknownApplicationException : ServiceException
     {
+        /// <summary>
+        /// Creates an instance from the provided error message.
+        /// </summary>
+        /// <param name="message">The error message.</param>
         public UnknownApplicationException(string message) :
             base(message)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided <see cref="ServiceError"/>.
+        /// </summary>
+        /// <param name="error">The service error.</param>
         public UnknownApplicationException(ServiceError error) : base(error)
         {
         }
 
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public UnknownApplicationException() : base(ServiceErrorMessage.UnknownApplication)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided error message and inner exception.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public UnknownApplicationException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Creates an instance from the provided serialization info and streaming context.
+        /// </summary>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context.</param>
         protected UnknownApplicationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

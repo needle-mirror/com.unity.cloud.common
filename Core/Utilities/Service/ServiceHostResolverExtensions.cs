@@ -29,7 +29,7 @@ namespace Unity.Cloud.Common
         /// Creates a copy of the <paramref name="serviceHostResolver"/> with the given <paramref name="domainResolverOverride"/>.
         /// </summary>
         /// <param name="serviceHostResolver">The <see cref="IServiceHostResolver"/> to copy.</param>
-        /// <param name="domainResolverOverride">The <see cref="domainResolverOverride"/> to initialize the copy with.</param>
+        /// <param name="domainResolverOverride">The <see cref="IServiceDomainResolver"/> to initialize the copy with.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">Thrown if either <paramref name="serviceHostResolver"/> or <paramref name="domainResolverOverride"/> are null.</exception>
         public static IServiceHostResolver CreateCopyWithDomainResolverOverride(this IServiceHostResolver serviceHostResolver, IServiceDomainResolver domainResolverOverride)

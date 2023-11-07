@@ -55,6 +55,7 @@ using UnityEngine;
         /// </summary>
         [ReadOnly] public string AppOrganizationID = k_DefaultOrganizationID;
 
+        /// <summary>
         /// The Unity Cloud namespace to uniquely identify the app on the device.
         /// </summary>
         public string AppNamespace = k_DefaultNamespace;
@@ -133,6 +134,9 @@ using UnityEngine;
         }
     }
 
+    /// <summary>
+    /// An attribute to make a property read-only in the inspector.
+    /// </summary>
     public class ReadOnlyAttribute : PropertyAttribute
     {
     }

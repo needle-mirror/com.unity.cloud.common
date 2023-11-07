@@ -7,9 +7,12 @@ using System.Threading;
 
 namespace Unity.Cloud.Common
 {
+    /// <summary>
+    /// A derived class of <see cref="HttpHeaders"/> specifically for web socket headers.
+    /// </summary>
     public class WebSocketHeaders : HttpHeaders { }
 
-    /// <inheritdoc cref="IServiceMessagingClient"/>
+    /// <inheritdoc cref="IServiceMessagingClient" />
     public class ServiceMessagingClient : IServiceMessagingClient, IDisposable
     {
         readonly IWebSocketClient m_WebSocketClient;

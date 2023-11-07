@@ -103,6 +103,9 @@ namespace Unity.Cloud.Common
         readonly IServiceAuthorizer m_ServiceAuthorizer;
         readonly IAppIdProvider m_AppIdProvider;
 
+        /// <summary>
+        /// The client trace.
+        /// </summary>
         public static readonly string ClientTrace = Guid.NewGuid().ToString("N");
 
         /// <summary>

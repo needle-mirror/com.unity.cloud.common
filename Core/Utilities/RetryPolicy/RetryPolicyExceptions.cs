@@ -11,12 +11,17 @@ namespace Unity.Cloud.Common
     public class RetryExecutionFailedException : Exception
     {
         /// <summary>
-        /// Default constructor.
+        /// Creates an instance of <see cref="RetryExecutionFailedException"/>.
         /// </summary>
         /// <param name="innerException">The inner exception that triggered this failure of retry execution.</param>
         public RetryExecutionFailedException(Exception innerException) : base(default, innerException)
         { }
 
+        /// <summary>
+        /// Creates an instance of <see cref="RetryExecutionFailedException"/>.
+        /// </summary>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">the streaming context.</param>
         protected RetryExecutionFailedException(SerializationInfo info, StreamingContext context) : base(info, context)
         { }
     }

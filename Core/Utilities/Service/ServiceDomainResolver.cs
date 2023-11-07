@@ -6,6 +6,7 @@ namespace Unity.Cloud.Common
     /// <inheritdoc/>
     public class ServiceDomainResolver : IServiceDomainResolver
     {
+        /// <inheritdoc/>
         public virtual string GetResolvedDomain(ServiceDomainProvider provider)
         {
             try
@@ -18,6 +19,7 @@ namespace Unity.Cloud.Common
             }
         }
 
+        /// <inheritdoc/>
         public virtual string GetResolvedSubdomain(ServiceDomainProvider provider, ServiceEnvironment environment)
         {
             try

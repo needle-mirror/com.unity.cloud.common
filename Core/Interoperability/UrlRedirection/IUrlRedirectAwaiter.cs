@@ -48,6 +48,8 @@ namespace Unity.Cloud.Common
         /// <summary>
         /// Waits for the specific <see cref="RefreshDelay"/> period.
         /// </summary>
+        /// <param name="cancellationToken">The cancellation token for the operation.</param>
+        /// <returns>A <see cref="Task"/> that completes when the <see cref="UrlRedirectResult"/> has been received or the timeout period has elapsed.</returns>
         /// <exception cref="TaskCanceledException">Thrown if the task is cancelled</exception>
         Task WaitForRefreshAsync(CancellationToken cancellationToken = default);
     }

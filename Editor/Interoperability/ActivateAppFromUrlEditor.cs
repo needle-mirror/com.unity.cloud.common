@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace Unity.Cloud.Common.Editor
 {
+    /// <summary>
+    /// Editor for <see cref="ActivateAppFromUrl"/>.
+    /// </summary>
    [CustomEditor(typeof(ActivateAppFromUrl))]
    public class ActivateAppFromUrlEditor : UnityEditor.Editor
     {
@@ -19,11 +22,15 @@ namespace Unity.Cloud.Common.Editor
             m_ActivateAtStartUpProperty = serializedObject.FindProperty(nameof(ActivateAppFromUrl.m_ActivateAtStartUp));
         }
 
+        /// <inheritdoc/>
         public override void OnInspectorGUI()
         {
             DrawGUI();
         }
 
+        /// <summary>
+        /// Draw the Editor GUI.
+        /// </summary>
         public void DrawGUI()
         {
             serializedObject.Update();

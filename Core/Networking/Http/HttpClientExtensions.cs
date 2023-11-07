@@ -13,11 +13,15 @@ namespace Unity.Cloud.Common
         // We use the HttpMethod constructor here because HttpMethod.Patch throws PlatformNotSupportedException
         static HttpMethod m_HttpMethodPatch;
 
+        /// <summary>
+        /// An <see cref="HttpMethod"/> for "PATCH".
+        /// </summary>
         public static HttpMethod HttpMethodPatch => m_HttpMethodPatch ?? new("PATCH");
 
         /// <summary>
         /// Sends an asynchronous HTTP request.
         /// </summary>
+        /// <param name="httpClient">The HTTP client.</param>
         /// <param name="request">The request to be sent.</param>
         /// <returns>An <see cref="HttpResponseMessage"/>.</returns>
         /// <exception cref="ArgumentException">Thrown when the requestUri is invalid.</exception>
@@ -32,6 +36,7 @@ namespace Unity.Cloud.Common
         /// <summary>
         /// Sends an asynchronous HTTP request.
         /// </summary>
+        /// <param name="httpClient">The HTTP client.</param>
         /// <param name="request">The request to be sent.</param>
         /// <param name="cancellationToken">Cancellation token that will try to cancel the operation.</param>
         /// <returns>An <see cref="HttpResponseMessage"/>.</returns>
@@ -48,6 +53,7 @@ namespace Unity.Cloud.Common
         /// <summary>
         /// Sends an asynchronous HTTP request.
         /// </summary>
+        /// <param name="httpClient">The HTTP client.</param>
         /// <param name="request">The request to be sent.</param>
         /// <param name="completionOption">When the operation should complete.</param>
         /// <returns>An <see cref="HttpResponseMessage"/>.</returns>
@@ -64,6 +70,7 @@ namespace Unity.Cloud.Common
         /// <summary>
         /// Sends an asynchronous HTTP request.
         /// </summary>
+        /// <param name="httpClient">The HTTP client.</param>
         /// <param name="request">The request to be sent.</param>
         /// <param name="completionOption">When the operation should complete.</param>
         /// <param name="cancellationToken">Cancellation token that will try to cancel the operation.</param>

@@ -1,35 +1,25 @@
+:bulb: **TIP**: Automatically add the latest version of Unity Cloud Common to the Unity Editor! <button onclick="window.location.href='com.unity3d.kharma:upmpackage/com.unity.cloud.common';">Add package</button>
+
 # Installation
 
-Before you install the package, make sure you meet the [system requirements](#sysreq).
+This section describes how to install Unity Cloud Common in your Unity Project. Before you install the package, make sure you meet the [prerequisites](prerequisites.md).
 
-What does a user need to do to install the package?
+>[!NOTE]
+>The Unity Cloud Common package is a dependency of all other Unity Cloud packages. If you install any of these packages, the Unity Cloud Common package is automatically installed. Given the Common package does not offer any standalone features, it should not be necessary to install it on its own.
 
-For example:
+## Install from the Unity Package Manager
 
-To install the package, see the following steps:
+To install the Unity Cloud Identity package, follow these steps:
 
-1. Step 1
-2. Step 2
-3. And so on...
+1. In your Unity Project, go to **Windows** > **Package Manager**.
+2. On the status bar, select the Add (**+**) button.
+3. From the Add menu, select  **Add + package by name**. </br>**Name** and **Version** fields appear.
+4. In the **Name** field, enter `com.unity.cloud.common`.
+5. Select **Add**.
 
-## <a id="sysreq"></a>System requirements
-What does a user need to have before they can install and use the package?
+The Editor installs the latest available version of the package and any dependent packages.
 
-For example:
+## Additional resources
 
-* Special license
-* Specific version of the Unity editor
-* Permissions or valid credentials
-* Other packages already installed
-* Graphic card or other hardware
-
-## Troubleshooting the installation
-Is there anything that can go wrong during the installation? If so, how can a user fix it?
-
-For example:
-
-This bad thing can happen after installation. To fix it, see the following steps:
-
-1. Step 1
-2. Step 2
-3. And so on...
+* [Package Manager](https://docs.unity3d.com/Manual/class-PackageManager.html)
+* [Package states and lifecycle](https://docs.unity3d.com/Manual/upm-lifecycle.html)

@@ -8,6 +8,9 @@ using UnityEngine;
 
 namespace Unity.Cloud.Common.Editor
 {
+    /// <summary>
+    /// A custom editor for <see cref="UnityCloudPlayerSettings"/>.
+    /// </summary>
     [CustomEditor(typeof(UnityCloudPlayerSettings))]
     public class UnityCloudPlayerSettingsEditor : UnityEditor.Editor
     {
@@ -46,11 +49,15 @@ namespace Unity.Cloud.Common.Editor
             await m_AppRegistration.Initialize(SelectApp);
         }
 
+        /// <inheritdoc/>
         public override void OnInspectorGUI()
         {
             DrawGUI();
         }
 
+        /// <summary>
+        /// Draws the Editor GUI.
+        /// </summary>
         public void DrawGUI()
         {
             serializedObject.Update();
@@ -168,14 +175,24 @@ namespace Unity.Cloud.Common.Editor
     }
 
 
+    /// <summary>
+    /// Draws a property as read-only in the GUI.
+    /// </summary>
     [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
     public class ReadOnlyDrawer : PropertyDrawer
     {
+        /// <summary>
+        /// Gets the height of the property.
+        /// </summary>
+        /// <param name="property">The property to draw.</param>
+        /// <param name="label">The content label.</param>
+        /// <returns></returns>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             return EditorGUI.GetPropertyHeight(property, label, true);
         }
 
+        /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             GUI.enabled = false;

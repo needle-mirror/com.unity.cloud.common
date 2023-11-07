@@ -11,10 +11,24 @@ namespace Unity.Cloud.Common
     /// </summary>
     public static class ServiceHeaderUtils
     {
+        /// <summary>
+        /// Header for the API source information.
+        /// </summary>
         public const string k_ApiSourceHeader = "X-Unity-Cloud-Api-Source";
+
+        /// <summary>
+        /// A regex pattern matching Unity API URLs.
+        /// </summary>
         public const string k_UnityApiPattern = @"https.*(?:[./])unity\.com/api/.*|localhost:.*\/api/.*|services.(?:api.)?unity.com";
 
+        /// <summary>
+        /// The bearer scheme for authorization.
+        /// </summary>
         public const string k_BearerScheme = "Bearer";
+
+        /// <summary>
+        /// The basic scheme for authorization.
+        /// </summary>
         public const string k_BasicScheme = "Basic";
 
         const string k_AuthHeader = "Authorization";

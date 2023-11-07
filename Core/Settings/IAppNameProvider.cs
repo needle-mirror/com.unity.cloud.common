@@ -10,6 +10,7 @@ namespace Unity.Cloud.Common
         /// <summary>
         /// Returns the App Name uniquely identifying an App on the cloud services.
         /// </summary>
+        /// <returns>The App Name.</returns>
         string GetAppName();
     }
 }

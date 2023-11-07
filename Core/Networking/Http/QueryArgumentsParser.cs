@@ -13,7 +13,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="uri">The Uri containing a query.</param>
         /// <param name="allowOverwrite">Whether to allow a query to be overwritten if it exists more than once.</param>
-        /// <returns>The resulting <see cref="Dictionary"/>.</returns>
+        /// <returns>The resulting <see cref="Dictionary{TKey,TValue}"/>.</returns>
         /// <exception cref="ArgumentNullException"> Thrown when uri is null.</exception>
         public static Dictionary<string, string> GetDictionaryFromArguments(Uri uri, bool allowOverwrite = false)
         {
@@ -34,7 +34,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="queryString">The query to parse.</param>
         /// <param name="allowOverwrite">Whether to allow a query to be overwritten if it exists more than once.</param>
-        /// <returns>The resulting <see cref="Dictionary"/>.</returns>
+        /// <returns>The resulting <see cref="Dictionary{TKey,TValue}"/>.</returns>
         public static Dictionary<string, string> GetDictionaryFromString(string queryString, bool allowOverwrite = false)
         {
             var queryArgs = new Dictionary<string, string>();

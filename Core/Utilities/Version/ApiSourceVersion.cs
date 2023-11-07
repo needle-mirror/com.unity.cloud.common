@@ -8,6 +8,9 @@ namespace Unity.Cloud.Common
     /// </summary>
     public class ApiSourceVersion
     {
+        /// <summary>
+        /// Default dev version for the API source version.
+        /// </summary>
         public const string k_DevVersion = "dev";
 
         /// <summary>

@@ -67,23 +67,27 @@ namespace Unity.Cloud.Common
         /// <param name="uri">Uri</param>
         /// <param name="options">The selected options</param>
         /// <param name="cancellationToken">Optional cancellation token that will try to cancel the operation.</param>
+        /// <returns>A <see cref="Task"/> for the connection operation.</returns>
         Task ConnectAsync(Uri uri, ServiceMessagingClientOptions options = default, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Awaitable method to close a connection to a server
         /// </summary>
+        /// <returns>A <see cref="Task"/> for the disconnection operation.</returns>
         Task DisconnectAsync();
 
         /// <summary>
         /// Awaitable method to send a message to a server
         /// </summary>
         /// <param name="message"></param>
+        /// <returns>A <see cref="Task"/> for the send operation.</returns>
         Task SendAsync(Message message);
 
         /// <summary>
         /// Awaitable method to send a collection of messages to a server
         /// </summary>
         /// <param name="messages"></param>
+        /// <returns>A <see cref="Task"/> for the send operation.</returns>
         Task SendAsync(IEnumerable<Message> messages);
 
         /// <summary>

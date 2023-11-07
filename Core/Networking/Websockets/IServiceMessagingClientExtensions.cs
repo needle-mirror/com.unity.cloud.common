@@ -3,6 +3,9 @@ using System.Reflection;
 
 namespace Unity.Cloud.Common
 {
+    /// <summary>
+    /// Helper methods for <see cref="IServiceMessagingClient"/>.
+    /// </summary>
     public static class IServiceMessagingClientExtensions
     {
         /// <summary>

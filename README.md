@@ -1,12 +1,12 @@
-# [UNITY CLOUD COMMON]
+# Unity Cloud Common
 
-This package is experimental and exposes common functionalities needed by the Unity Cloud SDKs.
+This package exposes common functionalities needed by the Unity Cloud SDKs.
 
 ## Before you start
 
 The following are the prerequisites for installing the package:
 
-* A Unity version of 2021.3 or later
+* A Unity version of 2022.3 or later
 
 ## Package contents
 
@@ -16,9 +16,6 @@ The following are the prerequisites for installing the package:
 * Settings: API to manage app settings in the Unity Cloud ecosystem
 * Utilities: various helpers to improve quality of life
 
-## Install
-
-The package can be found in the [internal artifactory](https://artifactory.prd.cds.internal.unity3d.com/ui/packages?name=com.unity.cloud&type=packages).
-
-## Build, test, and run
+## License
+* [License](LICENSE.md)
 

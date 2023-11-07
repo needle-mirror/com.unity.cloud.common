@@ -92,6 +92,7 @@ namespace Unity.Cloud.Common.Editor
         void LoadOnAssetDependencies(string assetPath)
         {
             var newFilesImported = false;
+            var imported = new List<string>();
 
             if (m_SampleConfiguration != null)
             {
@@ -99,20 +100,27 @@ namespace Unity.Cloud.Common.Editor
                 {
                     // Import dependencies if we are importing the root directory of the sample
                     var isSampleDirectory = assetPath.EndsWith(m_Samples[i].displayName);
-                    if (isSampleDirectory)
+                    if (!isSampleDirectory)
+                        continue;
+
+                    var resolvedPath = m_Samples[i].resolvedPath;
+
+                    if (imported.Contains(resolvedPath))
+                        continue;
+
+                    imported.Add(resolvedPath);
+
+                    var sampleEntry = m_SampleConfiguration.GetEntry(m_Samples[i]);
+                    if (sampleEntry != null)
                     {
-                        var sampleEntry = m_SampleConfiguration.GetEntry(m_Samples[i]);
-                        if (sampleEntry != null)
-                        {
-                            // Import the common asset dependencies
-                            newFilesImported |= ImportDependencies(m_PackageInfo, m_SampleConfiguration.SharedAssetDependencies);
+                        // Import the common asset dependencies
+                        newFilesImported |= ImportDependencies(m_PackageInfo, m_SampleConfiguration.SharedAssetDependencies);
 
-                            // Import the sample-specific dependencies
-                            newFilesImported |= ImportDependencies(m_PackageInfo, sampleEntry.AssetDependencies);
-                        }
-
-                        CopyStreamingAssets(m_Samples[i].displayName, m_Samples[i].resolvedPath);
+                        // Import the sample-specific dependencies
+                        newFilesImported |= ImportDependencies(m_PackageInfo, sampleEntry.AssetDependencies);
                     }
+
+                    CopyStreamingAssets(m_Samples[i].displayName, m_Samples[i].resolvedPath);
                 }
             }
 
@@ -123,7 +131,7 @@ namespace Unity.Cloud.Common.Editor
         /// <summary>
         /// Copy the StreamingAssets directory content from the package into the project.
         /// </summary>
-        static void CopyStreamingAssets(string sampleName, string path)
+        void CopyStreamingAssets(string sampleName, string path)
         {
             if (string.IsNullOrEmpty(path))
                 return;

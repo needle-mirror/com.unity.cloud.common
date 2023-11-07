@@ -1,28 +1,11 @@
 # Unity Cloud SDK Common
 
-Common functionalities needed by the Unity Cloud SDKs
+Unity Cloud Common provides a shared functionality used by the Unity Cloud SDKs. This functionality allows other Unity Cloud packages to offer a more consistent experience, and reduces the amount of code that might need to be duplicated or maintained in multiple places.
 
-![Placeholder](images/placeholder-1.png)
+The Unity Cloud Common package does not provide any standalone features, and is not intended to be used directly. The Common package is a dependency of the other Unity Cloud packages, and will be installed automatically when Unity Cloud packages are installed.
 
-After reading your introduction, a user should know whether or not your sample project is relevant or interesting to them.
+Some of the features provided by Unity Cloud Common include:
 
-Helpful questions you use for writing prompts include:
-* Why would someone want to use it instead of another tool?
-* Who is it designed to be interesting to?
-
-Example of an introductory blurb:
-
- >*Use the Unity Recorder package to capture and save in-game data. For example, use Unity Recorder to record an mp4 file during a game session. The Unity Recorder package also includes an interface for setting-up and triggering recording sessions.*
-
-## Prerequisites and system requirements
-
-What does a user need to have before they can install and use your service? For example, do they need a:
-
-* Special license
-* Particular version of the Unity Editor
-* Permissions or a particular type of user account with valid credentials
-* Project already set up
-* Set of packages already installed
-* Operating system
-* Graphics card or other hardware
-* Companion animal
+- **Data Abstractions:** A common set of data types and abstractions used by the other Unity Cloud packages.
+- **Networking:** Networking components that can be used to make authenticated requests to the Unity Cloud REST API.
+- **App Registration:** Unity Cloud App ID registration and management.

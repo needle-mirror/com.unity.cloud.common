@@ -10,6 +10,7 @@ namespace Unity.Cloud.Common
         /// <summary>
         /// Returns the App display name.
         /// </summary>
+        /// <returns>The App display name.</returns>
         string GetAppDisplayName();
     }
 }

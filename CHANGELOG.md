@@ -4,6 +4,24 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.0.0-pre.1] - 2023-11-07
+
+### Added
+- Added a first pass of manual documentation.
+
+### Changed
+- Updated LICENSE.md file.
+- Improved information in README
+- Improvements to scripting API doc
+- Updated manual documentation
+
+### Removed
+- Removed inapplicable notices in documentation.
+- [Breaking] Made `IKeyValueStoreExtensions` internal as its only method was also internal.
+
+### Fixed
+- Validate files are copied only once when importing samples.
+
 ## [1.0.0-exp.1] - 2023-10-26
 
 ### Added

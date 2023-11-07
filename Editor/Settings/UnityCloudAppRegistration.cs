@@ -16,8 +16,14 @@ using Unity.Cloud.Identity.Editor;
 
 namespace Unity.Cloud.Common.Editor
 {
+    /// <summary>
+    /// A class to manage the registration of Unity Cloud applications.
+    /// </summary>
     public class UnityCloudAppRegistration : UnityEditor.Editor
     {
+        /// <summary>
+        /// Returns the <see cref="IAppInfoProvider"/> instance.
+        /// </summary>
         public IAppInfoProvider AppInfoProvider => m_AppInfoProvider;
 
         IAppInfoProvider m_AppInfoProvider;
@@ -58,6 +64,9 @@ namespace Unity.Cloud.Common.Editor
         }
 #endif
 
+        /// <summary>
+        /// A delegate to call when an App Id has been selected.
+        /// </summary>
         public delegate void SelectAppDelegate(OrganizationId orgId, AppId appId, string appName, string displayName);
         SelectAppDelegate m_SelectAppDelegate;
 
@@ -73,6 +82,11 @@ namespace Unity.Cloud.Common.Editor
             m_SubHeadingStyle.fontSize = 16;
         }
 
+        /// <summary>
+        /// Initializes the <see cref="UnityCloudAppRegistration"/> instance.
+        /// </summary>
+        /// <param name="selectAppDelegate">The delegate to call when an App Id has been selected.</param>
+        /// <returns>A <see cref="Task"/> for the initialization operation.</returns>
         public async Task Initialize(SelectAppDelegate selectAppDelegate)
         {
             m_SelectAppDelegate = selectAppDelegate;
@@ -102,6 +116,9 @@ namespace Unity.Cloud.Common.Editor
 #endif
         }
 
+        /// <summary>
+        /// Draws the Editor GUI.
+        /// </summary>
         public void DrawGUI()
         {
             if (m_BorderStyle == null || m_SubHeadingStyle == null)

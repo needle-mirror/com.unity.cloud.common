@@ -18,6 +18,7 @@ namespace Unity.Cloud.Common
         /// <summary>
         /// Initializes and returns an instance of <see cref="Permission"/>.
         /// </summary>
+        /// <param name="name">The name of the permission.</param>
         public Permission(string name)
         {
             Name = name;

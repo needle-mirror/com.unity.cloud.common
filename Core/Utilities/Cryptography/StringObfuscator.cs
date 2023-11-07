@@ -14,6 +14,7 @@ namespace Unity.Cloud.Common
         /// <summary>
         /// Create a AesStringObfuscator that uses AesCryptoServiceProvider encryption and decryption methods to obfuscate string values.
         /// </summary>
+        /// <param name="encodingKey">The encoding key for obfuscation.</param>
         public AesStringObfuscator(string encodingKey)
         {
             m_EncodingKey = encodingKey;

@@ -51,7 +51,10 @@ namespace Unity.Cloud.Common
         Task<bool> ValidateFilenameExistsAsync(string filename);
     }
 
-    public static class IKeyValueStoreExtensions
+    /// <summary>
+    /// Helper methods for <see cref="IKeyValueStore"/>.
+    /// </summary>
+    static class IKeyValueStoreExtensions
     {
         /// <summary>
         /// Validates that the filename is not null or empty.
