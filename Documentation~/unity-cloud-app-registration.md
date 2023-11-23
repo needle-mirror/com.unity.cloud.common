@@ -14,7 +14,7 @@ To set up the application identifier manually, follow these steps:
 2. Go to **Edit > Project Settings > Unity Cloud > App Information**.
 3. In the **Enter Application ID** field, enter your application identifier.
    ![Entering the application identifier in Project Settings](images/manual-appid-entry.png)
-4. To update the application data, select **Select**.
+4. To update the application data, select the **Select** button.
 
 If the `com.unity.cloud.identity` package is properly installed and you are logged in the Editor with the corresponding account, you can access existing applications.
 

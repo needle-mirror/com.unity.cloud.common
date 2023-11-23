@@ -1,7 +1,7 @@
 mergeInto(LibraryManager.library, {
  
     GetURLFromPage: function () {
-        var returnStr = window.top.location.href;
+        var returnStr = window.location.href;
         console.log("JavaScript read url: " + returnStr);
         var bufferSize = lengthBytesUTF8(returnStr) + 1
         var buffer = _malloc(bufferSize);

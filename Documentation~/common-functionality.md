@@ -3,13 +3,13 @@
 Unity Cloud Common provides a shared functionality used by the Unity Cloud SDKs. This functionality allows other Unity Cloud packages to offer a more consistent experience, and reduces the amount of code that might need to be duplicated or maintained in multiple places.
 
 >[!NOTE]
->This page describes some of the key functionality provided by the Unity Cloud Common SDK at a high level. More detailed use cases and code examples using these concepts are further documented within the specific [Unity Cloud SDK pages](https://docs.unity3d.com/unity-cloud/manual/identity/index.html) for those packages which make use of them.
+>This page describes some of the key functionality provided by the Unity Cloud Common SDK at a high level. More detailed use cases and code examples using these concepts are further documented within the specific [Unity Cloud SDK pages](docs.unity.com/cloud) for those packages which make use of them.
 
 ## Data Abstractions
 
 One of the primary functions of the Unity Cloud Common package are to provide the base abstractions and data types shared by all other packages. These include, but are not limited to, a series of identifiers for the various organizations, projects, and assets used by the Unity Cloud platform.
 
-Some of the most commonly used identifiers are listed below. These identifiers related to the assets managed by the [Unity Cloud Assets SDK](https://docs.unity3d.com/unity-cloud/manual/asset-management/index.html):
+Some of the most commonly used identifiers are listed below. These identifiers related to the assets managed by the [Unity Cloud Assets SDK](https://docs.unity3d.com/Packages/com.unity.cloud.assets@latest):
 
 - `OrganizationId`: A struct that represents the unique identifier of an organization.
 - `ProjectId`: A struct that represents the unique identifier of a project.
@@ -25,7 +25,7 @@ The Unity Cloud Common package also provides a series of networking components t
 
 The core networking components used across all Unity Cloud packages are the following:
 
-- `IServiceAuthorizer`: An interface that provides a way to add the appropriate authentication headers to all HTTP requests made to the Unity Cloud platform services. The main implementations of this interface exist in the [Unity Cloud Identity SDK](https://docs.unity3d.com/unity-cloud/manual/identity/index.html).
+- `IServiceAuthorizer`: An interface that provides a way to add the appropriate authentication headers to all HTTP requests made to the Unity Cloud platform services. The main implementations of this interface exist in the [Unity Cloud Identity SDK](https://docs.unity3d.com/Packages/com.unity.cloud.identity@latest).
 - `ServiceHostResolver`: A class which resolves the domain for all requests made to the Unity Cloud platform services via the `ServiceHttpClient`, described below.
 - `ServiceHttpClient`: A class that provides a base implementation for all HTTP requests made to the Unity Cloud platform services, specifically to add the necessary headers for authorization.
 - `IWebSocketClient`: An interface that provide a way to communicate with the Unity Cloud platform services via WebSockets.

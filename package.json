@@ -1,6 +1,6 @@
 {
   "name": "com.unity.cloud.common",
-  "version": "1.0.0-pre.1",
+  "version": "1.0.0-pre.2",
   "displayName": "Unity Cloud Common",
   "description": "Unity Cloud Common provides functionalities needed by the Unity Cloud SDKs.",
   "unity": "2022.3",
@@ -10,18 +10,18 @@
     "com.unity.modules.imgui": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.cloud.common.tests": "1.0.0-pre.1"
+    "com.unity.cloud.common.tests": "1.0.0-pre.2"
   },
   "_upm": {
-    "changelog": "### Added\n- Added a first pass of manual documentation.\n\n### Changed\n- Updated LICENSE.md file.\n- Improved information in README\n- Improvements to scripting API doc\n- Updated manual documentation\n\n### Removed\n- Removed inapplicable notices in documentation.\n- [Breaking] Made `IKeyValueStoreExtensions` internal as its only method was also internal.\n\n### Fixed\n- Validate files are copied only once when importing samples."
+    "changelog": "### Removed\n- Removed unused domains from `AppLinksHelper.cs`\n\n### Fixed\n- Windows specific: custom uri schema resolver now supports Unicode character in the application absolute path.\n- WebGL IFrame issue in CommonBrowserInterop.jslib."
   },
   "upmCi": {
-    "footprint": "a032b6e0ac6851fbcea872f801aa80f2cefd6b36"
+    "footprint": "8b5749a036f92cf7f3279042d9efe913cc0036d5"
   },
   "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@1.0/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/digital-twins-sdk.git",
     "type": "git",
-    "revision": "b40c64c62e793641c7e9466906448f096c764295"
+    "revision": "9eddc958b886388f7ab226d78a4e9962a8a58728"
   }
 }

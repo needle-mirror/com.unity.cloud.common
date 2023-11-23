@@ -1,4 +1,6 @@
-# Unity Cloud SDK Common
+# Unity Cloud Common
+
+![Common Feature Splash](images/splash-common.png)
 
 Unity Cloud Common provides a shared functionality used by the Unity Cloud SDKs. This functionality allows other Unity Cloud packages to offer a more consistent experience, and reduces the amount of code that might need to be duplicated or maintained in multiple places.
 
