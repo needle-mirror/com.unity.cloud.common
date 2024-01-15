@@ -10,7 +10,7 @@ namespace Unity.Cloud.Common.Runtime
     static class UnitySynchronizationContextGrabber
     {
         static SynchronizationContext s_UnitySynchronizationContextValue;
-        internal static SynchronizationContext s_UnitySynchronizationContext
+        public static SynchronizationContext s_UnitySynchronizationContext
         {
             get => s_UnitySynchronizationContextValue;
         }

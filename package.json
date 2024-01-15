@@ -1,6 +1,6 @@
 {
   "name": "com.unity.cloud.common",
-  "version": "1.0.0-pre.2",
+  "version": "1.0.0-pre.5",
   "displayName": "Unity Cloud Common",
   "description": "Unity Cloud Common provides functionalities needed by the Unity Cloud SDKs.",
   "unity": "2022.3",
@@ -10,18 +10,18 @@
     "com.unity.modules.imgui": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.cloud.common.tests": "1.0.0-pre.2"
+    "com.unity.cloud.common.tests": "1.0.0-pre.5"
   },
   "_upm": {
-    "changelog": "### Removed\n- Removed unused domains from `AppLinksHelper.cs`\n\n### Fixed\n- Windows specific: custom uri schema resolver now supports Unicode character in the application absolute path.\n- WebGL IFrame issue in CommonBrowserInterop.jslib."
+    "changelog": "### Added\n- Unity.Cloud.AppLinking namespace.\n- Added `HostUrl` property in `IUrlProcessor` interface,\n- The `Details` property has been added to `ServiceException`.\n\n### Changed\n- [Breaking] Moved `IUrlRedirectAwaiter`, `IUrlRedirectionInterceptor`, `IActivatePlatformSupport`, `IUrlProcessor`, `UrlRedirectUtils`, `UrlRedirectStatus`, `UrlRedirectResult`, `UrlProcessor`, `ProcessId`, `ChannelUrlRedirectionInterceptor`,  `UrlRedirectionInterceptor`, `UnityRuntimeUrlProcessor`, `UnityCloudPlayerSettings`, `ActivateAppFromUrl` from Unity.Cloud.Common, Unity.Cloud.Interop and Unity.Cloud.Identity to Unity.Cloud.AppLinking.\n- [Breaking] `ServiceError` has been made internal.\n\n### Removed\n- Removed documentation related to App Registration.\n- [Breaking] Removed `UrlProcessor` core implementation."
   },
   "upmCi": {
-    "footprint": "8b5749a036f92cf7f3279042d9efe913cc0036d5"
+    "footprint": "e2b195a1b7b938464906eea722eca884362c104a"
   },
   "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@1.0/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/digital-twins-sdk.git",
     "type": "git",
-    "revision": "9eddc958b886388f7ab226d78a4e9962a8a58728"
+    "revision": "44f0674ab386c5aca17820ddebdb81fbab081c5e"
   }
 }

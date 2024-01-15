@@ -39,7 +39,7 @@ namespace Unity.Cloud.Common.Runtime
         /// <summary>
         /// The current <see cref="LogLevel"/>.
         /// </summary>
-        public LogLevel CurrentLevel  { get; set; } = LogLevel.Trace;
+        public LogLevel CurrentLevel  { get; set; } = LogLevel.Information;
 
         /// <summary>
         /// Writes a <see cref="LogEvent"/>.
@@ -81,6 +81,8 @@ namespace Unity.Cloud.Common.Runtime
                 case LogLevel.Warning:
                     return LogType.Warning;
                 case LogLevel.Error:
+                    return LogType.Error;
+                case LogLevel.Critical:
                     return LogType.Error;
             }
 

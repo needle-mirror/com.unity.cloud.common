@@ -249,7 +249,7 @@ namespace Unity.Cloud.Common
             }
             catch (HttpRequestException e)
             {
-                throw new ConnectionException(ServiceErrorMessage.ConnectionFailed, e);
+                throw new ConnectionException(ConnectionException.k_DefaultMessage, e);
             }
         }
 

@@ -1,7 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Text;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
@@ -16,6 +16,7 @@ namespace Unity.Cloud.Common.Runtime
     class LegacyRequestHandler
     {
         const string k_ContentLengthHeaderKey = "Content-Length";
+        const string k_ContentTypeHeaderKey = "Content-Type";
         const string k_TimeoutErrorMessage = "Request timeout";
 
         readonly IMainThreadIODispatcher m_Dispatcher;
@@ -303,6 +304,12 @@ namespace Unity.Cloud.Common.Runtime
             }
 
             state.Response.StatusCode = (HttpStatusCode) request.responseCode;
+            var headers = request.GetResponseHeaders();
+            if (headers.ContainsKey(k_ContentTypeHeaderKey))
+            {
+                var substrings = headers[k_ContentTypeHeaderKey].Split(";");
+                state.Response.Content.Headers.ContentType = new MediaTypeHeaderValue(substrings[0]);
+            }
 
             request.Dispose();
         }

@@ -1,0 +1,33 @@
+{
+    "name": "Unity.Cloud.AppLinking.Tests.Editor",
+    "rootNamespace": "Unity.Cloud.AppLinking.Tests.Editor",
+    "references": [
+        "GUID:498d02e03062b2649b108f31a9668c56",
+        "GUID:b344fc90df84f5a4f968af99d3b862a9",
+        "GUID:ae052f549db434c89af6d304e7f1a8ed",
+        "GUID:36e80cd2fb28a4430a7e932e3ae0f8e1",
+        "GUID:73ee7612e773b45fe8fb2afaaa592cb3"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "Moq.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [
+        {
+            "name": "nuget.moq",
+            "expression": "1.0.0",
+            "define": "NUGET_MOQ_AVAILABLE"
+        }
+    ],
+    "noEngineReferences": false
+}

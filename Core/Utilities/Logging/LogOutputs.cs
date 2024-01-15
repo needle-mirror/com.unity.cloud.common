@@ -36,6 +36,8 @@ namespace Unity.Cloud.Common
         internal static void Log(LogEvent logEvent)
         {
             var logEventLevel = logEvent.Level;
+            if (logEventLevel == LogLevel.None)
+                return;
 
             foreach (var logOutput in s_Outputs.Where(o => o.Enabled))
             {

@@ -50,18 +50,8 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="level">The log level.</param>
         /// <param name="message">The log message.</param>
-        public void Log(LogLevel level, string message)
-        {
-            LogOutputs.Log(new LogEvent(Name, level, message, m_Properties));
-        }
-
-        /// <summary>
-        /// Log a message for a specified log level.
-        /// </summary>
-        /// <param name="level">The log level.</param>
-        /// <param name="message">The log message.</param>
         /// <param name="messageArgs">The message arguments.</param>
-        public void Log(LogLevel level, string message, object[] messageArgs)
+        internal void Log(LogLevel level, string message, params object[] messageArgs)
         {
             LogOutputs.Log(new LogEvent(Name, level, message, messageArgs, m_Properties));
         }
@@ -71,30 +61,9 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="level">The log level.</param>
         /// <param name="exception">The exception to log.</param>
-        public void Log(LogLevel level, Exception exception)
-        {
-            LogOutputs.Log(new LogEvent(Name, level, exception, m_Properties));
-        }
-
-        /// <summary>
-        /// Log an <see cref="Exception"/> for a specified log level.
-        /// </summary>
-        /// <param name="level">The log level.</param>
-        /// <param name="exception">The exception to log.</param>
-        /// <param name="message">The log message.</param>
-        public void Log(LogLevel level, Exception exception, string message)
-        {
-            LogOutputs.Log(new LogEvent(Name, level, exception, message, m_Properties));
-        }
-
-        /// <summary>
-        /// Log an <see cref="Exception"/> for a specified log level.
-        /// </summary>
-        /// <param name="level"></param>
-        /// <param name="exception"></param>
         /// <param name="message">The log message.</param>
         /// <param name="messageArgs">The message arguments.</param>
-        public void Log(LogLevel level, Exception exception, string message, object[] messageArgs)
+        internal void Log(LogLevel level, Exception exception, string message, params object[] messageArgs)
         {
             LogOutputs.Log(new LogEvent(Name, level, exception, message, messageArgs, m_Properties));
         }

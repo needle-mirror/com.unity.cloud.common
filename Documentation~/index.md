@@ -10,4 +10,3 @@ Some of the features provided by Unity Cloud Common include:
 
 - **Data Abstractions:** A common set of data types and abstractions used by the other Unity Cloud packages.
 - **Networking:** Networking components that can be used to make authenticated requests to the Unity Cloud REST API.
-- **App Registration:** Unity Cloud App ID registration and management.

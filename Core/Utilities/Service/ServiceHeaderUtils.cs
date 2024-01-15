@@ -19,7 +19,7 @@ namespace Unity.Cloud.Common
         /// <summary>
         /// A regex pattern matching Unity API URLs.
         /// </summary>
-        public const string k_UnityApiPattern = @"https.*(?:[./])unity\.com/api/.*|localhost:.*\/api/.*|services.(?:api.)?unity.com";
+        public const string k_UnityApiPattern = @"https.*(?:[./])unity\.com/api/.*|localhost:.*\/api/.*|https.*(?:[./])services.api.unity.com";
 
         /// <summary>
         /// The bearer scheme for authorization.

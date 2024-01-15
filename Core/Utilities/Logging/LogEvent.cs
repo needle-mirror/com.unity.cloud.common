@@ -11,23 +11,7 @@ namespace Unity.Cloud.Common
         /// <summary>
         /// Initializes and returns a <see cref="LogEvent"/>.
         /// </summary>
-        public LogEvent() => Timestamp = DateTime.Now;
-
-        /// <summary>
-        /// Initializes and returns a <see cref="LogEvent"/>.
-        /// </summary>
-        /// <param name="loggerName">The logger's name.</param>
-        /// <param name="level">The log level.</param>
-        /// <param name="message">The log message.</param>
-        /// <param name="properties">The properties to log.</param>
-        public LogEvent(string loggerName, LogLevel level, string message, Dictionary<string, object> properties = null)
-            : this()
-        {
-            LoggerName = loggerName;
-            Level = level;
-            Message = message;
-            Properties = properties;
-        }
+        internal LogEvent() => Timestamp = DateTime.Now;
 
         /// <summary>
         /// Initializes and returns a <see cref="LogEvent"/>.
@@ -37,10 +21,14 @@ namespace Unity.Cloud.Common
         /// <param name="message">The log message.</param>
         /// <param name="messageArgs">The log message arguments.</param>
         /// <param name="properties">The properties to log.</param>
-        public LogEvent(string loggerName, LogLevel level, string message, object[] messageArgs, Dictionary<string, object> properties = null)
-            : this(loggerName, level, message, properties)
+        internal LogEvent(string loggerName, LogLevel level, string message, object[] messageArgs, Dictionary<string, object> properties = null)
+            : this()
         {
+            LoggerName = loggerName;
+            Level = level;
+            Message = message;
             MessageArgs = messageArgs;
+            Properties = properties;
         }
 
         /// <summary>
@@ -49,43 +37,13 @@ namespace Unity.Cloud.Common
         /// <param name="loggerName">The logger's name.</param>
         /// <param name="level">The log level.</param>
         /// <param name="exception">The exception to log.</param>
+        /// <param name="message">The log message.</param>
+        /// <param name="messageArgs">The log message arguments.</param>
         /// <param name="properties">The properties to log.</param>
-        public LogEvent(string loggerName, LogLevel level, Exception exception, Dictionary<string, object> properties = null)
-            : this()
+        internal LogEvent(string loggerName, LogLevel level, Exception exception, string message, object[] messageArgs, Dictionary<string, object> properties = null)
+            : this(loggerName, level, message, messageArgs, properties)
         {
-            LoggerName = loggerName;
-            Level = level;
             Exception = exception;
-            Properties = properties;
-        }
-
-        /// <summary>
-        /// Initializes and returns a <see cref="LogEvent"/>.
-        /// </summary>
-        /// <param name="loggerName">The logger's name.</param>
-        /// <param name="level">The log level.</param>
-        /// <param name="exception">The exception to log.</param>
-        /// <param name="message">The log message.</param>
-        /// <param name="properties">The properties to log.</param>
-        public LogEvent(string loggerName, LogLevel level, Exception exception, string message, Dictionary<string, object> properties = null)
-            : this(loggerName, level, exception, properties)
-        {
-            Message = message;
-        }
-
-        /// <summary>
-        /// Initializes and returns a <see cref="LogEvent"/>.
-        /// </summary>
-        /// <param name="loggerName">The logger's name.</param>
-        /// <param name="level">The log level.</param>
-        /// <param name="exception">The exception to log.</param>
-        /// <param name="message">The log message.</param>
-        /// <param name="messageArgs">The log message arguments.</param>
-        /// <param name="properties">The properties to log.</param>
-        public LogEvent(string loggerName, LogLevel level, Exception exception, string message, object[] messageArgs, Dictionary<string, object> properties = null)
-            : this(loggerName, level, exception, message, properties)
-        {
-            MessageArgs = messageArgs;
         }
 
         /// <summary>
@@ -96,31 +54,31 @@ namespace Unity.Cloud.Common
         /// <summary>
         /// The logger's name.
         /// </summary>
-        public string LoggerName { get; set; }
+        public string LoggerName { get; }
 
         /// <summary>
         /// The <see cref="LogLevel"/>.
         /// </summary>
-        public LogLevel Level { get; set; }
+        public LogLevel Level { get; }
 
         /// <summary>
         /// The log message.
         /// </summary>
-        public string Message { get; set; }
+        public string Message { get; }
 
         /// <summary>
         /// The log message args.
         /// </summary>
-        public object[] MessageArgs { get; set; }
+        public object[] MessageArgs { get; }
 
         /// <summary>
         /// The properties to log.
         /// </summary>
-        public Dictionary<string, object> Properties { get; set; }
+        public Dictionary<string, object> Properties { get; }
 
         /// <summary>
         /// The exception to log.
         /// </summary>
-        public Exception Exception { get; set; }
+        public Exception Exception { get; }
     }
 }

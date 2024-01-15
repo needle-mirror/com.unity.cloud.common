@@ -1,15 +1,23 @@
+using System;
+
 namespace Unity.Cloud.Common.Runtime
 {
     /// <summary>
-    /// Create WebSocket Client according to the current platform
+    /// Create WebSocket Client.
     /// </summary>
-    public static class WebSocketClientFactory
+    public interface IWebSocketClientFactory
     {
         /// <summary>
-        /// Initializes and returns an instance of <see cref="IWebSocketClient"/> for the current platform.
+        /// Create an instance of <see cref="IWebSocketClient"/>.
         /// </summary>
-        /// <returns>An instance of <see cref="IWebSocketClient"/> appropriate for the current platform.</returns>
-        public static IWebSocketClient Create()
+        IWebSocketClient Create();
+    }
+
+    /// <inheritdoc/>
+    public class WebSocketClientFactory : IWebSocketClientFactory
+    {
+        /// <inheritdoc/>
+        public IWebSocketClient Create()
         {
 #if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
             return new NativeWebSocketClient();

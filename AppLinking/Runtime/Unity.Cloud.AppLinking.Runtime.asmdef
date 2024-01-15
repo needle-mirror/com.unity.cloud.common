@@ -1,0 +1,18 @@
+{
+    "name": "Unity.Cloud.AppLinking.Runtime",
+    "rootNamespace": "Unity.Cloud.AppLinking.Runtime",
+    "references": [
+        "GUID:498d02e03062b2649b108f31a9668c56",
+        "GUID:b344fc90df84f5a4f968af99d3b862a9",
+        "GUID:ae052f549db434c89af6d304e7f1a8ed"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

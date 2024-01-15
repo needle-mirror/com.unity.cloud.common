@@ -1,17 +1,68 @@
 # Changelog
+
 All notable changes to this package will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.0.0-pre.2] - 2023-11-23
+## [1.0.0-pre.5] - 2024-01-15
+
+### Added
+- Unity.Cloud.AppLinking namespace.
+- Added `HostUrl` property in `IUrlProcessor` interface,
+- The `Details` property has been added to `ServiceException`.
+
+### Changed
+- [Breaking] Moved `IUrlRedirectAwaiter`, `IUrlRedirectionInterceptor`, `IActivatePlatformSupport`, `IUrlProcessor`, `UrlRedirectUtils`, `UrlRedirectStatus`, `UrlRedirectResult`, `UrlProcessor`, `ProcessId`, `ChannelUrlRedirectionInterceptor`,  `UrlRedirectionInterceptor`, `UnityRuntimeUrlProcessor`, `UnityCloudPlayerSettings`, `ActivateAppFromUrl` from Unity.Cloud.Common, Unity.Cloud.Interop and Unity.Cloud.Identity to Unity.Cloud.AppLinking.
+- [Breaking] `ServiceError` has been made internal.
 
 ### Removed
-- Removed unused domains from `AppLinksHelper.cs`
+- Removed documentation related to App Registration.
+- [Breaking] Removed `UrlProcessor` core implementation.
+
+## [1.0.0-pre.4] - 2023-12-20
+
+### Added
+- Added MIME type support to `UnityHttpClient`.
+
+### Changed
+- [Breaking] `WebSocketClientFactory` now inherits from the `IWebSocketClientFactory` interface.
+- [Breaking] Reworked `ServiceException` and all related classes to match the [Unity Services codes](https://services.docs.unity.com/docs/errors/index.html). 
+
+### Removed
+- [Breaking] Migrated interoperability classes from Common to Identity.
+- Removed documentation related to App Registration
+
+## [1.0.0-pre.3] - 2023-12-07
+
+### Added
+- Added unit tests for header support.
+- Added Critical and None log levels.
+- Added numerous Logger extension methods.
+
+### Changed
+- [Breaking] Moved code causing circular dependency from Common/Editor/Settings and Common/Editor/BuildTools to Identity/Editor.
+- [Breaking] UnityCloudAppRegistration is now in Unity.Cloud.Identity.Editor.
+- [Breaking] Renamed `LogInfo` Logger extension to `LogInformation`.
+- [Breaking] Moved `UnityCloudPlayerSettings` class to Identity.
+
+### Fixed
+- Fixed typos in manual documentation.
+- Fixing missing `System` namespace in `WebSocketClientFactory` to fix compilation error.
+
+### Removed
+- [Breaking] Removed `IAppNameProvider` and `IAppDisplayNameProvider` interfaces.
+- [Breaking] Removed public references to Newtonsoft JsonConverters
+- [Breaking] Removed Log overloads without MessageArgs.
+
+## [1.0.0-pre.2] - 2023-11-23
 
 ### Fixed
 - Windows specific: custom uri schema resolver now supports Unicode character in the application absolute path.
 - WebGL IFrame issue in CommonBrowserInterop.jslib.
+
+### Removed
+- Removed unused domains from `AppLinksHelper.cs`
 
 ## [1.0.0-pre.1] - 2023-11-07
 
@@ -24,12 +75,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Improvements to scripting API doc
 - Updated manual documentation
 
+### Fixed
+- Validate files are copied only once when importing samples.
+
 ### Removed
 - Removed inapplicable notices in documentation.
 - [Breaking] Made `IKeyValueStoreExtensions` internal as its only method was also internal.
-
-### Fixed
-- Validate files are copied only once when importing samples.
 
 ## [1.0.0-exp.1] - 2023-10-26
 
@@ -45,13 +96,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Improved the error-messaging whe a `IRetryPolicy` has expired.
 - Change minimal Unity version to 2022.3
 
-### Removed
-- [Breaking] Removing obsolete `UriSchemeRedirection` class.
-- [Breaking] Removing obsolete `GetDisplayName()` method from `UnityCloudPlayerSettings`.
-
 ### Fixed
 - Fixing regex parameters.
 - Removing redundant `AssetDatabase.Refresh()` call in sample import.
+
+### Removed
+- [Breaking] Removing obsolete `UriSchemeRedirection` class.
+- [Breaking] Removing obsolete `GetDisplayName()` method from `UnityCloudPlayerSettings`.
 
 ## [0.16.0] - 2023-10-18
 
@@ -93,24 +144,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.15.0] - 2023-09-15
 
-### Fixed
-- Fixed upload progress in DotNetHttpClient.
-
 ### Changed
 - [BREAKING] The `ServiceHttpClient` now expects an `IServiceAuthorizer` instead of the deleted `IAccessTokenProvider`.
 - [BREAKING] The `AddAuthroization` method in `ServiceHeaderUtils` now expects an additional authorization scheme parameters.
 - The "Basic" and "Bearer" authorization constants are now public in `ServiceDomainUtils`.
 
-## [0.14.4] - 2023-08-31
-
 ### Fixed
-- Added missing compile flags in `ServiceHeaderUtils`.
+- Fixed upload progress in DotNetHttpClient.
+
+## [0.14.4] - 2023-08-31
 
 ### Added
 - Added official support for the latest LTS Editor 2022.3 while maintaining support for 2021.3.
 
 ### Changed
 - `UrlRedirectionInterceptor` internal `AsyncUrlRedirectAwaiter` default timeout delay set to 10 minutes instead of 1 minute.
+
+### Fixed
+- Added missing compile flags in `ServiceHeaderUtils`.
 
 ### Deprecated
 - `SceneId`, `SceneVersionId`, `WorkspaceId`, and `IScene` have been marked deprecated. They are to be replaced with IDs related to the Asset Manager SDK.
@@ -155,8 +206,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Fixed the error thrown from including `progress` parameter on `UnityHttpClient` requests
-
-### Fixed
 - Added missing implementations for `TwoWayMemoryStream`
 
 ## [0.14.0] - 2023-07-06
@@ -206,21 +255,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Renamed all instances of `dt.unity.com` in test cases to `mock.unity.com`.
 - [Breaking] `ServiceRegionUtils` renamed to `ServiceDomainUtils` and made internal.
 - Split `ServiceHostConfiguration.cs` into separate files by class and struct.
+- Modified import order for samples and dependencies to avoid missing asset errors. 
 
 ### Removed
 - [Breaking] Removed unsupported `GCPUK` and `Tencent` providers
 
-### Changed
-- Modified import order for samples and dependencies to avoid missing asset errors. 
-
 ## [0.12.2] - 2023-05-11
+
+### Changed
+- Upgrade to Moq 2.0.0-pre.2
 
 ### Fixed
 - NativeWebSocketClient: do not dispose client on disconnect.
 - Explicitly set the serialization options.
-
-### Changed
-- Upgrade to Moq 2.0.0-pre.2
 
 ## [0.12.1] - 2023-04-27
 
@@ -266,7 +313,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The `UC_TRACE` header key is not `UNITY_CLOUD_TRACE`
 - `ActivateAppFromUrl` modifier changed from `internal` to `public`
 - [Breaking] `Digital Twins/Resources/DigitalTwinsPlayerSettings.asset` renamed to `Unity Cloud/Resources/UnityCloudPlayerSettings.asset`
-  - Existing `DigitalTwinsPlayerSettings` within your projects should be change to the new naming and file path.
+- Existing `DigitalTwinsPlayerSettings` within your projects should be change to the new naming and file path.
 - [Breaking] `CloudConfiguration` renamed to `ServiceHostConfiguration`
 - [Breaking] `CloudEnvironment` renamed to `ServiceEnvironment`
 - [Breaking] `IMessagingClient` renamed to `IServiceMessagingClient`
@@ -297,10 +344,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.9.1] - 2023-02-24
 
-### Fixed
-- Fixed ServiceHttpClient turning all http error codes into RetryExpiredException.
-- Fixed NativeWebSocketClient catched exception type.
-
 ### Added
 - `RefreshPropertiesAsync`, `DeleteMetadataAsync`,`AddOrUpdateMetadataAsync`,`Metadata` and `MetadataChanged` to `IWorkspace`
 - async methods to create, delete, list, and update datasets to `IWorkspace`.
@@ -311,11 +354,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `IWorkspace.Url` property is marked as Obsolete.
 - `IScene.Url` property is marked as Obsolete.
 
-## [0.9.0] - 2023-02-16
-
 ### Fixed
-- Fixed `UnityLogOutput.GenerateMessageFromException` to correctly handle exceptions inside a `System.Task`.
-- Fix error string in CloudConfiguration.
+- Fixed ServiceHttpClient turning all http error codes into RetryExpiredException.
+- Fixed NativeWebSocketClient catched exception type.
+
+## [0.9.0] - 2023-02-16
 
 ### Added
 - GetAppsInfoAsync method in `IAppInfoProvider` and `AppInfoProvider`.
@@ -323,15 +366,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - ValidateFilenameExistsAsync method in `IKeyValueStore`, `FileKeyValueStore` and `BrowserKeyValueStore`.
 - Websocket support for sending binary frames
 
-### Updated
+### Changed
 - Clarifying the contract of IRetryPolicy.
-  - [Breaking] OperationRetryQueued and RetryQueuedParams replaced with IProgress in ExecuteAsync and RetryQueuedProgress.
-  - [Breaking] Added RetriedOperation and ShouldRetryChecker delegates. The latter replaces ShouldRetryParams struct.
-  - [Breaking] ExecuteAsync method's contract has been updated to accept new delegates and IProgress ; it also throws an exhaustive list of exceptions listed in its xml documentation.
-  - [Breaking] ExecuteAsyncWithExceptionValidation now requires a ShouldRetryExceptionChecker method
-  - [Breaking] Updated ExponentialBackoffRetryPolicy and NoRetryPolicy to follow the new contract
-  - Updated ServiceHttpClient and MessagingClient to use the new version of RetryPolicy.
-  - Added KeepAlive to websocket client, which requires a the server to support Ping/Pong messages (RFC6455 - 5.5.2/5.5.3)
+- [Breaking] OperationRetryQueued and RetryQueuedParams replaced with IProgress in ExecuteAsync and RetryQueuedProgress.
+- [Breaking] Added RetriedOperation and ShouldRetryChecker delegates. The latter replaces ShouldRetryParams struct.
+- [Breaking] ExecuteAsync method's contract has been updated to accept new delegates and IProgress ; it also throws an exhaustive list of exceptions listed in its xml documentation.
+- [Breaking] ExecuteAsyncWithExceptionValidation now requires a ShouldRetryExceptionChecker method
+- [Breaking] Updated ExponentialBackoffRetryPolicy and NoRetryPolicy to follow the new contract
+- Updated ServiceHttpClient and MessagingClient to use the new version of RetryPolicy.
+- Added KeepAlive to websocket client, which requires a the server to support Ping/Pong messages (RFC6455 - 5.5.2/5.5.3)
+
+### Fixed
+- Fixed `UnityLogOutput.GenerateMessageFromException` to correctly handle exceptions inside a `System.Task`.
+- Fix error string in CloudConfiguration.
 
 ## [0.8.1] - 2023-02-02
 
@@ -420,11 +467,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - [Breaking] These interfaces does not inherit from IDisposable anymore: IAppInfoProvider, IHttpClient, IMessagingClient, IScene, IServiceHttpClient.
 
-### Removed
-- [Breaking] Removed the PlatformSupportFactory. Use the MessagingClient constructor directly
-
 ### Fixed
 - Fix Windows custom uri scheme registration on IL2CPP
+
+### Removed
+- [Breaking] Removed the PlatformSupportFactory. Use the MessagingClient constructor directly
 
 ## [0.4.0] - 2022-09-22
 
@@ -433,13 +480,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - AsyncUrlRedirectAwaiter, IUrlRedirectAwaiter, IUrlRedirectionInterceptor, UriSchemeRedirection, UrlRedirectionInterceptor, UrlRedirectResult and UrlRedirectStatus.
 - PreBuildValidation, BuildUtils, AppLinksHelper, WindowsBuildPostProcess, OSXPlistParser, InfoPlistPostProcessBuild, XCodePostProcessBuild, AndroidBuildPostProcess.
 
-### Fixed
-- OSX standalone build
-- IL2CPP build on Windows
-
 ### Changed
 - README.md, LICENSE.md, Third Party Notice.md
 - [Breaking] Cleaning folder hierarchy and namespaces
+
+### Fixed
+- OSX standalone build
+- IL2CPP build on Windows
 
 ## [0.3.0] - 2022-09-15
 

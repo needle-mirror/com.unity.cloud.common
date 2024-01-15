@@ -2,4 +2,6 @@
   * [Prerequisites](prerequisites.md)
   * [Installation](installation.md)
 * [Common Functionality](common-functionality.md)
-* [Unity Cloud App Registration](unity-cloud-app-registration.md)
+* [Unity Cloud App Linking](index-app-linking.md)
+  * [Unity Cloud App Namespace](unity-cloud-app-namespace.md)
+  * [URL redirection flows](url-redirection-flows.md)
