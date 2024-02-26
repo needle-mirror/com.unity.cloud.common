@@ -72,7 +72,7 @@ namespace Unity.Cloud.Common
         /// Creates and returns a <see cref="ServiceException"/> from the provided <see cref="ServiceError"/>.
         /// </summary>
         /// <param name="error">The service error.</param>
-        internal ServiceException(ServiceError error) : base(error.Title)
+        internal ServiceException(ServiceError error) : base(error.ToString())
         {
             SetServiceError(error);
         }
@@ -82,7 +82,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="error">The service error.</param>
         /// <param name="innerException">The inner exception.</param>
-        internal ServiceException(ServiceError error, Exception innerException) : base(error.Title, innerException)
+        internal ServiceException(ServiceError error, Exception innerException) : base(error.ToString(), innerException)
         {
             SetServiceError(error);
         }

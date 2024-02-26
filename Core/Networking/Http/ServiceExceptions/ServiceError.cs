@@ -43,5 +43,34 @@ namespace Unity.Cloud.Common
         /// Returns a link to the documentation with more information.
         /// </summary>
         public string Type { get; set; } = "";
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            var stringBuilder = new System.Text.StringBuilder("ServiceError { ");
+
+            var prependComma = false;
+            prependComma = AppendField(nameof(Title), Title);
+            prependComma = AppendField(nameof(Detail), Detail);
+            prependComma = AppendField(nameof(Code), Code.ToString());
+            prependComma = AppendField(nameof(Status), Status.ToString());
+            AppendField(nameof(Type), Type);
+
+            stringBuilder.Append(" }");
+
+            return stringBuilder.ToString();
+
+            bool AppendField(string name, string value)
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    if (prependComma)
+                        stringBuilder.Append(", ");
+                    stringBuilder.Append($"{name}: \"{value}\"");
+                    return true;
+                }
+                return false;
+            }
+        }
     }
 }

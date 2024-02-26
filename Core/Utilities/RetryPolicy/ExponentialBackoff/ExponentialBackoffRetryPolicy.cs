@@ -49,7 +49,9 @@ namespace Unity.Cloud.Common
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var (actionTask, shouldRetryResult) = await RetryPolicyHelpers.RunRetryOperation(retriedOperation, shouldRetryChecker, cancellationToken).UnityConfigureAwait(false);
+                    // Switched from ConfigureAwait(false) to regular await operators to avoid unnecessary context switching.
+                    // The user is responsible for calling the method in the right synchronization context.
+                    var (actionTask, shouldRetryResult) = await RetryPolicyHelpers.RunRetryOperation(retriedOperation, shouldRetryChecker, cancellationToken);
 
                     if (shouldRetryResult && retryDelayEnumerator.MoveNext())
                     {
@@ -59,8 +61,10 @@ namespace Unity.Cloud.Common
 
                         progress?.Report(new RetryQueuedProgress(retryCount, delay));
 
+                        // Switched from ConfigureAwait(false) to regular await operators to avoid unnecessary context switching.
+                        // The user is responsible for calling the method in the right synchronization context.
                         if (delay > TimeSpan.Zero)
-                            await m_TimeAwaiter.AwaitTimeAsync(delay, cancellationToken).UnityConfigureAwait(false);
+                            await m_TimeAwaiter.AwaitTimeAsync(delay, cancellationToken);
                     }
                     else
                     {

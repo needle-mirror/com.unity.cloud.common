@@ -15,7 +15,9 @@ namespace Unity.Cloud.Common
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var (actionTask, shouldRetryResult) = await RetryPolicyHelpers.RunRetryOperation(retriedOperation, shouldRetryChecker, cancellationToken).UnityConfigureAwait(false);
+            // Switched from ConfigureAwait(false) to regular await operators to avoid unnecessary context switching.
+            // The user is responsible for calling the method in the right synchronization context.
+            var (actionTask, shouldRetryResult) = await RetryPolicyHelpers.RunRetryOperation(retriedOperation, shouldRetryChecker, cancellationToken);
 
             return RetryPolicyHelpers.GetRetryResult(actionTask, shouldRetryResult);
         }

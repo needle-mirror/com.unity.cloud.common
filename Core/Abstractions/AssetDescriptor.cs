@@ -11,8 +11,8 @@ namespace Unity.Cloud.Common
         /// </summary>
         public readonly ProjectDescriptor ProjectDescriptor;
 
-        /// <inheritdoc cref="ProjectDescriptor.OrganizationGenesisId"/>
-        public OrganizationId OrganizationGenesisId => ProjectDescriptor.OrganizationGenesisId;
+        /// <inheritdoc cref="Common.ProjectDescriptor.OrganizationId"/>
+        public OrganizationId OrganizationId => ProjectDescriptor.OrganizationId;
 
         /// <inheritdoc cref="ProjectDescriptor.ProjectId"/>
         public ProjectId ProjectId => ProjectDescriptor.ProjectId;

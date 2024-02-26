@@ -10,8 +10,8 @@ namespace Unity.Cloud.Common
         /// </summary>
         public readonly DatasetDescriptor DatasetDescriptor;
 
-        /// <inheritdoc cref="ProjectDescriptor.OrganizationGenesisId"/>
-        public OrganizationId OrganizationGenesisId => DatasetDescriptor.OrganizationGenesisId;
+        /// <inheritdoc cref="ProjectDescriptor.OrganizationId"/>
+        public OrganizationId OrganizationId => DatasetDescriptor.OrganizationId;
 
         /// <inheritdoc cref="ProjectDescriptor.ProjectId"/>
         public ProjectId ProjectId => DatasetDescriptor.ProjectId;

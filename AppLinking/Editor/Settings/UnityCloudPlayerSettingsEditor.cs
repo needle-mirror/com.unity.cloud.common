@@ -43,7 +43,6 @@ namespace Unity.Cloud.AppLinking.Editor
 
             ShowCurrentCloudPlayerSettingsUI();
 
-            GUILayout.Space(10);
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -55,6 +54,14 @@ namespace Unity.Cloud.AppLinking.Editor
                 m_AppIdProperty.stringValue = CloudProjectSettings.projectId;
                 UnityCloudPlayerSettings.Instance.AppId = CloudProjectSettings.projectId;
             }
+
+            var infoMessage =
+"Creates a unique App Namespace to intercept invocation events coming from the Operating System in your Unity Cloud app. Intercepting invocation events enables the activation of an app from either an idle or a shutdown state.";
+
+            EditorGUILayout.HelpBox(infoMessage, MessageType.Info);
+
+            GUILayout.Space(10);
+
             EditorGUILayout.PropertyField(m_AppNamespaceProperty);
             if (EditorGUI.EndChangeCheck())
             {

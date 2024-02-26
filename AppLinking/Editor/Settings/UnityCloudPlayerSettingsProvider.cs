@@ -26,7 +26,7 @@ namespace Unity.Cloud.AppLinking.Editor
         [SettingsProvider]
         public static SettingsProvider CreateUnityCloudPlayerSettingsProvider()
         {
-            return new UnityCloudPlayerSettingsProvider("Project/Unity Cloud/App Information", SettingsScope.Project)
+            return new UnityCloudPlayerSettingsProvider("Project/Services/Unity Cloud", SettingsScope.Project)
             {
                 keywords = new[]
                 {

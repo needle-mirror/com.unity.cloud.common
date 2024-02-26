@@ -152,7 +152,9 @@ namespace Unity.Cloud.Common
                 T taskResult = default;
                 try
                 {
-                    taskResult = await result.UnityConfigureAwait(false);
+                    // Switched from ConfigureAwait(false) to regular await operators to avoid unnecessary context switching.
+                    // The user is responsible for calling the method in the right synchronization context.
+                    taskResult = await result;
                     return false;
                 }
                 catch (Exception exception)
@@ -185,7 +187,9 @@ namespace Unity.Cloud.Common
                 T taskResult;
                 try
                 {
-                    taskResult = await result.UnityConfigureAwait(false);
+                    // Switched from ConfigureAwait(false) to regular await operators to avoid unnecessary context switching.
+                    // The user is responsible for calling the method in the right synchronization context.
+                    taskResult = await result;
                 }
                 catch (Exception e)
                 {

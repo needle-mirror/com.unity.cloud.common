@@ -26,7 +26,9 @@ namespace Unity.Cloud.Common
             bool shouldRetryResult;
             try
             {
-                shouldRetryResult = await shouldRetryChecker(actionTask).UnityConfigureAwait(false);
+                // Switched from ConfigureAwait(false) to regular await operators to avoid unnecessary context switching.
+                // The user is responsible for calling the method in the right synchronization context.
+                shouldRetryResult = await shouldRetryChecker(actionTask);
             }
             catch (RetryExecutionFailedException)
             {

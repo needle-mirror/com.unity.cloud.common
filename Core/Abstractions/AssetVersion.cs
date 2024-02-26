@@ -12,19 +12,13 @@ namespace Unity.Cloud.Common
         /// <summary>
         /// Return the value of an identifier representing an invalid asset version
         /// </summary>
-        public static readonly AssetVersion None = new (0);
+        public static readonly AssetVersion None = new (Guid.Empty.ToString());
 
         /// <summary>
         /// Returns a <see cref="AssetVersion"/> using a <see cref="string"/>.
         /// </summary>
         /// <param name="value">The string representing the asset version</param>
         public AssetVersion(string value) => m_String = value;
-
-        /// <summary>
-        /// Returns a <see cref="AssetVersion"/> using an <see cref="int"/>.
-        /// </summary>
-        /// <param name="value">The int representing the asset version. </param>
-        public AssetVersion(int value) => m_String = value.ToString();
 
         /// <summary>
         /// Returns whether two <see cref="AssetVersion"/> objects are equals.

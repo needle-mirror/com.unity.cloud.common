@@ -8,5 +8,5 @@ By default, all application have the **com.unity.cloud** namespace.
 To set up the application namespace manually, follow these steps:
 
 1. Open your application project in the Unity Editor.
-2. Go to **Edit > Project Settings > Unity Cloud > App Information**.
+2. Go to **Edit > Project Settings > Services > Unity Cloud**.
 3. Edit the **App Namespace** input field.

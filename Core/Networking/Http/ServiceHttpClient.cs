@@ -1,7 +1,6 @@
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -210,7 +209,9 @@ namespace Unity.Cloud.Common
                 HttpResponseMessage taskResult;
                 try
                 {
-                    taskResult = await result.UnityConfigureAwait(false);
+                    // Switched from ConfigureAwait(false) to regular await operators to avoid unnecessary context switching.
+                    // The user is responsible for calling the method in the right synchronization context.
+                    taskResult = await result;
                 }
                 catch (HttpRequestException)
                 {
@@ -269,8 +270,6 @@ namespace Unity.Cloud.Common
             catch (Exception)
             {
                 serviceError = new ServiceError { Status = response.StatusCode };
-
-                throw ServiceExceptionFactory.Build(serviceError);
             }
 
             throw ServiceExceptionFactory.Build(serviceError);

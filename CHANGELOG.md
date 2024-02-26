@@ -5,6 +5,27 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2024-02-26
+
+### Added
+- Added `GroupId` struct.
+- Added `Role` and `Permission` struct.
+- Added `UserId` struct from Unity.Cloud.Identity.
+
+### Changed
+- [Breaking] Renamed `OrganizationGenesisId` property to `OrganizationId` in `ProjectDescriptor`, `AssetDescriptor` , `DatasetDescriptor`  and `FileDescriptor` classes.
+- Replaced UnityConfigureAwait(false) calls with await operators to improve performance by avoiding unnecessary context switching.
+- Unity Cloud project settings moved under the `/Services/Unity Cloud` tab in the Unity Editor player settings.
+- The `Message` field in `ServiceException` is now initialized with more detailed information based on the `ServiceError` which triggered the exception.
+
+### Removed
+- [Breaking] Removed `AssetVersion(int)` constructor from `AssetVersion` struct.
+
+## [1.0.0-pre.6] - 2024-02-13
+
+### Fixed
+- Fixed samples relying on StreamingAssets not working when many samples are imported together.
+
 ## [1.0.0-pre.5] - 2024-01-15
 
 ### Added

@@ -3,30 +3,35 @@ using System;
 namespace Unity.Cloud.Common
 {
     /// <summary>
-    /// This struct holds information about a permission.
+    /// This struct holds information about a user identifier.
     /// </summary>
-    public readonly struct Permission
+    public readonly struct UserId
     {
         readonly string m_String;
 
         /// <summary>
-        /// Creates a <see cref="Permission"/> using a <see cref="string"/>.
+        /// Returns the value of an identifier representing an invalid user id
         /// </summary>
-        /// <param name="value">The string representing the permission</param>
-        public Permission(string value) => m_String = value;
+        public static readonly UserId None = new(string.Empty);
 
         /// <summary>
-        /// Returns whether two <see cref="Permission"/> objects are equals.
+        /// Creates a <see cref="UserId"/> using a <see cref="string"/>.
+        /// </summary>
+        /// <param name="value">The string representing the user identifier</param>
+        public UserId(string value) => m_String = value;
+
+        /// <summary>
+        /// Returns whether two <see cref="UserId"/> objects are equals.
         /// </summary>
         /// <param name="other"></param>
         /// <returns>
         /// <see langword="true"/> if both instances have the same values;
         /// <see langword="false"/> otherwise.
         /// </returns>
-        public bool Equals(Permission other) => m_String == other.m_String;
+        public bool Equals(UserId other) => m_String == other.m_String;
 
         /// <summary>
-        /// Validates that  <paramref name="obj"/> is a <see cref="Permission"/> instance and that it has the same value as this instance.
+        /// Validates that  <paramref name="obj"/> is a <see cref="UserId"/> instance and that it has the same value as this instance.
         /// </summary>
         /// <param name="obj">Compare the values with this instance.</param>
         /// <returns>
@@ -47,13 +52,13 @@ namespace Unity.Cloud.Common
         public override int GetHashCode() => m_String != null ? m_String.GetHashCode() : 0;
 
         /// <summary>
-        /// Get the string representation of this <see cref="Permission"/>.
+        /// Get the string representation of this <see cref="UserId"/>.
         /// </summary>
         /// <returns>The string result.</returns>
         public override string ToString() => m_String;
 
         /// <summary>
-        /// Returns whether two <see cref="Permission"/> instances are equal.
+        /// Returns whether two <see cref="UserId"/> instances are equal.
         /// </summary>
         /// <param name="left">First instance.</param>
         /// <param name="right">Second instance.</param>
@@ -61,10 +66,10 @@ namespace Unity.Cloud.Common
         /// <see langword="true"/> if the instances are equal;
         /// <see langword="false"/> otherwise.
         /// </returns>
-        public static bool operator ==(Permission left, Permission right) => left.Equals(right);
+        public static bool operator ==(UserId left, UserId right) => left.Equals(right);
 
         /// <summary>
-        /// Returns whether two <see cref="Permission"/> instances are different.
+        /// Returns whether two <see cref="UserId"/> instances are different.
         /// </summary>
         /// <param name="left">First instance.</param>
         /// <param name="right">Second instance.</param>
@@ -72,13 +77,13 @@ namespace Unity.Cloud.Common
         /// <see langword="true"/> if the instances are different;
         /// <see langword="false"/> otherwise.
         /// </returns>
-        public static bool operator !=(Permission left, Permission right) => !left.Equals(right);
+        public static bool operator !=(UserId left, UserId right) => !left.Equals(right);
 
         /// <summary>
-        /// Explicitly cast a <see cref="Permission"/> to a <see cref="string"/>
+        /// Explicitly cast a <see cref="UserId"/> to a <see cref="string"/>
         /// </summary>
-        /// <param name="permission">Object to cast</param>
+        /// <param name="uId">Object to cast</param>
         /// <returns>The resulting <see cref="string"/></returns>
-        public static explicit operator string(Permission permission) => permission.m_String;
+        public static explicit operator string(UserId uId) => uId.m_String;
     }
 }

@@ -7,9 +7,9 @@ namespace Unity.Cloud.Common
     public readonly struct ProjectDescriptor
     {
         /// <summary>
-        /// The project's organization genesis ID.
+        /// The project's organization ID.
         /// </summary>
-        public readonly OrganizationId OrganizationGenesisId;
+        public readonly OrganizationId OrganizationId;
 
         /// <summary>
         /// The project's ID.
@@ -23,7 +23,7 @@ namespace Unity.Cloud.Common
         /// <param name="projectId">The project's ID.</param>
         public ProjectDescriptor(OrganizationId organizationId, ProjectId projectId)
         {
-            OrganizationGenesisId = organizationId;
+            OrganizationId = organizationId;
             ProjectId = projectId;
         }
 
@@ -37,8 +37,8 @@ namespace Unity.Cloud.Common
         /// </returns>
         public bool Equals(ProjectDescriptor other)
         {
-            return OrganizationGenesisId.Equals(other.OrganizationGenesisId) &&
-                ProjectId.Equals(other.ProjectId);
+            return OrganizationId.Equals(other.OrganizationId) &&
+                   ProjectId.Equals(other.ProjectId);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Unity.Cloud.Common
         {
             unchecked
             {
-                var hashCode = OrganizationGenesisId.GetHashCode();
+                var hashCode = OrganizationId.GetHashCode();
                 hashCode = (hashCode * 397) ^ ProjectId.GetHashCode();
                 return hashCode;
             }
