@@ -81,7 +81,7 @@ namespace Unity.Cloud.Common.Runtime
                 {
                     var valueString = values.Aggregate((v1, v2) => $"{v1}, {v2}");
                     m_Client.Options.SetRequestHeader(name, valueString);
-                    s_Logger.LogInformation($"Adding header {name} - {valueString}");
+                    s_Logger.LogDebug($"Adding header {name} - {valueString}");
                 }
             }
         }
@@ -135,7 +135,7 @@ namespace Unity.Cloud.Common.Runtime
             {
                 foreach (var (name, values) in headers)
                 {
-                    s_Logger.LogInformation($"Header: {name} - {values.Aggregate((v1, v2) => $"{v1}, {v2}")}");
+                    s_Logger.LogDebug($"Header: {name} - {values.Aggregate((v1, v2) => $"{v1}, {v2}")}");
                 }
             }
 			try

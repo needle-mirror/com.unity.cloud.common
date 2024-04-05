@@ -5,6 +5,21 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2024-04-05
+
+### Added
+- Added Apple Privacy Manifest file to `/Plugins` directory.
+- Added 'ToJson' and 'FromJson' methods to `ProjectDescriptor`, `AssetDescriptor`, `DatasetDescriptor`, and `FileDescriptor` to allow for serialization and deserialization of these structs.
+
+### Changed
+- Modified the `LogLevel` for several log messages to reduce the default amount of logs in the console.
+
+### Fixed
+- Fixed `NativeWebSocketClient` tests which were not correctly handling expected errors and logs.
+
+### Removed
+- Removed deprecated headers.
+
 ## [1.0.0] - 2024-02-26
 
 ### Added

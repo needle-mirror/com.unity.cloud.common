@@ -37,19 +37,14 @@ namespace Unity.Cloud.Common
         const string k_TraceHeader = "X-Unity-Cloud-Trace";
         const string k_TraceEnvVarName = "UNITY_CLOUD_TRACE";
 
-        // TODO: Remove these once the back-end has dropped them in favor of the X-Unity-Cloud-* headers.
-        const string k_DeprecatedAppIdHeader = "X-Digital-Twins-AppId";
         const string k_DeprecatedClientTraceHeader = "X-Digital-Twins-ClientTrace";
-        const string k_DeprecatedTraceHeader = "X-Digital-Twins-Trace";
-
 
         static Dictionary<string, string> s_HeaderToQueryMapping = new()
         {
             {k_AuthHeader, "authorization"},
-            {k_DeprecatedAppIdHeader, "app_id"},
-            {k_DeprecatedClientTraceHeader, "client_trace"},
             {k_AppIdHeader, "app_id"},
             {k_ClientTraceHeader, "client_trace"},
+            {k_DeprecatedClientTraceHeader, "client_trace"},
         };
 
         /// <summary>
@@ -104,9 +99,6 @@ namespace Unity.Cloud.Common
             {
                 if (!headers.Contains(k_AppIdHeader))
                     headers.Add(k_AppIdHeader, appIdString);
-
-                if (!headers.Contains(k_DeprecatedAppIdHeader))
-                    headers.Add(k_DeprecatedAppIdHeader, appIdString);
             }
 
             if (!string.IsNullOrEmpty(clientTrace))
@@ -124,9 +116,6 @@ namespace Unity.Cloud.Common
             {
                 if(!headers.Contains(k_TraceHeader))
                     headers.Add(k_TraceHeader, envTraceId);
-
-                if(!headers.Contains(k_DeprecatedTraceHeader))
-                    headers.Add(k_DeprecatedTraceHeader, envTraceId);
             }
         }
 

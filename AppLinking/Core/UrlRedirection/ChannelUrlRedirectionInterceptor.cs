@@ -43,7 +43,7 @@ namespace Unity.Cloud.AppLinking
                 // Only WebGL is hosted and could have callback login query arguments in its url.
                 if (!string.IsNullOrEmpty(m_HostDomain))
                 {
-                    s_Logger.LogInformation($"Hosted app on '{m_HostDomain}' received callback url redirection.");
+                    s_Logger.LogDebug($"Hosted app on '{m_HostDomain}' received callback url redirection.");
                     m_Awaiter.SetResult(urlRedirectResult);
                 }
                 else

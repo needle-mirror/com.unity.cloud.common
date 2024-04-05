@@ -5,3 +5,4 @@
 * [Unity Cloud App Linking](index-app-linking.md)
   * [Unity Cloud App Namespace](unity-cloud-app-namespace.md)
   * [URL redirection flows](url-redirection-flows.md)
+  * [Unity Cloud Logging](unity-cloud-logging.md)

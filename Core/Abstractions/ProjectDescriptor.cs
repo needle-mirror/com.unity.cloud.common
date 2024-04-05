@@ -1,4 +1,3 @@
-
 namespace Unity.Cloud.Common
 {
     /// <summary>
@@ -25,6 +24,12 @@ namespace Unity.Cloud.Common
         {
             OrganizationId = organizationId;
             ProjectId = projectId;
+        }
+
+        internal ProjectDescriptor(ProjectDescriptorDto dto)
+        {
+            OrganizationId = new OrganizationId(dto.OrganizationId);
+            ProjectId = new ProjectId(dto.ProjectId);
         }
 
         /// <summary>
@@ -91,5 +96,29 @@ namespace Unity.Cloud.Common
         /// <see langword="false"/> if both instances are the same.
         /// </returns>
         public static bool operator !=(ProjectDescriptor left, ProjectDescriptor right) => !left.Equals(right);
+
+        /// <summary>
+        /// Serializes the <see cref="ProjectDescriptor"/> into a JSON string.
+        /// </summary>
+        /// <returns>A <see cref="ProjectDescriptor"/> serialized as a JSON string. </returns>
+        public string ToJson()
+        {
+            return JsonSerialization.Serialize(new ProjectDescriptorDto
+            {
+                OrganizationId = OrganizationId.ToString(),
+                ProjectId = ProjectId.ToString()
+            });
+        }
+
+        /// <summary>
+        /// Deserializes the given JSON string into a <see cref="ProjectDescriptor"/> object.
+        /// </summary>
+        /// <param name="json">A <see cref="ProjectDescriptor"/> serialized as a JSON string. </param>
+        /// <returns>A <see cref="ProjectDescriptor"/>. </returns>
+        public static ProjectDescriptor FromJson(string json)
+        {
+            var dto = JsonSerialization.Deserialize<ProjectDescriptorDto>(json);
+            return new ProjectDescriptor(dto);
+        }
     }
 }

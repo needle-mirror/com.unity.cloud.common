@@ -53,7 +53,7 @@ namespace Unity.Cloud.Common
 
             m_HttpRequestUriModifier = HttpRequestUriModifierFactory.CreateFromEnvironmentVariable();
             if (m_HttpRequestUriModifier != null)
-                s_Logger.LogInformation($"Installing {nameof(HttpRequestUriModifier)} on {nameof(ServiceHostResolver)}.");
+                s_Logger.LogDebug($"Installing {nameof(HttpRequestUriModifier)} on {nameof(ServiceHostResolver)}.");
         }
 
         static ServiceHost ReadSystemOverrides()

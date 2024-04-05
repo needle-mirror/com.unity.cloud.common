@@ -39,6 +39,12 @@ namespace Unity.Cloud.Common
             DatasetId = datasetId;
         }
 
+        internal DatasetDescriptor(DatasetDescriptorDto dto)
+        {
+            AssetDescriptor = new AssetDescriptor(dto.AssetDescriptor);
+            DatasetId = new DatasetId(dto.DatasetId);
+        }
+
         /// <summary>
         /// Returns whether two <see cref="DatasetDescriptor"/> objects are equals.
         /// </summary>
@@ -103,5 +109,29 @@ namespace Unity.Cloud.Common
         /// <see langword="false"/> if both instances are the same.
         /// </returns>
         public static bool operator !=(DatasetDescriptor left, DatasetDescriptor right) => !left.Equals(right);
+
+        /// <summary>
+        /// Serializes the <see cref="DatasetDescriptor"/> into a JSON string.
+        /// </summary>
+        /// <returns>A <see cref="DatasetDescriptor"/> serialized as a JSON string. </returns>
+        public string ToJson()
+        {
+            return JsonSerialization.Serialize(new DatasetDescriptorDto
+            {
+                AssetDescriptor = new AssetDescriptorDto(AssetDescriptor),
+                DatasetId = DatasetId.ToString()
+            });
+        }
+
+        /// <summary>
+        /// Deserializes the given JSON string into a <see cref="DatasetDescriptor"/> object.
+        /// </summary>
+        /// <param name="json">A <see cref="DatasetDescriptor"/> serialized as a JSON string. </param>
+        /// <returns>A <see cref="DatasetDescriptor"/>. </returns>
+        public static DatasetDescriptor FromJson(string json)
+        {
+            var dto = JsonSerialization.Deserialize<DatasetDescriptorDto>(json);
+            return new DatasetDescriptor(dto);
+        }
     }
 }

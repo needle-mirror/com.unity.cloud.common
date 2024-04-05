@@ -41,6 +41,12 @@ namespace Unity.Cloud.Common
             Path = filePath;
         }
 
+        internal FileDescriptor(FileDescriptorDto dto)
+        {
+            DatasetDescriptor = new DatasetDescriptor(dto.DatasetDescriptor);
+            Path = dto.FilePath;
+        }
+
         /// <summary>
         /// Returns whether two <see cref="FileDescriptor"/> objects are equals.
         /// </summary>
@@ -105,5 +111,29 @@ namespace Unity.Cloud.Common
         /// <see langword="false"/> if both instances are the same.
         /// </returns>
         public static bool operator !=(FileDescriptor left, FileDescriptor right) => !left.Equals(right);
+
+        /// <summary>
+        /// Serializes the <see cref="FileDescriptor"/> into a JSON string.
+        /// </summary>
+        /// <returns>A <see cref="FileDescriptor"/> serialized as a JSON string. </returns>
+        public string ToJson()
+        {
+            return JsonSerialization.Serialize(new FileDescriptorDto
+            {
+                DatasetDescriptor = new DatasetDescriptorDto(DatasetDescriptor),
+                FilePath = Path
+            });
+        }
+
+        /// <summary>
+        /// Deserializes the given JSON string into a <see cref="FileDescriptor"/> object.
+        /// </summary>
+        /// <param name="json">A <see cref="FileDescriptor"/> serialized as a JSON string. </param>
+        /// <returns>A <see cref="FileDescriptor"/>. </returns>
+        public static FileDescriptor FromJson(string json)
+        {
+            var dto = JsonSerialization.Deserialize<FileDescriptorDto>(json);
+            return new FileDescriptor(dto);
+        }
     }
 }

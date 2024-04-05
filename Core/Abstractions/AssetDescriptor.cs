@@ -40,6 +40,13 @@ namespace Unity.Cloud.Common
             AssetVersion = assetVersion;
         }
 
+        internal AssetDescriptor(AssetDescriptorDto dto)
+        {
+            ProjectDescriptor = new ProjectDescriptor(dto.ProjectDescriptor);
+            AssetId = new AssetId(dto.AssetId);
+            AssetVersion = new AssetVersion(dto.AssetVersion);
+        }
+
         /// <summary>
         /// Returns whether two <see cref="AssetDescriptor"/> objects are equals.
         /// </summary>
@@ -106,5 +113,30 @@ namespace Unity.Cloud.Common
         /// <see langword="false"/> if both instances are the same.
         /// </returns>
         public static bool operator !=(AssetDescriptor left, AssetDescriptor right) => !left.Equals(right);
+
+        /// <summary>
+        /// Serializes the <see cref="AssetDescriptor"/> into a JSON string.
+        /// </summary>
+        /// <returns>A <see cref="AssetDescriptor"/> serialized as a JSON string. </returns>
+        public string ToJson()
+        {
+            return JsonSerialization.Serialize(new AssetDescriptorDto
+            {
+                ProjectDescriptor = new ProjectDescriptorDto(ProjectDescriptor),
+                AssetId = AssetId.ToString(),
+                AssetVersion = AssetVersion.ToString()
+            });
+        }
+
+        /// <summary>
+        /// Deserializes the given JSON string into a <see cref="AssetDescriptor"/> object.
+        /// </summary>
+        /// <param name="json">A <see cref="AssetDescriptor"/> serialized as a JSON string. </param>
+        /// <returns>A <see cref="AssetDescriptor"/>. </returns>
+        public static AssetDescriptor FromJson(string json)
+        {
+            var dto = JsonSerialization.Deserialize<AssetDescriptorDto>(json);
+            return new AssetDescriptor(dto);
+        }
     }
 }

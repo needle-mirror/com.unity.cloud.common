@@ -1,5 +1,8 @@
 using System;
 using System.Text;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.Scripting;
 
@@ -12,6 +15,8 @@ namespace Unity.Cloud.Common.Runtime
     /// </summary>
     public class UnityLogOutput: ILogOutput
     {
+        const string k_LogLevelEnvironmentVariableName = "UC_LOG_LEVEL";
+
         /// <summary>
         /// Set's up the <see cref="UnityLogOutput"/> at runtime.
         /// </summary>
@@ -25,9 +30,13 @@ namespace Unity.Cloud.Common.Runtime
         /// <summary>
         /// Clears any previous <see cref="ILogOutput"/> from <see cref="LogOutputs"/> and adds the <see cref="UnityLogOutput"/>.
         /// </summary>
+        /// <remarks>Called automatically via <see cref="InitializeOnLoadMethod"/> attribute.</remarks>
+        #if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+        #endif
         public static void SetupUnityLogOutput()
         {
-            LogOutputs.Clear();
+            LogOutputs.RemoveAll<UnityLogOutput>();
             LogOutputs.Add(new UnityLogOutput());
         }
 
@@ -39,7 +48,7 @@ namespace Unity.Cloud.Common.Runtime
         /// <summary>
         /// The current <see cref="LogLevel"/>.
         /// </summary>
-        public LogLevel CurrentLevel  { get; set; } = LogLevel.Information;
+        public LogLevel CurrentLevel  { get; set; } = GetDefaultLogLevel();
 
         /// <summary>
         /// Writes a <see cref="LogEvent"/>.
@@ -119,6 +128,35 @@ namespace Unity.Cloud.Common.Runtime
             }
 
             return messageStringBuilder.ToString();
+        }
+
+        static LogLevel GetDefaultLogLevel()
+        {
+            var logLevel = LogLevel.Information;
+
+            // Check for compile time defines
+            // The most verbose log level will be used if multiple are defined
+            // (i.e. Trace > Debug > Information > Warning > Error > Critical)
+
+#if UC_LOG_LEVEL_TRACE
+            logLevel = LogLevel.Trace;
+#elif UC_LOG_LEVEL_DEBUG
+            logLevel = LogLevel.Debug;
+#elif UC_LOG_LEVEL_INFORMATION
+            logLevel = LogLevel.Information;
+#elif UC_LOG_LEVEL_WARNING
+            logLevel = LogLevel.Warning;
+#elif UC_LOG_LEVEL_ERROR
+            logLevel = LogLevel.Error;
+#elif UC_LOG_LEVEL_CRITICAL
+            logLevel = LogLevel.Critical;
+#endif
+            // Environment variable should always override defines if it exists
+            var envLogLevel = Environment.GetEnvironmentVariable(k_LogLevelEnvironmentVariableName);
+            if (Enum.TryParse<LogLevel>(envLogLevel, true, out var envLevel))
+                logLevel = envLevel;
+
+            return logLevel;
         }
     }
 }

@@ -789,7 +789,7 @@ namespace Unity.Cloud.Common
             var apiSourceVersion = new ApiSourceVersion(name, version);
             var sourceHeaders = new Dictionary<string, string>() {{ServiceHeaderUtils.k_ApiSourceHeader, apiSourceVersion.GetHeaderValue()}};
 
-            logger.LogInformation($"Creating a {nameof(ServiceHttpClientHeaderModifier)} to add source headers for {apiSourceVersion.GetHeaderValue()}");
+            logger.LogDebug($"Creating a {nameof(ServiceHttpClientHeaderModifier)} to add source headers for {apiSourceVersion.GetHeaderValue()}");
 
             return new ServiceHttpClientHeaderModifier(baseServiceHttpClient, sourceHeaders, ServiceHeaderUtils.k_UnityApiPattern);
         }
