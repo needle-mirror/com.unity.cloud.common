@@ -80,7 +80,15 @@ namespace Unity.Cloud.Common.Runtime
                 }
             }
 
-            var response = await m_RequestHandler.RequestAsync(request, uploadHandler, completionOption, progress, cancellationToken);
+            HttpResponseMessage response;
+            using (var trace = NetworkProfiler.Trace())
+            {
+                var progressTracer = trace.CreateProgressTracer(progress);
+                trace.SetRequestData(request, completionOption);
+                response = await m_RequestHandler.RequestAsync(request, uploadHandler, completionOption, progressTracer, cancellationToken);
+                trace.SetResponseData(response);
+            }
+            
 
             if (source != null)
                 await source.DisposeAsync();

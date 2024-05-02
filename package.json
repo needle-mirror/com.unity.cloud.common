@@ -1,6 +1,6 @@
 {
   "name": "com.unity.cloud.common",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "displayName": "Unity Cloud Common",
   "description": "Unity Cloud Common provides functionalities needed by the Unity Cloud SDKs.",
   "unity": "2022.3",
@@ -10,18 +10,18 @@
     "com.unity.modules.imgui": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.cloud.common.tests": "1.1.0"
+    "com.unity.cloud.common.tests": "1.1.1"
   },
   "_upm": {
-    "changelog": "### Added\n- Added Apple Privacy Manifest file to `/Plugins` directory.\n- Added 'ToJson' and 'FromJson' methods to `ProjectDescriptor`, `AssetDescriptor`, `DatasetDescriptor`, and `FileDescriptor` to allow for serialization and deserialization of these structs.\n\n### Changed\n- Modified the `LogLevel` for several log messages to reduce the default amount of logs in the console.\n\n### Fixed\n- Fixed `NativeWebSocketClient` tests which were not correctly handling expected errors and logs.\n\n### Removed\n- Removed deprecated headers."
+    "changelog": "### Added\n- Added Apple Privacy Manifest documentation."
   },
   "upmCi": {
-    "footprint": "a8957bd444a3f76cbaabff4a97d98ed4306b3f84"
+    "footprint": "a8c95644554cf4eccf24564523cbdee27a102517"
   },
   "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@1.1/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/digital-twins-sdk.git",
     "type": "git",
-    "revision": "1a7fa1a2eab17a06bce740d95954ad7a22e7ca92"
+    "revision": "7552b45b51c06f5376b9824142e48fb58f6166f4"
   }
 }

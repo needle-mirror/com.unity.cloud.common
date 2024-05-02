@@ -6,3 +6,4 @@
   * [Unity Cloud App Namespace](unity-cloud-app-namespace.md)
   * [URL redirection flows](url-redirection-flows.md)
   * [Unity Cloud Logging](unity-cloud-logging.md)
+* [Apple privacy manifest](apple-privacy-manifest.md)
