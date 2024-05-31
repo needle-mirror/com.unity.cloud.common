@@ -305,7 +305,7 @@ namespace Unity.Cloud.Common.Runtime
 
             state.Response.StatusCode = (HttpStatusCode) request.responseCode;
             var headers = request.GetResponseHeaders();
-            if (headers.ContainsKey(k_ContentTypeHeaderKey))
+            if (headers?.ContainsKey(k_ContentTypeHeaderKey) ?? false)
             {
                 var substrings = headers[k_ContentTypeHeaderKey].Split(";");
                 state.Response.Content.Headers.ContentType = new MediaTypeHeaderValue(substrings[0]);

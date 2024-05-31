@@ -5,6 +5,19 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2024-05-31
+
+### Added
+- X-Client-Id header now included by default in all Http requests to Unity Services.
+
+### Fixed
+- LegacyRequestHandler skip header update if no header response (happens when pointing to a local file).
+
+## [1.1.2] - 2024-05-17
+
+### Added
+- Added internal ability to profile the UnityHttpClient
+
 ## [1.1.1] - 2024-05-02
 
 ### Added
@@ -31,7 +44,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added `GroupId` struct.
 - Added `Role` and `Permission` struct.
 - Added `UserId` struct from Unity.Cloud.Identity.
-- Added internal ability to profile the UnityHttpClient
 
 ### Changed
 - [Breaking] Renamed `OrganizationGenesisId` property to `OrganizationId` in `ProjectDescriptor`, `AssetDescriptor` , `DatasetDescriptor`  and `FileDescriptor` classes.
