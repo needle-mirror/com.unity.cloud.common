@@ -8,46 +8,46 @@ using System;
 
 namespace Unity.Cloud.AppLinking.Editor
 {
-
-    partial class WindowsBuildPostProcess : IPostprocessBuildWithReport
+    class WindowsBuildPostProcess : IPostprocessBuildWithReport
     {
         public int callbackOrder
         {
             get { return 0; }
         }
 
-        public void OnPostprocessBuild(BuildTarget target, string path)
+        public void OnPostprocessBuild(bool isDevelopmentBuild, BuildTarget target, string path)
         {
             if (target == BuildTarget.StandaloneWindows64)
             {
                 Debug.Log($"WindowsBuildPostProcess.OnPostprocessBuild");
 
-                var lastFolderIndex = path.LastIndexOf("/");
+                var lastFolderIndex = path.LastIndexOf("/", StringComparison.InvariantCulture);
 
-                // UX: Reuse the .exe name of the reflect application being built
+                // UX: Reuse the .exe name of the Unity application being built
                 var exeAppName = path.Substring(lastFolderIndex + 1);
 
                 var interopDirectory = $"{path.Substring(0, lastFolderIndex)}/Unity_Cloud_Interop";
-                var tokenResolverDestinationFilePath = $"{interopDirectory}/{exeAppName}";
+                var customUriSchemeResolverDestinationFilePath = $"{interopDirectory}/{exeAppName}";
 
                 if (!Directory.Exists(interopDirectory))
                 {
                     Directory.CreateDirectory(interopDirectory);
                 }
 
-                // Write executable from hex string value
-                byte[] hexArray = Convert.FromBase64String(m_HexFile);
-                using (var fileStream = new FileStream(tokenResolverDestinationFilePath, FileMode.Create))
-                using (var binaryWriter = new BinaryWriter(fileStream))
-                {
-                    binaryWriter.Write(hexArray);
-                }
+                // Copy signed executable from ./Tools folder
+                var customUriSchemeResolverPath = Path.Combine(Application.dataPath, "../Packages/com.unity.cloud.common/AppLinking/Tools/CustomUriSchemeResolver.exe");
+                File.Copy(customUriSchemeResolverPath, customUriSchemeResolverDestinationFilePath, true);
+                if (!isDevelopmentBuild) return;
+                // If in development mode, copy over .pdb file
+                var customUriSchemeResolverDebugSymbolsPath = Path.Combine(Application.dataPath, "../Packages/com.unity.cloud.common/AppLinking/Tools/CustomUriSchemeResolver.pdb");
+                var customUriSchemeResolverDebugSymbolsDestinationPath = Path.ChangeExtension(customUriSchemeResolverDestinationFilePath, "pdb");
+                File.Copy(customUriSchemeResolverDebugSymbolsPath, customUriSchemeResolverDebugSymbolsDestinationPath, true);
             }
         }
 
         public void OnPostprocessBuild(BuildReport report)
         {
-            OnPostprocessBuild(report.summary.platform, report.summary.outputPath);
+            OnPostprocessBuild(report.summary.options.HasFlag(BuildOptions.Development), report.summary.platform, report.summary.outputPath);
         }
     }
 }

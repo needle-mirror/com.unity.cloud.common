@@ -5,6 +5,12 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.1.4] - 2024-08-08
+
+### Changed
+- Replaced the `WindowsBuildPostPRocessTokenResolver.cs` that was creating an .exe from base64 encoded string in favor of copying the `/AppLinking/Tools/CustomUriSchemeResolver.exe` file.
+- Export `/AppLinking/Tools/CustomUriSchemeResolver.pdb` file along `/AppLinking/Tools/CustomUriSchemeResolver.exe` file when the Unity Project is built in Development mode.
+
 ## [1.1.3] - 2024-05-31
 
 ### Added
