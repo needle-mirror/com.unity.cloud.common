@@ -1,6 +1,6 @@
 {
   "name": "com.unity.cloud.common",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "displayName": "Unity Cloud Common",
   "description": "Unity Cloud Common provides functionalities needed by the Unity Cloud SDKs.",
   "unity": "2022.3",
@@ -10,18 +10,18 @@
     "com.unity.modules.imgui": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.cloud.common.tests": "1.1.4"
+    "com.unity.cloud.common.tests": "1.1.5"
   },
   "_upm": {
-    "changelog": "### Changed\n- Replaced the `WindowsBuildPostPRocessTokenResolver.cs` that was creating an .exe from base64 encoded string in favor of copying the `/AppLinking/Tools/CustomUriSchemeResolver.exe` file.\n- Export `/AppLinking/Tools/CustomUriSchemeResolver.pdb` file along `/AppLinking/Tools/CustomUriSchemeResolver.exe` file when the Unity Project is built in Development mode."
+    "changelog": "### Fixed\n- Fixed internal disposal of http response content stream.\n- Ensure that the WebSocket implementation for WebGL is not visible in the Unity Editor."
   },
   "upmCi": {
-    "footprint": "b590fe457cdfa70907e1862b59b1140d464d6164"
+    "footprint": "7312296c600cae6991c5eafb5b86955e1be07ed2"
   },
   "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@1.1/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/digital-twins-sdk.git",
     "type": "git",
-    "revision": "e3d1d54f4bbecfa5c0c4519d1412cb20d3349d79"
+    "revision": "6f5fc1a1ad6b65fd4bee1f4f07afa8498eea362b"
   }
 }

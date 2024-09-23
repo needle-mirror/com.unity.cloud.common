@@ -1,4 +1,4 @@
-#if UNITY_WEBGL
+#if UNITY_WEBGL && !UNITY_EDITOR
 using System;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;

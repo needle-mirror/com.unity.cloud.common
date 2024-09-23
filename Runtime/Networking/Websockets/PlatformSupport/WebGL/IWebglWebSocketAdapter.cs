@@ -1,3 +1,4 @@
+#if UNITY_WEBGL && !UNITY_EDITOR
 using System;
 using System.Threading.Tasks;
 
@@ -19,3 +20,4 @@ namespace Unity.Cloud.Common.Runtime
         void UpdateCheckpointTimestamp(long checkpointEpochMilliseconds);
     }
 }
+#endif

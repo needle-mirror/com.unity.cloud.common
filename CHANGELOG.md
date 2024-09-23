@@ -5,6 +5,12 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.1.5] - 2024-09-23
+
+### Fixed
+- Fixed internal disposal of http response content stream.
+- Ensure that the WebSocket implementation for WebGL is not visible in the Unity Editor.
+
 ## [1.1.4] - 2024-08-08
 
 ### Changed

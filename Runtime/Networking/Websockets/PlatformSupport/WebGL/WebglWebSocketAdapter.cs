@@ -1,4 +1,4 @@
-#if UNITY_WEBGL
+#if UNITY_WEBGL && !UNITY_EDITOR
 // Javascript functions are static and shared between clients, therefore a Factory pattern
 // is used to dispatch calls to the right instances.
 using System;

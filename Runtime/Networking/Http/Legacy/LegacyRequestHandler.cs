@@ -223,7 +223,8 @@ namespace Unity.Cloud.Common.Runtime
                 }
             }
 
-            var memoryStreamDownloadHandler = new MemoryStreamDownloadHandler();
+            var queueStream = new QueueStream();
+            var memoryStreamDownloadHandler = new MemoryStreamDownloadHandler(queueStream.Writer);
             memoryStreamDownloadHandler.HeadersReceived += onHeadersReceived;
 
             request.downloadHandler = memoryStreamDownloadHandler;
@@ -250,7 +251,7 @@ namespace Unity.Cloud.Common.Runtime
 
             var response = new HttpResponseMessage();
             response.RequestMessage = httpRequestMessage;
-            response.Content = new StreamContent(memoryStreamDownloadHandler.OutputStream);
+            response.Content = new StreamContent(queueStream.Reader);
             state.Response = response;
 
             await HandleRequestAndProgress(request, onCompleted, memoryStreamDownloadHandler, progress);
@@ -289,7 +290,10 @@ namespace Unity.Cloud.Common.Runtime
             if (request.result != UnityWebRequest.Result.Success)
             {
                 if (request.downloadHandler is MemoryStreamDownloadHandler memoryStreamDownloadHandler)
+                {
                     memoryStreamDownloadHandler.ForceCompleteContent();
+                    memoryStreamDownloadHandler.EffectiveDispose();
+                }
 
                 if (request.result == UnityWebRequest.Result.ConnectionError)
                 {
