@@ -39,9 +39,9 @@ namespace Unity.Cloud.AppLinking.Editor
 
                 //  edit plist file
                 string plistPath = path + "/Info.plist";
-                PlistDocument plist = new PlistDocument();
-                plist.ReadFromString(File.ReadAllText(plistPath));
-                PlistElementDict rootDict = plist.root;
+                var plistDocument = new PlistDocument();
+                plistDocument.ReadFromFile(plistPath);
+                var rootDict = plistDocument.root;
 
                 //  remove exit on suspend if it exists
                 string exitsOnSuspendKey = "UIApplicationExitsOnSuspend";
@@ -50,20 +50,21 @@ namespace Unity.Cloud.AppLinking.Editor
                     rootDict.values.Remove(exitsOnSuspendKey);
                 }
 
-                if (!rootDict.values.ContainsKey("CFBundleURLTypes"))
-                {
-                    // Create Custom URI Scheme entry
-                    var urlTypeArray = new PlistElementArray();
-                    var urlDict = urlTypeArray.AddDict();
-                    var urlBundleName = new PlistElementString("Unity Cloud App Linking");
-                    urlDict.values.Add("CFBundleURLName", urlBundleName);
-                    var urlBundleSchemes = new PlistElementArray();
-                    urlBundleSchemes.AddString(customUriScheme);
-                    urlDict.values.Add("CFBundleURLSchemes", urlBundleSchemes);
-                    rootDict.values.Add("CFBundleURLTypes", urlTypeArray);
-                }
+                Debug.Log($"Registering '{customUriScheme}' scheme intent-filter");
 
-                File.WriteAllText(plistPath, plist.WriteToString());
+                var urlTypeArray = rootDict.values.ContainsKey("CFBundleURLTypes") ? rootDict.values["CFBundleURLTypes"].AsArray() : new PlistElementArray();
+                var urlDict = urlTypeArray.AddDict();
+                var urlBundleName = new PlistElementString("Unity Cloud App linking");
+                urlDict.values.Add("CFBundleURLName", urlBundleName);
+                var urlBundleSchemes = new PlistElementArray();
+                urlBundleSchemes.AddString(customUriScheme);
+                urlDict.values.Add("CFBundleURLSchemes", urlBundleSchemes);
+
+                // Only add if none exists
+                rootDict.values.TryAdd("CFBundleURLTypes", urlTypeArray);
+
+                // Write back our changes to Info.plist
+                File.WriteAllText(plistPath, plistDocument.WriteToString());
             }
         }
 

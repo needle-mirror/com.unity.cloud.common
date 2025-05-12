@@ -1,4 +1,5 @@
 #if UNITY_STANDALONE_OSX
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Build;
 //Since the PlistParser doesn't exist in the normal UnityEditor files, we need to add it
@@ -46,21 +47,19 @@ namespace Unity.Cloud.AppLinking.Editor
                     var plistDocument = new PlistDocument();
                     plistDocument.ReadFromFile(plistPath);
                     var rootDict = plistDocument.root;
-                    if (!rootDict.values.ContainsKey("CFBundleURLTypes"))
-                    {
-                        // Create Custom URI Scheme entry
-                        var urlTypeArray = new PlistElementArray();
-                        var urlDict = urlTypeArray.AddDict();
-                        var urlBundleName = new PlistElementString("Unity Cloud Identity");
-                        urlDict.values.Add("CFBundleURLName", urlBundleName);
-                        var urlBundleSchemes = new PlistElementArray();
-                        urlBundleSchemes.AddString(customUriScheme);
-                        urlDict.values.Add("CFBundleURLSchemes", urlBundleSchemes);
-                        rootDict.values.Add("CFBundleURLTypes", urlTypeArray);
+                    var urlTypeArray = rootDict.values.ContainsKey("CFBundleURLTypes") ? rootDict.values["CFBundleURLTypes"].AsArray() : new PlistElementArray();
+                    var urlDict = urlTypeArray.AddDict();
+                    var urlBundleName = new PlistElementString("Unity Cloud App linking");
+                    urlDict.values.Add("CFBundleURLName", urlBundleName);
+                    var urlBundleSchemes = new PlistElementArray();
+                    urlBundleSchemes.AddString(customUriScheme);
+                    urlDict.values.Add("CFBundleURLSchemes", urlBundleSchemes);
 
-                        // Write back our changes to Info.plist
-                        File.WriteAllText(plistPath, plistDocument.WriteToString());
-                    }
+                    // Only add if none exists
+                    rootDict.values.TryAdd("CFBundleURLTypes", urlTypeArray);
+
+                    // Write back our changes to Info.plist
+                    File.WriteAllText(plistPath, plistDocument.WriteToString());
                 }
             }
         }

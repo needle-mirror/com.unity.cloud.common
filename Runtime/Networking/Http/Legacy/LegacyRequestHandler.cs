@@ -15,6 +15,7 @@ namespace Unity.Cloud.Common.Runtime
 
     class LegacyRequestHandler
     {
+        const string k_ContentEncodingHeaderKey = "Content-Encoding";
         const string k_ContentLengthHeaderKey = "Content-Length";
         const string k_ContentTypeHeaderKey = "Content-Type";
         const string k_TimeoutErrorMessage = "Request timeout";
@@ -313,6 +314,19 @@ namespace Unity.Cloud.Common.Runtime
             {
                 var substrings = headers[k_ContentTypeHeaderKey].Split(";");
                 state.Response.Content.Headers.ContentType = new MediaTypeHeaderValue(substrings[0]);
+            }
+
+            if (headers?.ContainsKey(k_ContentLengthHeaderKey) ?? false)
+            {
+                if (long.TryParse(headers[k_ContentLengthHeaderKey], out var contentLength))
+                    state.Response.Content.Headers.ContentLength = contentLength;
+            }
+
+            if (headers?.ContainsKey(k_ContentEncodingHeaderKey) ?? false)
+            {
+                var encodings = headers[k_ContentEncodingHeaderKey].Split(",", StringSplitOptions.RemoveEmptyEntries);
+                foreach (var encoding in encodings)
+                    state.Response.Content.Headers.ContentEncoding.Add(encoding);
             }
 
             request.Dispose();

@@ -43,7 +43,6 @@ namespace Unity.Cloud.AppLinking.Editor
 
             ShowCurrentCloudPlayerSettingsUI();
 
-
             serializedObject.ApplyModifiedProperties();
         }
 
@@ -85,6 +84,19 @@ namespace Unity.Cloud.AppLinking.Editor
         }
     }
 
+    [InitializeOnLoad]
+    internal class UnityCloudPlayerSettingsUpdater
+    {
+        static UnityCloudPlayerSettingsUpdater()
+        {
+            UnityCloudPlayerSettings.Instance.OnAppNamespaceChanged += OnAppNamespaceChanged;
+        }
+
+        static void OnAppNamespaceChanged()
+        {
+            EditorUtility.SetDirty(UnityCloudPlayerSettings.Instance);
+        }
+    }
 
     /// <summary>
     /// Draws a property as read-only in the GUI.

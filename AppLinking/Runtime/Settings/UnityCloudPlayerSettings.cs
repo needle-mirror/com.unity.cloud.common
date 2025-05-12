@@ -1,3 +1,4 @@
+using System;
 using Unity.Cloud.Common;
 using Unity.Cloud.Common.Runtime;
 using UnityEngine;
@@ -72,6 +73,18 @@ namespace Unity.Cloud.AppLinking.Runtime
         {
             get
             {
+#if UNITY_EDITOR
+                if (s_Instance == null)
+                {
+                    s_Instance = Resources.Load<UnityCloudPlayerSettings>(k_AssetName);
+
+                    if (s_Instance == null)
+                    {
+                        s_Instance = CreateInstance<UnityCloudPlayerSettings>();
+                    }
+                }
+                return s_Instance;
+#else
                 UnitySynchronizationContextGrabber.s_UnitySynchronizationContext.Send(_ =>
                 {
                     if (s_Instance == null)
@@ -86,6 +99,7 @@ namespace Unity.Cloud.AppLinking.Runtime
                 }, null);
 
                 return s_Instance;
+#endif
             }
         }
 
@@ -108,13 +122,30 @@ namespace Unity.Cloud.AppLinking.Runtime
         }
 
         /// <summary>
-        /// Gets the app name namespace.
+        /// Gets the app namespace.
         /// </summary>
         /// <returns>The app namespace.</returns>
         public string GetAppNamespace()
         {
             return Instance.AppNamespace;
         }
+
+#if UNITY_EDITOR
+        /// <summary>
+        /// Sets the app namespace.
+        /// </summary>
+        /// <remarks>Only available from Unity Editor scripts. Unlike the setter of the <see cref="AppNamespace"/> property,
+        /// using the <see cref="SetAppNamespace"/> method will update the associated .asset file on disk.
+        /// </remarks>
+        public void SetAppNamespace(string appNamespace)
+        {
+            Instance.AppNamespace = appNamespace;
+            OnAppNamespaceChanged?.Invoke();
+        }
+
+        public event Action OnAppNamespaceChanged;
+#endif
+
     }
 
     /// <summary>

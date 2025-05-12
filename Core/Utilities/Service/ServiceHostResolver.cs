@@ -2,7 +2,9 @@ using System;
 
 namespace Unity.Cloud.Common
 {
-    /// <inheritdoc/>
+    /// <summary>
+    /// Resolves the service host and service requests URI for Unity Cloud services based on the defined <see cref="ServiceEnvironment"/> and <see cref="ServiceDomainProvider"/> values.
+    /// </summary>
     public class ServiceHostResolver : IServiceHostResolver
     {
         internal const ServiceDomainProvider k_DefaultDomainProvider = ServiceDomainProvider.UnityServices;

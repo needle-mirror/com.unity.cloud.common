@@ -5,6 +5,36 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.0-exp.3] - 2025-05-12
+
+### Added
+- `WebAppUrlComposer` class and `IWebAppUrlComposer` interface to compose URLs for supported web app resources.
+
+### Changed
+- Lowered the default exponential retry policy timespan when running on the Web Platform.
+- ServiceHttpClient retries only for error codes 503/504, instead of >= 500
+- Rename FQDN path prefix env var name
+
+### Fixed
+- iOS and OSX prebuild processing supports multiple registration of custom uri scheme in the info.plist manifest.
+
+## [1.2.0-exp.2] - 2025-01-21
+
+### Changed
+- Updated how service errors are logged when http response failed to produce a valid json.
+
+## [1.2.0-exp.1] - 2024-12-12
+
+### Added
+- Added `Content-Length` in the `HttpResponseMessage` returned by `UnityHttpClient`.
+- `ServiceHostResolverFactory.CreateForUnityServicesGateway` and `ServiceHostResolverFactory.CreateForFullyQualifiedDomainName` methods.
+- new `GetResolvedHost` extension method for `IServiceHostResolver` implementations.
+- Added `Content-Encoding` in the `HttpResponseMessage` returned by `UnityHttpClient`.
+
+### Deprecated
+- `UnityRuntimeServiceHostResolverFactory` class.
+- `IServiceHostResolver.GetResolvedDomainProvider` and `IServiceHostResolver.GetResolvedEnvironment` methods. 
+
 ## [1.1.5] - 2024-09-23
 
 ### Fixed

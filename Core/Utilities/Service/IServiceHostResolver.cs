@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Unity.Cloud.Common
 {
     /// <summary>
-    /// Resolves the service environment and domain provider for the application.
+    /// Resolves the service host address and service requests URI.
     /// </summary>
     public interface IServiceHostResolver
     {
@@ -12,16 +12,18 @@ namespace Unity.Cloud.Common
         /// Gets the resolved <see cref="ServiceEnvironment"/>.
         /// </summary>
         /// <returns>The resolved environment.</returns>
+        [Obsolete]
         ServiceEnvironment GetResolvedEnvironment();
 
         /// <summary>
         /// Gets the resolved the <see cref="ServiceDomainProvider"/>.
         /// </summary>
         /// <returns>The resolved service domain provider.</returns>
+        [Obsolete]
         ServiceDomainProvider GetResolvedDomainProvider();
 
         /// <summary>
-        /// Returns the service address for the specified inputs.
+        /// Returns the service address for the specified protocol.
         /// </summary>
         /// <param name="protocol">The web protocol.</param>
         /// <returns>The service address.</returns>
