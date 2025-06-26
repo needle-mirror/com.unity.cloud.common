@@ -33,7 +33,8 @@ namespace Unity.Cloud.Common
                     ? CreateForFullyQualifiedDomainName(fullyQualifiedDomainNameOverride, fullyQualifiedDomainNamePathPrefixOverride)
                     : CreateForFullyQualifiedDomainName(fullyQualifiedDomainNameOverride);
             }
-            return new ServiceHostResolver();
+
+            return CreateForUnityServicesGateway();
         }
 
         /// <summary>
@@ -50,7 +51,7 @@ namespace Unity.Cloud.Common
         /// Create a <see cref="ServiceHostResolver"/>.
         /// Any system-level overrides for <see cref="ServiceEnvironment"/> and <see cref="ServiceDomainProvider"/> set via environment variables will take priority.
         /// <returns>The created <see cref="ServiceHostResolver"/>.</returns>
-        public static IServiceHostResolver CreateForUnityServicesGateway()
+        static IServiceHostResolver CreateForUnityServicesGateway()
         {
             return new ServiceHostResolver();
         }

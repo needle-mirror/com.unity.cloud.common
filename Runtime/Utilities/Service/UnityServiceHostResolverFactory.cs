@@ -8,7 +8,7 @@ namespace Unity.Cloud.Common.Runtime
     /// <summary>
     /// A factory class used to create a <see cref="IServiceHostResolver"/>.
     /// </summary>
-    [Obsolete("Use ServiceHostResolverFactory instead.")]
+    [Obsolete("Use Unity.Cloud.Common.ServiceHostResolverFactory instead.")]
     public static class UnityRuntimeServiceHostResolverFactory
     {
 #if UNITY_WEBGL && !UNITY_EDITOR

@@ -16,3 +16,4 @@ The Unity Cloud Common package is compatible with Unity version 2022.3 and all U
 * Android
 * macOS 
 * iOS: Requires an Xcode project build and a valid development build certificate to achieve binding for the custom URI scheme at the OS level.
+* WebGL

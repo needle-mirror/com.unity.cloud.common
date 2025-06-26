@@ -3,7 +3,6 @@ using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Unity.Cloud.Common.Runtime
@@ -13,7 +12,7 @@ namespace Unity.Cloud.Common.Runtime
     /// </summary>
     public class UnityHttpClient : IHttpClient
     {
-        const long k_DefaultMaximumUploadSizeForMemoryStorageBytes = 1000000;
+        const long k_DefaultMaximumUploadSizeForMemoryStorageBytes = 1_000_000;
 
         readonly LegacyRequestHandler m_RequestHandler;
         readonly long m_MaximumUploadSizeForMemoryStorage;
@@ -50,53 +49,54 @@ namespace Unity.Cloud.Common.Runtime
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            UploadHandler uploadHandler = null;
             string tempFilepath = null;
-            Stream source = null;
-
-            var requestContent = request.Content;
-            if (requestContent != null)
+            try
             {
-                source = await requestContent.ReadAsStreamAsync();
+                UploadHandler uploadHandler = null;
 
-                if (source is FileStream fileStream)
+                var requestContent = request.Content;
+                if (requestContent != null)
                 {
-                    uploadHandler = new UploadHandlerFile(fileStream.Name);
+#if UNITY_WEBGL && !UNITY_EDITOR
+                    uploadHandler = new UploadHandlerRaw(await request.GetContentAsByteArrayAsync());
+#else
+                    await using var source = await requestContent.ReadAsStreamAsync();
+
+                    if (source is FileStream fileStream)
+                    {
+                        uploadHandler = new UploadHandlerFile(fileStream.Name);
+                    }
+                    else if (requestContent.Headers.ContentLength > m_MaximumUploadSizeForMemoryStorage)
+                    {
+                        tempFilepath = Path.GetTempPath() + Guid.NewGuid();
+
+                        await using var destination = File.OpenWrite(tempFilepath);
+                        await source.CopyToAsync(destination, cancellationToken);
+
+                        uploadHandler = new UploadHandlerFile(tempFilepath);
+                    }
+                    else
+                    {
+                        uploadHandler = new UploadHandlerRaw(await requestContent.ReadAsByteArrayAsync());
+                    }
+#endif
                 }
-                else if (requestContent.Headers.ContentLength > m_MaximumUploadSizeForMemoryStorage)
-                {
-                    tempFilepath = Path.GetTempPath() + Guid.NewGuid();
 
-                    var destination = File.OpenWrite(tempFilepath);
-                    await source.CopyToAsync(destination, cancellationToken);
-
-                    await destination.DisposeAsync();
-
-                    uploadHandler = new UploadHandlerFile(tempFilepath);
-                }
-                else
-                {
-                    uploadHandler = new UploadHandlerRaw(await requestContent.ReadAsByteArrayAsync());
-                }
-            }
-
-            HttpResponseMessage response;
-            using (var trace = NetworkProfiler.Trace())
-            {
+                using var trace = NetworkProfiler.Trace();
                 var progressTracer = trace.CreateProgressTracer(progress);
                 trace.SetRequestData(request, completionOption);
-                response = await m_RequestHandler.RequestAsync(request, uploadHandler, completionOption, progressTracer, cancellationToken);
+                var response = await m_RequestHandler.RequestAsync(request, uploadHandler, completionOption, progressTracer, cancellationToken);
                 trace.SetResponseData(response);
+
+                return response;
             }
-            
-
-            if (source != null)
-                await source.DisposeAsync();
-
-            if(!String.IsNullOrEmpty(tempFilepath) && File.Exists(tempFilepath))
-                File.Delete(tempFilepath);
-
-            return response;
+            finally
+            {
+#if !UNITY_WEBGL
+                if (!string.IsNullOrEmpty(tempFilepath) && File.Exists(tempFilepath))
+                    File.Delete(tempFilepath);
+#endif
+            }
         }
     }
 }

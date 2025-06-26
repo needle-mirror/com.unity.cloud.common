@@ -272,7 +272,7 @@ namespace Unity.Cloud.Common
             try
             {
                 s_Logger.LogDebug($"Unsuccessful StatusCode {response.StatusCode } on {response.RequestMessage.Method} request: {response.RequestMessage.RequestUri}");
-                var content = await response.Content.ReadAsStringAsync();
+                var content = await response.GetContentAsStringAsync();
                 serviceError = string.IsNullOrEmpty(content) ? new ServiceError { Status = response.StatusCode } : JsonSerialization.Deserialize<ServiceError>(content);
                 serviceError ??= new ServiceError { Status = response.StatusCode };
             }

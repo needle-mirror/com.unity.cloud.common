@@ -1,4 +1,3 @@
-using System.Threading;
 using System.Threading.Tasks;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -7,15 +6,14 @@ using UnityEngine;
 
 namespace Unity.Cloud.Common.Runtime
 {
-    static class UnitySynchronizationContextGrabber
+    static class UnityMainThreadSchedulerGrabber
     {
-        static SynchronizationContext s_UnitySynchronizationContextValue;
-        public static SynchronizationContext s_UnitySynchronizationContext
-        {
-            get => s_UnitySynchronizationContextValue;
-        }
-
         static TaskScheduler s_UnityMainThreadSchedulerValue;
+
+        /// <summary>
+        /// Return the Unity main thread TaskScheduler.
+        /// Important: do not cache this value unless you ensure you do this after it has been set.
+        /// </summary>
         internal static TaskScheduler s_UnityMainThreadScheduler
         {
             get => s_UnityMainThreadSchedulerValue;
@@ -24,7 +22,7 @@ namespace Unity.Cloud.Common.Runtime
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void RuntimeGrab()
         {
-            s_UnitySynchronizationContextValue = SynchronizationContext.Current;
+            TaskExtensions.MultithreadingEnabled = Application.platform != RuntimePlatform.WebGLPlayer;
             s_UnityMainThreadSchedulerValue = TaskScheduler.FromCurrentSynchronizationContext();
         }
 
@@ -35,6 +33,5 @@ namespace Unity.Cloud.Common.Runtime
             RuntimeGrab();
         }
 #endif
-
     }
 }

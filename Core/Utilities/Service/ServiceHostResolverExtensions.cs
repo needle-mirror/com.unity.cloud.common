@@ -14,7 +14,7 @@ namespace Unity.Cloud.Common
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="serviceHostResolver"/> is null.</exception>
         /// <exception cref="InvalidOperationException">Thrown if the <paramref name="serviceHostResolver"/> is not an instance of <see cref="ServiceHostResolver"/>.</exception>
-       [Obsolete("Deprecated. Use the extension method specialized for ServiceHostResolver instances.")]
+        [Obsolete("Deprecated. Use the extension method specialized for ServiceHostResolver instances.")]
         public static ServiceHost GetResolvedServiceHost(this IServiceHostResolver serviceHostResolver)
         {
             if (serviceHostResolver == null)

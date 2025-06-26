@@ -12,14 +12,14 @@ namespace Unity.Cloud.Common
         /// Gets the resolved <see cref="ServiceEnvironment"/>.
         /// </summary>
         /// <returns>The resolved environment.</returns>
-        [Obsolete]
+        [Obsolete("ServiceEnvironment is available only when connecting to Unity Cloud Services. Use ServiceHostResolver.GetResolvedEnvironment().")]
         ServiceEnvironment GetResolvedEnvironment();
 
         /// <summary>
         /// Gets the resolved the <see cref="ServiceDomainProvider"/>.
         /// </summary>
         /// <returns>The resolved service domain provider.</returns>
-        [Obsolete]
+        [Obsolete("ServiceDomainProvider is available only when connecting to Unity Cloud Services. Use ServiceHostResolver.GetResolvedDomainProvider().")]
         ServiceDomainProvider GetResolvedDomainProvider();
 
         /// <summary>

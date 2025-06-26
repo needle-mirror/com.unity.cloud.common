@@ -5,6 +5,40 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-06-26
+
+### Added
+- `WebAppNames` class.
+
+### Changed
+- `WebAppUrlComposer` and `ServiceHostResolverFactory` classes are no longer experimental.
+- Experimental `WebAppUrlComposer` static properties `Asset-Manager` and `Documentation` moved to a new `WebAppNames` class.
+
+### Fixed
+- Fixed race condition in `SingleReaderSingleWriterNativeStream`.
+- Fixed exception thrown when a request is canceled.
+- Fixed `ObjectDisposedException` thrown in some cases when accessing the `HttpResponseMessage` object.
+- Fix race condition where sometimes the UnityHttpClient would have cached a uninitialized value that resulted in an ArgumentNullException thrown at runtime.
+- Fixed http request task not completing in some cases when the request is canceled.
+
+### Removed
+- `UnityCloudPlayerSettings.SetAppNamespace` method and `UnityCloudPlayerSettings.OnAppNamespaceChanged` event.
+- `ServiceHostResolverFactory.CreateForUnityServicesGateway` method.
+
+## [1.2.0-exp.4] - 2025-06-04
+
+### Added
+- `UnityCloudPlayerSettings.SetAppNamespace` method to allow the modification of the App namespace from Editor scripts.
+- `HttpRequestMessageExtensions` static class to safely read `HttpRequestMessage.Content` as string or byte array on single threaded platform.
+
+### Changed
+- Made ServiceError.ToString() more verbose
+- Reworked `UnityHttpClient` to reduce memory consumption when using the `ResponseHeadersRead` option.
+- Documentation to reference WebGL support
+
+### Fixed
+- Throwing Http exceptions on WebGL.
+
 ## [1.2.0-exp.3] - 2025-05-12
 
 ### Added

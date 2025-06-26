@@ -1,25 +1,42 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Unity.Cloud.Common;
 
 namespace Unity.Cloud.AppLinking
 {
     /// <summary>
+    /// Known web app names
+    /// </summary>
+    public static class WebAppNames
+    {
+        /// <summary>
+        /// Documentation web app name.
+        /// </summary>
+        public const string Documentation = "documentation";
+
+        /// <summary>
+        /// AssetManager web app name.
+        /// </summary>
+        public const string AssetManager = "asset-manager";
+    }
+
+    /// <summary>
     /// A class that provides utilities for web app resources.
     /// </summary>
     public class WebAppUrlComposer : IWebAppUrlComposer
     {
-        public static readonly string Documentation = "docs";
-        public static readonly string AssetManager = "asset-manager";
-
         readonly string m_WebAppUrlEndpoint = "/app-linking/v1/web-app-urls";
         readonly IServiceHostResolver m_ServiceHostResolver;
         readonly IHttpClient m_HttpClient;
 
         Dictionary<string, string> m_WebAppBaseUrls = new ();
 
+        /// <summary>
+        /// Builds the WebAppUrlComposer.
+        /// </summary>
+        /// <param name="serviceHostResolver">The service host resolver</param>
+        /// <param name="httpClient">The http client</param>
         public WebAppUrlComposer(IServiceHostResolver serviceHostResolver, IHttpClient httpClient)
         {
             m_ServiceHostResolver = serviceHostResolver;
@@ -34,7 +51,7 @@ namespace Unity.Cloud.AppLinking
             {
                 throw new InvalidArgumentException($"The web app name '{webAppName}' does not exist.");
             }
-            return $"{m_WebAppBaseUrls[webAppName]}{pathAndQuery}";;
+            return $"{m_WebAppBaseUrls[webAppName]}{pathAndQuery}";
         }
 
         /// <inheritdoc/>
