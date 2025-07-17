@@ -28,10 +28,10 @@ namespace Unity.Cloud.AppLinking.Tests
             else
             {
                 m_ExpectedAppId = string.Empty;
-                m_ExpectedAppName = UnityCloudPlayerSettings.k_DefaultAppName;
-                m_ExpectedAppDisplayName = UnityCloudPlayerSettings.k_DefaultAppDisplayName;
-                m_ExpectedAppOrganizationId = UnityCloudPlayerSettings.k_DefaultOrganizationID;
-                m_ExpectedAppNamespace = UnityCloudPlayerSettings.k_DefaultNamespace;
+                m_ExpectedAppName = UnityCloudPlayerSettings.s_DefaultAppName;
+                m_ExpectedAppDisplayName = UnityCloudPlayerSettings.s_DefaultAppDisplayName;
+                m_ExpectedAppOrganizationId = UnityCloudPlayerSettings.s_DefaultOrganizationID;
+                m_ExpectedAppNamespace = UnityCloudPlayerSettings.s_DefaultAppNamespace;
             }
         }
 

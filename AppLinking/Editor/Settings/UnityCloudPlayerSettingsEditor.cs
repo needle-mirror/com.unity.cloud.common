@@ -1,6 +1,5 @@
 using System;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Unity.Cloud.AppLinking.Runtime;
 using UnityEditor;
 using UnityEngine;
@@ -28,12 +27,6 @@ namespace Unity.Cloud.AppLinking.Editor
             EditorUtility.SetDirty(UnityCloudPlayerSettings.Instance);
         }
 
-        /// <inheritdoc/>
-        public override void OnInspectorGUI()
-        {
-            DrawGUI();
-        }
-
         /// <summary>
         /// Draws the Editor GUI.
         /// </summary>
@@ -41,9 +34,15 @@ namespace Unity.Cloud.AppLinking.Editor
         {
             serializedObject.Update();
 
+            EditorGUI.BeginChangeCheck();
+
             ShowCurrentCloudPlayerSettingsUI();
 
-            serializedObject.ApplyModifiedProperties();
+            var hasChanged = EditorGUI.EndChangeCheck();
+            if (hasChanged)
+            {
+                serializedObject.ApplyModifiedProperties();
+            }
         }
 
         void ShowCurrentCloudPlayerSettingsUI()
@@ -54,15 +53,37 @@ namespace Unity.Cloud.AppLinking.Editor
                 UnityCloudPlayerSettings.Instance.AppId = CloudProjectSettings.projectId;
             }
 
-            var infoMessage =
-"Creates a unique App Namespace to intercept invocation events coming from the Operating System in your Unity Cloud app. Intercepting invocation events enables the activation of an app from either an idle or a shutdown state.";
-
-            EditorGUILayout.HelpBox(infoMessage, MessageType.Info);
+            var infoMessage = "";
+            var namespaceIsValid = false;
+            if (m_AppNamespaceProperty.stringValue.Equals(UnityCloudPlayerSettings.s_DefaultAppNamespace))
+            {
+                infoMessage =
+                    "Please change the 'default' value for a unique App Namespace to enable activation of your standalone build from URL.";
+                EditorGUILayout.HelpBox(infoMessage, MessageType.Warning);
+            }
+            else
+            {
+                var safeNamespaceValue = SanitizeNamespace(m_AppNamespaceProperty.stringValue);
+                namespaceIsValid = safeNamespaceValue.Equals(m_AppNamespaceProperty.stringValue);
+                if (!namespaceIsValid)
+                {
+                    infoMessage =
+                        "This App Namespace is invalid. Please click the 'Validate Namespace' button to generate a valid App Namespace value.";
+                    EditorGUILayout.HelpBox(infoMessage, MessageType.Warning);
+                }
+                else
+                {
+                    infoMessage =
+                        $"Your standalone build can be activated from URLs starting with {m_AppNamespaceProperty.stringValue}://*";
+                    EditorGUILayout.HelpBox(infoMessage, MessageType.Info);
+                }
+            }
 
             GUILayout.Space(10);
 
             EditorGUILayout.PropertyField(m_AppNamespaceProperty);
-            if (EditorGUI.EndChangeCheck())
+
+            if (GUILayout.Button(namespaceIsValid ? "Apply Change" : "Validate Namespace"))
             {
                 var newValue = SanitizeNamespace(m_AppNamespaceProperty.stringValue);
                 if (!newValue.Equals(m_AppNamespaceProperty.stringValue))
@@ -70,15 +91,43 @@ namespace Unity.Cloud.AppLinking.Editor
                     m_AppNamespaceProperty.stringValue = newValue;
                     UnityCloudPlayerSettings.Instance.AppNamespace = newValue;
                 }
+
+                // Move focus out of PropertyField to apply change
+                GUI.FocusControl(null);
             }
         }
 
         string SanitizeNamespace(string stringValue)
         {
-            stringValue = Regex.Replace(stringValue, "\\s+", "", RegexOptions.None, TimeSpan.FromSeconds(1));
-            if (stringValue[^1].Equals('.'))
+            if (stringValue.Length == 0)
+            {
+                return UnityCloudPlayerSettings.s_DefaultAppNamespace;
+            }
+            // Ensure casing is invariant for url transport
+            stringValue = stringValue.ToLowerInvariant();
+            // Remove unsupported characters in a scheme
+            stringValue = Regex.Replace(stringValue, @"[^a-zA-Z0-9\+\.\-]", "", RegexOptions.None, TimeSpan.FromSeconds(1));
+            // Replace any multiple "." with a single "."
+            stringValue = Regex.Replace(stringValue, @"\.{2,}", ".", RegexOptions.None, TimeSpan.FromSeconds(1));
+            // Ensure first character is not a "."
+            if (stringValue.Length > 0 && stringValue[0].Equals('.'))
+            {
+                stringValue = stringValue.TrimStart('.');
+            }
+            // Ensure first character is a letter by prepending "default." expression
+            if (stringValue.Length > 0 && !Regex.IsMatch(stringValue, @"^[a-zA-Z]"))
+            {
+                stringValue = $"replace-me.{stringValue}";
+            }
+            // Ensure end character is not a "."
+            if (stringValue.Length > 0 && stringValue[^1].Equals('.'))
             {
                 stringValue = stringValue.TrimEnd('.');
+            }
+            // If we end up with an empty string
+            if (stringValue.Length == 0)
+            {
+                stringValue = UnityCloudPlayerSettings.s_DefaultAppNamespace;
             }
             return stringValue;
         }
