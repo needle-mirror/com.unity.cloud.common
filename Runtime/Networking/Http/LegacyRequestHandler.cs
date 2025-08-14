@@ -32,25 +32,26 @@ namespace Unity.Cloud.Common.Runtime
         public async Task<HttpResponseMessage> RequestAsync(HttpRequestMessage httpRequestMessage, UploadHandler uploadHandler, HttpCompletionOption completionOption,
             IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
+            // We need to start the job in a new task to make sure it runs on
+            // the Unity context for the calls to the UnityWebRequest to work
+            // properly. It also lets the code use Task.Yield() to yield to the
+            // next frame since the Unity context yield to the next frame by default.
             var factoryTask = await Task.Factory.StartNew(
-                async () => await RequestInternalAsync(httpRequestMessage, uploadHandler, completionOption, progress, cancellationToken),
+                async () =>
+                {
+                    var state = new RequestState(httpRequestMessage, null, null, Timeout);
+
+                    await HandleRequestWithRedirection(state, uploadHandler, completionOption, progress, cancellationToken);
+                    if (completionOption == HttpCompletionOption.ResponseContentRead)
+                        CompleteRequest(state);
+
+                    return state.Response;
+                },
                 cancellationToken,
                 TaskCreationOptions.DenyChildAttach,
                 UnityMainThreadSchedulerGrabber.s_UnityMainThreadScheduler);
 
             return await factoryTask;
-        }
-
-        async Task<HttpResponseMessage> RequestInternalAsync(HttpRequestMessage httpRequestMessage, UploadHandler uploadHandler, HttpCompletionOption completionOption,
-            IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
-        {
-            var state = new RequestState(httpRequestMessage, null, null, Timeout);
-
-            await HandleRequestWithRedirection(state, uploadHandler, completionOption, progress, cancellationToken);
-            if(completionOption == HttpCompletionOption.ResponseContentRead)
-                CompleteRequest(state);
-
-            return state.Response;
         }
 
         static async Task HandleRequestWithRedirection(RequestState state, UploadHandler uploadHandler,  HttpCompletionOption completionOption,
@@ -139,8 +140,15 @@ namespace Unity.Cloud.Common.Runtime
         {
             void TryCompleteRequest(RequestState state, TaskCompletionSource<bool> tcs)
             {
-                if (state.Response.StatusCode != HttpStatusCode.Redirect)
-                    CompleteRequest(state);
+                try
+                {
+                    if (state.Response.StatusCode != HttpStatusCode.Redirect)
+                        CompleteRequest(state);
+                }
+                catch (Exception ex)
+                {
+                    tcs.TrySetException(ex);
+                }
 
                 tcs.TrySetResult(true);
             }
@@ -177,15 +185,16 @@ namespace Unity.Cloud.Common.Runtime
                 }
             }
 
-            var queueStream = new QueueStream();
-            var memoryStreamDownloadHandler = new MemoryStreamDownloadHandler(queueStream.Writer);
-            memoryStreamDownloadHandler.HeadersReceived += () =>
+            var stream = new SingleReaderSingleWriterNativeStream();
+            var downloadHandler = new NativeDownloadHandler(stream);
+
+            downloadHandler.HeadersReceived += () =>
             {
                 SetHeaders(state);
                 onHeadersReceived();
             };
 
-            request.downloadHandler = memoryStreamDownloadHandler;
+            request.downloadHandler = downloadHandler;
             if (uploadHandler != null)
                 request.uploadHandler = uploadHandler;
             request.disposeDownloadHandlerOnDispose = true;
@@ -208,16 +217,18 @@ namespace Unity.Cloud.Common.Runtime
                 request.timeout = state.Timeout.Seconds;
             }
 
-            var response = new SafeHttpResponseMessageAccessor();
-            response.RequestMessage = httpRequestMessage;
-            response.Content = new StreamContent(queueStream.Reader);
-            response.StatusCode = 0;
-            state.Response = response;
+            state.Response =
+                new SafeHttpResponseMessageAccessor
+                {
+                    RequestMessage = httpRequestMessage,
+                    Content = new StreamContent(stream),
+                    StatusCode = 0
+                };
 
-            await HandleRequestAndProgress(state, onCompleted, memoryStreamDownloadHandler, progress);
+            await HandleRequestAndProgress(state, onCompleted, downloadHandler, progress);
         }
 
-        static async Task HandleRequestAndProgress(RequestState state, Action onCompleted, MemoryStreamDownloadHandler memoryStreamDownloadHandler, IProgress<HttpProgress> progress)
+        static async Task HandleRequestAndProgress(RequestState state, Action onCompleted, NativeDownloadHandler downloadHandler, IProgress<HttpProgress> progress)
         {
             var request = state.Request;
             var asyncOp = request.SendWebRequest();
@@ -241,7 +252,7 @@ namespace Unity.Cloud.Common.Runtime
                 await Task.Yield();
             }
 
-            float? finalDownloadProgress = memoryStreamDownloadHandler.DataReceived ? 1 : null;
+            float? finalDownloadProgress = downloadHandler.HasContent ? 1 : null;
             float? finalUploadProgress = isUpload ? 1 : null;
             progress.Report(new HttpProgress(finalDownloadProgress,
                 finalUploadProgress));
@@ -258,12 +269,6 @@ namespace Unity.Cloud.Common.Runtime
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                if (request.downloadHandler is MemoryStreamDownloadHandler memoryStreamDownloadHandler)
-                {
-                    memoryStreamDownloadHandler.ForceCompleteContent();
-                    memoryStreamDownloadHandler.EffectiveDispose();
-                }
-
                 if (request.result == UnityWebRequest.Result.ConnectionError)
                 {
                     var errorMessage = request.error;

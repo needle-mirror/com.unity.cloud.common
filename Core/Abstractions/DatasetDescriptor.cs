@@ -17,6 +17,9 @@ namespace Unity.Cloud.Common
         /// <inheritdoc cref="ProjectDescriptor.ProjectId"/>
         public ProjectId ProjectId => AssetDescriptor.ProjectId;
 
+        /// <inheritdoc cref="Common.AssetDescriptor.AssetLibraryId"/>
+        public AssetLibraryId AssetLibraryId => AssetDescriptor.AssetLibraryId;
+
         /// <inheritdoc cref="AssetDescriptor.AssetId"/>
         public AssetId AssetId => AssetDescriptor.AssetId;
 

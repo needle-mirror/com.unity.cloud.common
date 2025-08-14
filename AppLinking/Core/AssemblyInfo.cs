@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using Unity.Cloud.Common;
 
-[assembly: ApiSourceVersion("com.unity.cloud.app-linking", "1.2.1")]
+[assembly: ApiSourceVersion("com.unity.cloud.app-linking", "1.3.0")]
 #if !(UC_NUGET)
 [assembly: InternalsVisibleTo("Unity.Cloud.AppLinking.Editor")]
 [assembly: InternalsVisibleTo("Unity.Cloud.AppLinking.Tests")]
