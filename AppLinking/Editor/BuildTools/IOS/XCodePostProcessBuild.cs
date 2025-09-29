@@ -34,6 +34,7 @@ namespace Unity.Cloud.AppLinking.Editor
 
                 //  include Safari Framework to support captive Safari Browser usage
                 pbxProject.AddFrameworkToProject(frameworkGuid, "SafariServices.framework", false);
+                pbxProject.AddFrameworkToProject(frameworkGuid, "AuthenticationServices.framework", false);
 
                 pbxProject.WriteToFile(projectPath);
 
