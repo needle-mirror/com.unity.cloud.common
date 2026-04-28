@@ -2,6 +2,7 @@
   * [Prerequisites](prerequisites.md)
   * [Installation](installation.md)
 * [Common Functionality](common-functionality.md)
+* [HTTP client certificate handling](http-client-certificate-handling.md)
 * [Unity Cloud App Linking](index-app-linking.md)
   * [Unity Cloud App Namespace](unity-cloud-app-namespace.md)
   * [URL redirection flows](url-redirection-flows.md)

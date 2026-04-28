@@ -1,6 +1,6 @@
 {
   "name": "com.unity.cloud.common",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "displayName": "Unity Cloud Common",
   "description": "Unity Cloud Common provides functionalities needed by the Unity Cloud SDKs.",
   "unity": "2022.3",
@@ -10,18 +10,18 @@
     "com.unity.modules.imgui": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.cloud.common.tests": "1.6.0"
+    "com.unity.cloud.common.tests": "1.7.0"
   },
   "_upm": {
-    "changelog": "### Changed\n- `DotNetHttpClient` now supports automatic decompression for `Deflate` and `GZip`.\n- `ServiceHostResolver` supports staging cloud environment override from Unity Editor launch argument.\n\n### Fixed\n- Fixed `ServiceHostResolver` internal copy not copying the original service host options."
+    "changelog": "### Added\n- Allow per domain Certificate Handling override in Http Clients.\n\n### Changed\n- Added Platform Specific instructions for App Namespace management when redistributing builds on iOS/MacOS/Android and Windows."
   },
   "upmCi": {
-    "footprint": "129ec5cf8a8b88b503d6a88b4738719b86ea54f3"
+    "footprint": "f3fe3c445944d8e25ba52a5bbb21cde946d49116"
   },
-  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@1.6/manual/index.html",
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@1.7/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/digital-twins-sdk.git",
     "type": "git",
-    "revision": "fd0ee129f972a6c25a2391ca63d25db964485b3f"
+    "revision": "7fcec73b9bb19154bac2de77b65705eb5dd8c9bc"
   }
 }

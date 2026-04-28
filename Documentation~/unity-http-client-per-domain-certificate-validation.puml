@@ -1,0 +1,45 @@
+@startuml
+title UnityHttpClient per-domain certificate validation
+
+actor "Caller" as Caller
+participant "UnityHttpClient" as UHC
+participant "LegacyRequestHandler" as LRH
+participant "ICertificateValidationPolicy" as Policy
+participant "UnityWebRequest" as UWR
+participant "TLS / Server" as TLS
+
+Caller -> UHC : SendAsync(HttpRequestMessage request)
+UHC -> LRH : RequestAsync(request, ...)
+LRH -> UWR : new UnityWebRequest(request.RequestUri, method)
+
+LRH -> Policy : ShouldUseCustomValidation(request.RequestUri)
+alt ShouldUseCustomValidation == true
+    Policy --> LRH : true
+    LRH -> UWR : certificateHandler = PolicyCertificateHandler
+    note right of UWR
+      Custom certificate strategy
+      (for selected domains)
+    end note
+else ShouldUseCustomValidation == false
+    Policy --> LRH : false
+    LRH -> UWR : certificateHandler = null
+    note right of UWR
+      Unity default certificate validation
+      (all other domains)
+    end note
+end
+
+LRH -> UWR : SendWebRequest()
+UWR -> TLS : TLS handshake + cert validation
+TLS --> UWR : handshake result
+UWR --> LRH : response / error
+LRH --> UHC : HttpResponseMessage / exception
+UHC --> Caller : result
+
+note over LRH
+If redirect changes host, repeat
+ShouldUseCustomValidation()
+with the redirected request URI.
+end note
+
+@enduml

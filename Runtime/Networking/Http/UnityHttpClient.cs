@@ -21,17 +21,42 @@ namespace Unity.Cloud.Common.Runtime
         /// <summary>
         /// Initializes and returns an instance of <see cref="UnityHttpClient"/>.
         /// </summary>
-        public UnityHttpClient() : this(k_DefaultMaximumUploadSizeForMemoryStorageBytes)
+        public UnityHttpClient() : this(k_DefaultMaximumUploadSizeForMemoryStorageBytes, null)
         { }
+
+        /// <summary>
+        /// Initializes and returns an instance of <see cref="UnityHttpClient"/>.
+        /// </summary>
+        /// <param name="certificateValidationPolicy">
+        /// Optional certificate validation policy used to apply custom validation rules for selected domains.
+        /// When null, the default platform TLS validation is used.
+        /// </param>
+        public UnityHttpClient(ICertificateValidationPolicy certificateValidationPolicy)
+            : this(k_DefaultMaximumUploadSizeForMemoryStorageBytes, certificateValidationPolicy)
+        {
+        }
 
         /// <summary>
         /// Initializes and returns an instance of <see cref="UnityHttpClient"/>.
         /// </summary>
         /// <param name="maximumUploadSizeForMemoryStorage">The maximum upload size that the client will store in memory.
         /// Bigger payloads will be stored in a temporary file.</param>
-        public UnityHttpClient(long maximumUploadSizeForMemoryStorage)
+        public UnityHttpClient(long maximumUploadSizeForMemoryStorage) : this(maximumUploadSizeForMemoryStorage, null)
         {
-            m_RequestHandler = new LegacyRequestHandler();
+        }
+
+        /// <summary>
+        /// Initializes and returns an instance of <see cref="UnityHttpClient"/>.
+        /// </summary>
+        /// <param name="maximumUploadSizeForMemoryStorage">The maximum upload size that the client will store in memory.
+        /// Bigger payloads will be stored in a temporary file.</param>
+        /// <param name="certificateValidationPolicy">
+        /// Optional certificate validation policy used to apply custom validation rules for selected domains.
+        /// When null, the default platform TLS validation is used.
+        /// </param>
+        public UnityHttpClient(long maximumUploadSizeForMemoryStorage, ICertificateValidationPolicy certificateValidationPolicy)
+        {
+            m_RequestHandler = new LegacyRequestHandler(certificateValidationPolicy);
 
             m_MaximumUploadSizeForMemoryStorage = maximumUploadSizeForMemoryStorage;
         }

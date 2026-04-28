@@ -14,8 +14,14 @@ namespace Unity.Cloud.Common.Runtime
         const string k_ContentLengthHeaderKey = "Content-Length";
         const string k_ContentTypeHeaderKey = "Content-Type";
         const string k_TimeoutErrorMessage = "Request timeout";
+        readonly ICertificateValidationPolicy m_CertificateValidationPolicy;
 
         public TimeSpan Timeout { get; set; }
+
+        public LegacyRequestHandler(ICertificateValidationPolicy certificateValidationPolicy = null)
+        {
+            m_CertificateValidationPolicy = certificateValidationPolicy;
+        }
 
         /// <summary>
         /// Send an asynchronous HTTP request or file download request.
@@ -41,7 +47,7 @@ namespace Unity.Cloud.Common.Runtime
                 {
                     var state = new RequestState(httpRequestMessage, null, null, Timeout);
 
-                    await HandleRequestWithRedirection(state, uploadHandler, completionOption, progress, cancellationToken);
+                    await HandleRequestWithRedirection(state, uploadHandler, m_CertificateValidationPolicy, completionOption, progress, cancellationToken);
                     if (completionOption == HttpCompletionOption.ResponseContentRead)
                         CompleteRequest(state);
 
@@ -54,7 +60,7 @@ namespace Unity.Cloud.Common.Runtime
             return await factoryTask;
         }
 
-        static async Task HandleRequestWithRedirection(RequestState state, UploadHandler uploadHandler,  HttpCompletionOption completionOption,
+        static async Task HandleRequestWithRedirection(RequestState state, UploadHandler uploadHandler, ICertificateValidationPolicy certificateValidationPolicy, HttpCompletionOption completionOption,
             IProgress<HttpProgress> progress, CancellationToken cancellationToken)
         {
             /*
@@ -78,9 +84,9 @@ namespace Unity.Cloud.Common.Runtime
                 }
 
                 if (completionOption == HttpCompletionOption.ResponseContentRead)
-                    await ProcessRequestWithResponseContentReadOption(state, uploadHandler, progress, cancellationToken);
+                    await ProcessRequestWithResponseContentReadOption(state, uploadHandler, certificateValidationPolicy, progress, cancellationToken);
                 else
-                    await ProcessRequestWithResponseHeadersReadOption(state, uploadHandler, progress, cancellationToken);
+                    await ProcessRequestWithResponseHeadersReadOption(state, uploadHandler, certificateValidationPolicy, progress, cancellationToken);
 
                 if (cancellationToken.IsCancellationRequested)
                     throw new TaskCanceledException();
@@ -126,16 +132,16 @@ namespace Unity.Cloud.Common.Runtime
             state.HttpRequestMessage.Method = state.OriginalHttpRequestMessage.Method;
         }
 
-        static async Task ProcessRequestWithResponseContentReadOption(RequestState state, UploadHandler uploadHandler,
+        static async Task ProcessRequestWithResponseContentReadOption(RequestState state, UploadHandler uploadHandler, ICertificateValidationPolicy certificateValidationPolicy,
             IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             await PrepareAndStartRequest(state, () => { }, () => tcs.TrySetResult(true),
-                uploadHandler, progress, cancellationToken);
+                uploadHandler, certificateValidationPolicy, progress, cancellationToken);
             await tcs.Task;
         }
 
-        static async Task ProcessRequestWithResponseHeadersReadOption(RequestState state, UploadHandler uploadHandler,
+        static async Task ProcessRequestWithResponseHeadersReadOption(RequestState state, UploadHandler uploadHandler, ICertificateValidationPolicy certificateValidationPolicy,
             IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
             void TryCompleteRequest(RequestState state, TaskCompletionSource<bool> tcs)
@@ -155,16 +161,18 @@ namespace Unity.Cloud.Common.Runtime
 
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             await PrepareAndStartRequest(state, () => tcs.TrySetResult(true),
-                () => TryCompleteRequest(state, tcs), uploadHandler, progress, cancellationToken);
+                () => TryCompleteRequest(state, tcs), uploadHandler, certificateValidationPolicy, progress, cancellationToken);
             await tcs.Task;
         }
 
         static async Task PrepareAndStartRequest(RequestState state, Action onHeadersReceived, Action onCompleted, UploadHandler uploadHandler,
+            ICertificateValidationPolicy certificateValidationPolicy,
             IProgress<HttpProgress> progress = default, CancellationToken cancellationToken = default)
         {
             var httpRequestMessage = state.HttpRequestMessage;
 
             var request = new UnityWebRequest(httpRequestMessage.RequestUri, httpRequestMessage.Method.ToString());
+            ApplyCertificateValidationPolicy(request, httpRequestMessage.RequestUri, certificateValidationPolicy);
             state.Request = request;
 
             foreach (var header in httpRequestMessage.Headers)
@@ -226,6 +234,15 @@ namespace Unity.Cloud.Common.Runtime
                 };
 
             await HandleRequestAndProgress(state, onCompleted, downloadHandler, progress);
+        }
+
+        static void ApplyCertificateValidationPolicy(UnityWebRequest request, Uri requestUri, ICertificateValidationPolicy certificateValidationPolicy)
+        {
+            if (certificateValidationPolicy == null || requestUri == null || !certificateValidationPolicy.ShouldUseCustomValidation(requestUri))
+                return;
+
+            request.certificateHandler = new PolicyCertificateHandler(certificateValidationPolicy, requestUri);
+            request.disposeCertificateHandlerOnDispose = true;
         }
 
         static async Task HandleRequestAndProgress(RequestState state, Action onCompleted, NativeDownloadHandler downloadHandler, IProgress<HttpProgress> progress)
@@ -345,6 +362,23 @@ namespace Unity.Cloud.Common.Runtime
                 Request = request;
                 Response = response;
                 Timeout = timeout;
+            }
+        }
+
+        class PolicyCertificateHandler : CertificateHandler
+        {
+            readonly ICertificateValidationPolicy m_CertificateValidationPolicy;
+            readonly Uri m_RequestUri;
+
+            public PolicyCertificateHandler(ICertificateValidationPolicy certificateValidationPolicy, Uri requestUri)
+            {
+                m_CertificateValidationPolicy = certificateValidationPolicy;
+                m_RequestUri = requestUri;
+            }
+
+            protected override bool ValidateCertificate(byte[] certificateData)
+            {
+                return m_CertificateValidationPolicy.ValidateCertificate(m_RequestUri, certificateData);
             }
         }
 

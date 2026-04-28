@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,14 +20,28 @@ namespace Unity.Cloud.Common
         const string k_TimeoutMessage = "The operation has timed out.";
 
         HttpClient m_HttpClient;
+        readonly ICertificateValidationPolicy m_CertificateValidationPolicy;
 
         /// <summary>
         /// Initializes and returns an instance of <see cref="DotNetHttpClient"/>.
         /// </summary>
-        public DotNetHttpClient()
+        public DotNetHttpClient() : this(null)
         {
+        }
+
+        /// <summary>
+        /// Initializes and returns an instance of <see cref="DotNetHttpClient"/>.
+        /// </summary>
+        /// <param name="certificateValidationPolicy">
+        /// Optional certificate validation policy used to apply custom validation rules for selected domains.
+        /// When null, the default platform TLS validation is used.
+        /// </param>
+        public DotNetHttpClient(ICertificateValidationPolicy certificateValidationPolicy)
+        {
+            m_CertificateValidationPolicy = certificateValidationPolicy;
             var handler = new HttpClientHandler();
             handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+            handler.ServerCertificateCustomValidationCallback = ValidateServerCertificate;
             m_HttpClient = new HttpClient(handler);
         }
 
@@ -192,6 +208,14 @@ namespace Unity.Cloud.Common
                 clone.Headers.Add(header.Key, header.Value);
 
             return clone;
+        }
+
+        bool ValidateServerCertificate(HttpRequestMessage request, X509Certificate2 certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            if (m_CertificateValidationPolicy == null || !m_CertificateValidationPolicy.ShouldUseCustomValidation(request?.RequestUri))
+                return sslPolicyErrors == SslPolicyErrors.None;
+
+            return m_CertificateValidationPolicy.ValidateDotNetCertificate(request, certificate, chain, sslPolicyErrors);
         }
     }
 }

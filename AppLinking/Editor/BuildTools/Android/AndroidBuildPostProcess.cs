@@ -86,8 +86,25 @@ namespace Unity.Cloud.AppLinking.Editor
 
         internal void AddDeepLinkIntents(XmlNode mainActivity)
         {
+            if (mainActivity == null)
+                return;
+
+            EnsureActivityExportedForDeepLinks(mainActivity);
             var reflectSchemeIntent = CreateAppLinkIntentFilter();
             mainActivity.AppendChild(reflectSchemeIntent);
+        }
+
+        /// <summary>
+        /// Activities with intent-filters that handle external VIEW intents (e.g. from a browser) must declare
+        /// <c>android:exported="true"</c> when targeting API 31+.
+        /// </summary>
+        internal void EnsureActivityExportedForDeepLinks(XmlNode activityNode)
+        {
+            var activity = activityNode as XmlElement;
+            if (activity == null)
+                return;
+
+            activity.SetAttribute("exported", AndroidXmlNamespace, "true");
         }
 
         internal XmlElement CreateAppLinkIntentFilter()

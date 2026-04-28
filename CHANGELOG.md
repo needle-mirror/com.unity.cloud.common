@@ -5,6 +5,14 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-04-28
+
+### Added
+- Allow per domain Certificate Handling override in Http Clients.
+
+### Changed
+- Added Platform Specific instructions for App Namespace management when redistributing builds on iOS/MacOS/Android and Windows.
+
 ## [1.6.0] - 2025-12-09
 
 ### Changed
