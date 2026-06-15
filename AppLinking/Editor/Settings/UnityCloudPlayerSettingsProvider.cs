@@ -12,7 +12,7 @@ namespace Unity.Cloud.AppLinking.Editor
     internal class UnityCloudPlayerSettingsProvider : SettingsProvider
     {
         const string k_ResourcesDirectory = "Assets/Unity Cloud/Resources/";
-        static readonly string k_AssetPath = $"{k_ResourcesDirectory}{UnityCloudPlayerSettings.k_AssetName}.asset";
+        static readonly string k_AssetPath = $"{k_ResourcesDirectory}{UnityCloudPlayerSettings.s_AssetName}.asset";
 
         UnityCloudPlayerSettingsEditor m_UnityCloudPlayerSettingsEditor;
 
@@ -38,7 +38,7 @@ namespace Unity.Cloud.AppLinking.Editor
         /// <inheritdoc/>
         public override void OnActivate(string searchContext, VisualElement rootElement)
         {
-            var settings = Resources.Load<UnityCloudPlayerSettings>(UnityCloudPlayerSettings.k_AssetName);
+            var settings = Resources.Load<UnityCloudPlayerSettings>(UnityCloudPlayerSettings.s_AssetName);
 
             if (settings == null)
             {

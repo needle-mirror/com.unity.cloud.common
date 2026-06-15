@@ -40,7 +40,7 @@ namespace Unity.Cloud.AppLinking.Runtime
         [Obsolete("Property will be removed in future version.")]
         public const string k_DefaultNamespace = "com.unity.cloud";
 
-        static readonly string s_AssetName = "UnityCloudPlayerSettings";
+        internal static readonly string s_AssetName = "UnityCloudPlayerSettings";
         internal static readonly string s_DefaultAppNamespace = "default";
         internal static readonly string s_DefaultAppName = "Default";
         internal static readonly string s_DefaultAppDisplayName = "Default";

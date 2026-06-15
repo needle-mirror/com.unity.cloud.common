@@ -20,7 +20,7 @@ Certificate validation is an optional configuration on `UnityHttpClient` and `Do
 
 ### Lay out files under `Assets/CertificatePins/`
 
-1. Create **`Assets/CertificatePins/`** if it does not exist.
+1. In **Edit > Project Settings > Services > SSL Certificate**, enable **Certificate Pinning**. This automatically creates `Assets/CertificatePins/` in your project. Disabling the toggle removes the generated `BuiltPinManifest.txt`.
 2. For each host you want to pin, add a **subfolder whose name is the DNS hostname** (same string as `Uri.Host` after parsing your HTTPS URLs).
 3. Put one or more **`.pem`** files in that folder (for example `pubkey.pem`). Multiple keys per host are supported (for example, to support rotation); the handshake succeeds if the server’s SPKI matches **any** loaded pin.
 

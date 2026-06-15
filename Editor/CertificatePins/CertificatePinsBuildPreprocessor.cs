@@ -15,7 +15,6 @@ namespace Unity.Cloud.Common.Editor
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            UnityEngine.Debug.Log("OnPreprocessBuild CertificatePinsBuildPreprocessor");
             CertificatePinsManifestGenerator.GenerateManifestFromPemSources();
         }
     }

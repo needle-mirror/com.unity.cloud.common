@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
+#if UNITY_2022_3_OR_NEWER
+using UnityEngine.Scripting;
+#endif
 
 namespace Unity.Cloud.Common
 {
     /// <summary>
     /// Object that holds the information associated to a single log
     /// </summary>
+    [Preserve]
     public class LogEvent
     {
         /// <summary>

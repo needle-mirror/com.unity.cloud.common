@@ -165,7 +165,7 @@ namespace Unity.Cloud.Common.Runtime
             if (!X509SubjectPublicKeyInfoExtractor.TryExtractFromCertificateDer(serverCertificateDer, out var serverSpki) ||
                 serverSpki == null || serverSpki.Length == 0)
             {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarning(
                     $"{k_ManifestLogTag} Could not extract SPKI from server certificate (DER length={serverCertificateDer.Length}).");
 #endif
@@ -174,7 +174,7 @@ namespace Unity.Cloud.Common.Runtime
 
             var computedHex = SpkiPublicKeyPinComputation.ComputeSha256Hex(serverSpki);
             var matched = pins.SpkiSha256Hex.Contains(computedHex);
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             if (!matched)
             {
                 Debug.LogWarning(

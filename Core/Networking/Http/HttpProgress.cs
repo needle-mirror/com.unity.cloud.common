@@ -1,8 +1,13 @@
+#if UNITY_2022_3_OR_NEWER
+using UnityEngine.Scripting;
+#endif
+
 namespace Unity.Cloud.Common
 {
     /// <summary>
     /// Contains status information on the progress of an IHttpClient operation.
     /// </summary>
+    [Preserve]
     public struct HttpProgress
     {
         /// <summary>

@@ -4,6 +4,9 @@ using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Text;
+#if UNITY_2022_3_OR_NEWER
+using UnityEngine.Scripting;
+#endif
 
 namespace Unity.Cloud.Common
 {
@@ -17,15 +20,20 @@ namespace Unity.Cloud.Common
     [ServiceError(ServiceErrorCode.Conflict)]
     [ServiceError(ServiceErrorCode.FailedDependency, HttpStatusCode.FailedDependency)]
     [ServiceError(ServiceErrorCode.MethodNotAllowed, HttpStatusCode.BadRequest)]
+    [Preserve]
     public class ServiceException : Exception
     {
         internal class ErrorMessageDetail
         {
+            [RequiredMember]
             public string errorCode { get; set; }
+
+            [RequiredMember]
             public string errorMessage { get; set; }
         }
 
         ServiceError m_ServiceError { get; set; } = new () { Code = ServiceErrorCode.Unknown };
+
         IEnumerable<string> m_Details;
 
         /// <summary>
@@ -72,6 +80,7 @@ namespace Unity.Cloud.Common
         /// Creates and returns a <see cref="ServiceException"/> from the provided <see cref="ServiceError"/>.
         /// </summary>
         /// <param name="error">The service error.</param>
+        [RequiredMember]
         internal ServiceException(ServiceError error) : base(error.ToString())
         {
             SetServiceError(error);
@@ -82,6 +91,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="error">The service error.</param>
         /// <param name="innerException">The inner exception.</param>
+        [RequiredMember]
         internal ServiceException(ServiceError error, Exception innerException) : base(error.ToString(), innerException)
         {
             SetServiceError(error);
@@ -133,6 +143,7 @@ namespace Unity.Cloud.Common
     /// The request could not be processed.
     /// </summary>
     [Serializable]
+    [Preserve]
     public class ServiceClientException : ServiceException
     {
         internal const string k_DefaultMessage = "The request could not be processed";
@@ -147,6 +158,7 @@ namespace Unity.Cloud.Common
         /// Creates an instance from the provided <see cref="ServiceError"/>.
         /// </summary>
         /// <param name="error">The service error.</param>
+        [RequiredMember]
         internal ServiceClientException(ServiceError error)
             : base(error) {}
 
@@ -155,6 +167,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="error">The service error.</param>
         /// <param name="innerException">The inner exception.</param>
+        [RequiredMember]
         internal ServiceClientException(ServiceError error, Exception innerException)
             : base(error, innerException) {}
 
@@ -186,6 +199,7 @@ namespace Unity.Cloud.Common
     /// This exception is thrown if the connection to the server fails.
     /// </summary>
     [Serializable]
+    [Preserve]
     public class ConnectionException : ServiceException
     {
         internal const string k_DefaultMessage = "A connection to the server could not be established.";
@@ -200,6 +214,7 @@ namespace Unity.Cloud.Common
         /// Creates an instance from the provided <see cref="ServiceError"/>.
         /// </summary>
         /// <param name="error">The service error.</param>
+        [RequiredMember]
         internal ConnectionException(ServiceError error)
             : base(error) {}
 
@@ -208,6 +223,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="error">The service error.</param>
         /// <param name="innerException">The inner exception.</param>
+        [RequiredMember]
         internal ConnectionException(ServiceError error, Exception innerException)
             : base(error, innerException) {}
 
@@ -240,6 +256,7 @@ namespace Unity.Cloud.Common
     /// </summary>
     [Serializable]
     [ServiceError(HttpStatusCode.Unauthorized)]
+    [Preserve]
     public class UnauthorizedException : ServiceException
     {
         internal const string k_DefaultMessage = "Not authorized to access service.";
@@ -254,6 +271,7 @@ namespace Unity.Cloud.Common
         /// Creates an instance from the provided <see cref="ServiceError"/>.
         /// </summary>
         /// <param name="error">The service error.</param>
+        [RequiredMember]
         internal UnauthorizedException(ServiceError error)
             : base(error) {}
 
@@ -262,6 +280,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="error">The service error.</param>
         /// <param name="innerException">The inner exception.</param>
+        [RequiredMember]
         internal UnauthorizedException(ServiceError error, Exception innerException)
             : base(error, innerException) {}
 
@@ -296,6 +315,7 @@ namespace Unity.Cloud.Common
     [ServiceError(HttpStatusCode.Forbidden)]
     [ServiceError(ServiceErrorCode.Forbidden, HttpStatusCode.Forbidden)]
     [ServiceError(ServiceErrorCode.NoPermission, HttpStatusCode.Forbidden)]
+    [Preserve]
     public class ForbiddenException : ServiceException
     {
         internal const string k_DefaultMessage = "Access forbidden.";
@@ -310,6 +330,7 @@ namespace Unity.Cloud.Common
         /// Creates an instance from the provided <see cref="ServiceError"/>.
         /// </summary>
         /// <param name="error">The service error.</param>
+        [RequiredMember]
         internal ForbiddenException(ServiceError error)
             : base(error) {}
 
@@ -318,6 +339,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="error">The service error.</param>
         /// <param name="innerException">The inner exception.</param>
+        [RequiredMember]
         internal ForbiddenException(ServiceError error, Exception innerException)
             : base(error, innerException) {}
 
@@ -351,6 +373,7 @@ namespace Unity.Cloud.Common
     [Serializable]
     [ServiceError(ServiceErrorCode.InvalidToken, HttpStatusCode.Unauthorized)]
     [ServiceError(ServiceErrorCode.TokenExpired, HttpStatusCode.Unauthorized)]
+    [Preserve]
     public class AuthenticationFailedException : ServiceException
     {
         internal const string k_DefaultMessage = "Authentication failed.";
@@ -365,6 +388,7 @@ namespace Unity.Cloud.Common
         /// Creates an instance from the provided <see cref="ServiceError"/>.
         /// </summary>
         /// <param name="error">The service error.</param>
+        [RequiredMember]
         internal AuthenticationFailedException(ServiceError error)
             : base(error) {}
 
@@ -373,6 +397,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="error">The service error.</param>
         /// <param name="innerException">The inner exception.</param>
+        [RequiredMember]
         internal AuthenticationFailedException(ServiceError error, Exception innerException)
             : base(error, innerException) {}
 
@@ -407,6 +432,7 @@ namespace Unity.Cloud.Common
     [ServiceError(ServiceErrorCode.ApiMissing, HttpStatusCode.NotFound)]
     [ServiceError(ServiceErrorCode.NotFound, HttpStatusCode.NotFound)]
     [ServiceError(HttpStatusCode.NotFound)]
+    [Preserve]
     public class NotFoundException : ServiceException
     {
         internal const string k_DefaultMessage = "The service or resource was not found.";
@@ -421,6 +447,7 @@ namespace Unity.Cloud.Common
         /// Creates an instance from the provided <see cref="ServiceError"/>.
         /// </summary>
         /// <param name="error">The service error.</param>
+        [RequiredMember]
         internal NotFoundException(ServiceError error)
             : base(error) {}
 
@@ -429,6 +456,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="error">The service error.</param>
         /// <param name="innerException">The inner exception.</param>
+        [RequiredMember]
         internal NotFoundException(ServiceError error, Exception innerException)
             : base(error, innerException) {}
 
@@ -461,6 +489,7 @@ namespace Unity.Cloud.Common
     /// </summary>
     [Serializable]
     [ServiceError(HttpStatusCode.BadRequest)]
+    [Preserve]
     public class InvalidArgumentException : ServiceException
     {
         internal const string k_DefaultMessage = "Invalid argument.";
@@ -475,6 +504,7 @@ namespace Unity.Cloud.Common
         /// Creates an instance from the provided <see cref="ServiceError"/>.
         /// </summary>
         /// <param name="error">The service error.</param>
+        [RequiredMember]
         internal InvalidArgumentException(ServiceError error)
             : base(error) {}
 
@@ -483,6 +513,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="error">The service error.</param>
         /// <param name="innerException">The inner exception.</param>
+        [RequiredMember]
         internal InvalidArgumentException(ServiceError error, Exception innerException)
             : base(error, innerException) {}
 
@@ -515,6 +546,7 @@ namespace Unity.Cloud.Common
     /// </summary>
     [Serializable]
     [ServiceError(HttpStatusCode.InternalServerError)]
+    [Preserve]
     public class ServerException : ServiceException
     {
         internal const string k_DefaultMessage = "The server encountered an unexpected error.";
@@ -529,6 +561,7 @@ namespace Unity.Cloud.Common
         /// Creates an instance from the provided <see cref="ServiceError"/>.
         /// </summary>
         /// <param name="error">The service error.</param>
+        [RequiredMember]
         internal ServerException(ServiceError error)
             : base(error) {}
 
@@ -537,6 +570,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="error">The service error.</param>
         /// <param name="innerException">The inner exception.</param>
+        [RequiredMember]
         internal ServerException(ServiceError error, Exception innerException)
             : base(error, innerException) {}
 
@@ -571,6 +605,7 @@ namespace Unity.Cloud.Common
     [ServiceError(ServiceErrorCode.TransportError, HttpStatusCode.InternalServerError)]
     [ServiceError(ServiceErrorCode.Timeout, HttpStatusCode.GatewayTimeout)]
     [ServiceError(ServiceErrorCode.ServiceUnavailable, HttpStatusCode.ServiceUnavailable)]
+    [Preserve]
     public class TransientServiceException : ServiceException
     {
         internal const string k_DefaultMessage = "Reaching the service has failed.";
@@ -585,6 +620,7 @@ namespace Unity.Cloud.Common
         /// Creates an instance from the provided <see cref="ServiceError"/>.
         /// </summary>
         /// <param name="error">The service error.</param>
+        [RequiredMember]
         internal TransientServiceException(ServiceError error)
             : base(error) {}
 
@@ -593,6 +629,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="error">The service error.</param>
         /// <param name="innerException">The inner exception.</param>
+        [RequiredMember]
         internal TransientServiceException(ServiceError error, Exception innerException)
             : base(error, innerException) {}
 
@@ -625,6 +662,7 @@ namespace Unity.Cloud.Common
     /// </summary>
     [Serializable]
     [ServiceError(ServiceErrorCode.TooManyRequests, HttpStatusCode.TooManyRequests)]
+    [Preserve]
     public class TooManyRequestsException : ServiceException
     {
         internal const string k_DefaultMessage = "Too many requests.";
@@ -639,6 +677,7 @@ namespace Unity.Cloud.Common
         /// Creates an instance from the provided <see cref="ServiceError"/>.
         /// </summary>
         /// <param name="error">The service error.</param>
+        [RequiredMember]
         internal TooManyRequestsException(ServiceError error)
             : base(error) {}
 
@@ -647,6 +686,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="error">The service error.</param>
         /// <param name="innerException">The inner exception.</param>
+        [RequiredMember]
         internal TooManyRequestsException(ServiceError error, Exception innerException)
             : base(error, innerException) {}
 
@@ -679,6 +719,7 @@ namespace Unity.Cloud.Common
     /// </summary>
     [Serializable]
     [ServiceError(ServiceErrorCode.InvalidRequest, HttpStatusCode.BadRequest)]
+    [Preserve]
     public class InvalidRequestException : ServiceException
     {
         internal const string k_DefaultMessage = "The request was not valid.";
@@ -693,6 +734,7 @@ namespace Unity.Cloud.Common
         /// Creates an instance from the provided <see cref="ServiceError"/>.
         /// </summary>
         /// <param name="error">The service error.</param>
+        [RequiredMember]
         internal InvalidRequestException(ServiceError error)
             : base(error) {}
 
@@ -701,6 +743,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="error">The service error.</param>
         /// <param name="innerException">The inner exception.</param>
+        [RequiredMember]
         internal InvalidRequestException(ServiceError error, Exception innerException)
             : base(error, innerException) {}
 
@@ -733,6 +776,7 @@ namespace Unity.Cloud.Common
     /// </summary>
     [Serializable]
     [ServiceError(ServiceErrorCode.PayloadTooLarge, HttpStatusCode.BadRequest)]
+    [Preserve]
     public class PayloadTooLargeException : ServiceException
     {
         internal const string k_DefaultMessage = "The payload is too large.";
@@ -747,6 +791,7 @@ namespace Unity.Cloud.Common
         /// Creates an instance from the provided <see cref="ServiceError"/>.
         /// </summary>
         /// <param name="error">The service error.</param>
+        [RequiredMember]
         internal PayloadTooLargeException(ServiceError error)
             : base(error) {}
 
@@ -755,6 +800,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="error">The service error.</param>
         /// <param name="innerException">The inner exception.</param>
+        [RequiredMember]
         internal PayloadTooLargeException(ServiceError error, Exception innerException)
             : base(error, innerException) {}
 
@@ -787,6 +833,7 @@ namespace Unity.Cloud.Common
     /// </summary>
     [Serializable]
     [ServiceError(ServiceErrorCode.UnsupportedMediaType, HttpStatusCode.UnsupportedMediaType)]
+    [Preserve]
     public class UnsupportedMediaTypeException : ServiceException
     {
         internal const string k_DefaultMessage = "The media type is not supported.";
@@ -801,6 +848,7 @@ namespace Unity.Cloud.Common
         /// Creates an instance from the provided <see cref="ServiceError"/>.
         /// </summary>
         /// <param name="error">The service error.</param>
+        [RequiredMember]
         internal UnsupportedMediaTypeException(ServiceError error)
             : base(error) {}
 
@@ -809,6 +857,7 @@ namespace Unity.Cloud.Common
         /// </summary>
         /// <param name="error">The service error.</param>
         /// <param name="innerException">The inner exception.</param>
+        [RequiredMember]
         internal UnsupportedMediaTypeException(ServiceError error, Exception innerException)
             : base(error, innerException) {}
 

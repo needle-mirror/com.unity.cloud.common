@@ -5,6 +5,15 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-06-15
+
+### Added
+- New `Services/SSL Certificate` entry in the Player settings to activate certificate pinning policies in the runtime.
+- Static boolean `CertificatePinning.HasBuiltInManifest` to provide runtime information about the certificate pinning configuration built into the application.
+
+### Fixed
+- Fixed IL2CPP code stripping issue by adding preserve attributes to serializable types.
+
 ## [1.7.0] - 2026-04-28
 
 ### Added

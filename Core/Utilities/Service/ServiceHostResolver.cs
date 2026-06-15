@@ -53,6 +53,10 @@ namespace Unity.Cloud.Common
             : this(ReadSystemOverrides(), applicationOverride ?? new ServiceHost(), domainResolver ?? new ServiceDomainResolver())
         {}
 
+        // Pairs with the obsolete IServiceHostResolver overload of CreateCopyWithDomainResolverOverride.
+        // Marked [Obsolete] so the call to the obsolete IServiceHostResolver.GetResolvedServiceHost()
+        // extension does not warn (calls to obsolete code from obsolete code are silent).
+        [Obsolete("Internal constructor backing the obsolete IServiceHostResolver-based public API. Use the ServiceHostResolver-typed overload.")]
         internal ServiceHostResolver(IServiceHostResolver other, IServiceDomainResolver overrideDomainResolver = null)
         : this(other.GetResolvedServiceHost(), overrideDomainResolver)
         {}

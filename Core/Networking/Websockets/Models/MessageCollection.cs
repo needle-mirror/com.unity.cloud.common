@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+#if UNITY_2022_3_OR_NEWER
+using UnityEngine.Scripting;
+#endif
 
 namespace Unity.Cloud.Common
 {
@@ -8,6 +11,7 @@ namespace Unity.Cloud.Common
     /// Object used to store multiple Message objects and corresponding checkpoints
     /// </summary>
     [Serializable]
+    [Preserve]
     public class MessageCollection
     {
         /// <summary>

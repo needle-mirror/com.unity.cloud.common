@@ -2,12 +2,16 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+#if UNITY_2022_3_OR_NEWER
+using UnityEngine.Scripting;
+#endif
 
 namespace Unity.Cloud.Common
 {
     /// <summary>
     /// This class handles launch arguments parsing of the current running process.
     /// </summary>
+    [Preserve]
     public class LaunchArgumentsParser
     {
         /// <summary>

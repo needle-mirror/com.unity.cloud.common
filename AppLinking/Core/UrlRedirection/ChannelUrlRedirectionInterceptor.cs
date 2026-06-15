@@ -58,7 +58,9 @@ namespace Unity.Cloud.AppLinking
         }
 
         /// <inheritdoc />
+#pragma warning disable CS0067 // Event is part of the IUrlRedirectionInterceptor interface contract; this implementation never raises it.
         public event Action<Uri> DeepLinkForwarded;
+#pragma warning restore CS0067
 
         /// <inheritdoc />
         public ProcessId GetRedirectProcessId()

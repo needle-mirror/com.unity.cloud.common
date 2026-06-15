@@ -20,7 +20,6 @@ namespace Unity.Cloud.Common.Editor
         static void OnPlayModeStateChanged(PlayModeStateChange state)
         {
             if (state == PlayModeStateChange.ExitingEditMode) {
-                UnityEngine.Debug.Log("OnPlayModeStateChanged CertificatePinsPlayModeHook");
                 CertificatePinsManifestGenerator.GenerateManifestFromPemSources();
             }
         }

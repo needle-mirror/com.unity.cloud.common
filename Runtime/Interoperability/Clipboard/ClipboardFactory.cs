@@ -13,7 +13,7 @@ namespace Unity.Cloud.Common.Runtime
         /// <returns>An <see cref="IClipboard"/> implementation for the current platform.</returns>
         public static IClipboard Create()
         {
-#if UNITY_WEBGL
+#if UNITY_WEBGL && !UNITY_EDITOR
             return new BrowserClipboard();
 #else
             return new UnityClipboard();

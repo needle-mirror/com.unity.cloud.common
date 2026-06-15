@@ -1,4 +1,7 @@
 using System;
+#if UNITY_2022_3_OR_NEWER
+using UnityEngine.Scripting;
+#endif
 
 namespace Unity.Cloud.Common
 {
@@ -6,6 +9,7 @@ namespace Unity.Cloud.Common
     /// Object used to contain messaging information
     /// </summary>
     [Serializable]
+    [Preserve]
     public class Message
     {
         /// <summary>

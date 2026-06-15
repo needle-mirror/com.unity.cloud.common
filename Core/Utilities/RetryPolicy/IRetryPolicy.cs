@@ -1,6 +1,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+#if UNITY_2022_3_OR_NEWER
+using UnityEngine.Scripting;
+#endif
 
 namespace Unity.Cloud.Common
 {
@@ -9,6 +12,7 @@ namespace Unity.Cloud.Common
     /// Contains information about a RetryQueue event, when using <see cref="IRetryPolicy.ExecuteAsync{T}(IRetryPolicy.RetriedOperation{T}, IRetryPolicy.ShouldRetryChecker{T}, CancellationToken, IProgress{RetryQueuedProgress})"/>
     /// or its additional extensions.
     /// </summary>
+    [Preserve]
     public readonly struct RetryQueuedProgress
     {
         /// <summary>

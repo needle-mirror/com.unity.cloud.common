@@ -1,4 +1,7 @@
 using System;
+#if UNITY_2022_3_OR_NEWER
+using UnityEngine.Scripting;
+#endif
 
 namespace Unity.Cloud.Common
 {
@@ -6,6 +9,7 @@ namespace Unity.Cloud.Common
     /// The schema for URI modification requests.
     /// </summary>
     [Serializable]
+    [Preserve]
     class HttpRequestUriModifierSchema
     {
         public HttpRequestUriModifierRequestSchema[] Requests { get; set; }
@@ -15,6 +19,7 @@ namespace Unity.Cloud.Common
     /// The request schema for URI modification, which includes a filter and a replacement.
     /// </summary>
     [Serializable]
+    [Preserve]
     class HttpRequestUriModifierRequestSchema
     {
         public HttpRequestUriModifierFilterSchema Filter { get; set; }
@@ -25,6 +30,7 @@ namespace Unity.Cloud.Common
     /// The schema for URI filtering.
     /// </summary>
     [Serializable]
+    [Preserve]
     class HttpRequestUriModifierFilterSchema
     {
         public string UriProperty { get; set; }
@@ -35,6 +41,7 @@ namespace Unity.Cloud.Common
     /// The schema for URI property replacement.
     /// </summary>
     [Serializable]
+    [Preserve]
     class HttpRequestUriModifierReplaceSchema
     {
         public string Host { get; set; }

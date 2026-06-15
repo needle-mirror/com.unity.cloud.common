@@ -12,7 +12,7 @@ namespace Unity.Cloud.Common.Runtime
         /// <exception cref="PlatformNotSupportedException">Thrown if used in a Unity WebGL execution context.</exception>
         internal UnityClipboard()
         {
-#if UNITY_WEBGL
+#if UNITY_WEBGL && !UNITY_EDITOR
             throw new PlatformNotSupportedException();
 #endif
         }

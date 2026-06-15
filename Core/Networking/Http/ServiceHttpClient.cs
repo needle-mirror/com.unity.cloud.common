@@ -3,12 +3,16 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+#if UNITY_2022_3_OR_NEWER
+using UnityEngine.Scripting;
+#endif
 
 namespace Unity.Cloud.Common
 {
     /// <summary>
     /// A class to configure options for a <see cref="IServiceHttpClient"/>
     /// </summary>
+    [Preserve]
     public struct ServiceHttpClientOptions
     {
         /// <summary>

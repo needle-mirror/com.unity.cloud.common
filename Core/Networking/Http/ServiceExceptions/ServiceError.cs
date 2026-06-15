@@ -1,5 +1,8 @@
 using System;
 using System.Net;
+#if UNITY_2022_3_OR_NEWER
+using UnityEngine.Scripting;
+#endif
 
 namespace Unity.Cloud.Common
 {
@@ -7,6 +10,7 @@ namespace Unity.Cloud.Common
     /// Represents an error returned by a service. Defined in https://services.docs.unity.com/docs/errors/index.html#error-attributes.
     /// </summary>
     [Serializable]
+    [Preserve]
     class ServiceError
     {
         /// <summary>
