@@ -1,6 +1,6 @@
 {
   "name": "com.unity.cloud.common",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "displayName": "Unity Cloud Common",
   "description": "Unity Cloud Common provides functionalities needed by the Unity Cloud SDKs.",
   "unity": "2022.3",
@@ -10,18 +10,18 @@
     "com.unity.modules.imgui": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.cloud.common.tests": "1.8.0"
+    "com.unity.cloud.common.tests": "1.8.1"
   },
   "_upm": {
-    "changelog": "### Added\n- New `Services/SSL Certificate` entry in the Player settings to activate certificate pinning policies in the runtime.\n- Static boolean `CertificatePinning.HasBuiltInManifest` to provide runtime information about the certificate pinning configuration built into the application.\n\n### Fixed\n- Fixed IL2CPP code stripping issue by adding preserve attributes to serializable types."
+    "changelog": "### Fixed\n- Fixed `UnityWebRequest` instances leaking in the legacy HTTP handler on redirected requests and on responses disposed before their body was read."
   },
   "upmCi": {
-    "footprint": "4646657ce0364c5452f4b00c8892d83db47ea801"
+    "footprint": "086ab4737cb0da4842ab574bd5a82464038b8bd6"
   },
   "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.cloud.common@1.8/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/digital-twins-sdk.git",
     "type": "git",
-    "revision": "ae137ab453dc5256a98d8a24b14839e7f6cef243"
+    "revision": "93f3bad0154677e61eb7c3a27e8353dd771d0eb9"
   }
 }

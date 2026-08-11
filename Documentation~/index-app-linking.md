@@ -12,7 +12,7 @@ Some of the features provided by Unity Cloud App Linking include:
 Unity Cloud App Linking supports the following Unity Cloud packages:
 
 - **Unity Cloud Identity:** Supports the manual browser authentication flow where an installed application invokes the default OS browser and expects a response from it.
-- **Unity Cloud Deep Linking:** Provides the application framework required to activate an application from deep links.
+- **Unity Deep Linking:** Provides the application framework required to activate an application from deep links.
 
 ## Platform Specific Requirements for Distribution or Runtime Builds
 

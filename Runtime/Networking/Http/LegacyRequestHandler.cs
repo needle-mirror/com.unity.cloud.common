@@ -77,10 +77,15 @@ namespace Unity.Cloud.Common.Runtime
             while (responseStatusCode == HttpStatusCode.Redirect && httpRedirectionCount < maxHttpRedirection)
             {
                 // After first redirection
-                if (httpRedirectionCount >= 1 && !TryHandleRedirection(state))
+                if (httpRedirectionCount >= 1)
                 {
-                    // exit loop and complete request
-                    break;
+                    if (!TryHandleRedirection(state))
+                    {
+                        // exit loop and complete request
+                        break;
+                    }
+
+                    DisposeCurrentRequest(state);
                 }
 
                 if (completionOption == HttpCompletionOption.ResponseContentRead)
@@ -174,6 +179,7 @@ namespace Unity.Cloud.Common.Runtime
             var request = new UnityWebRequest(httpRequestMessage.RequestUri, httpRequestMessage.Method.ToString());
             ApplyCertificateValidationPolicy(request, httpRequestMessage.RequestUri, certificateValidationPolicy);
             state.Request = request;
+            state.RequestDisposed = false;
 
             foreach (var header in httpRequestMessage.Headers)
             {
@@ -233,6 +239,16 @@ namespace Unity.Cloud.Common.Runtime
                     StatusCode = 0
                 };
 
+            state.Response.OnDispose = () =>
+            {
+                if (state.RequestDisposed || state.Request != request)
+                    return;
+
+                state.CancellationTokenRegistration?.Dispose();
+                state.RequestDisposed = true;
+                request.Dispose();
+            };
+
             await HandleRequestAndProgress(state, onCompleted, downloadHandler, progress);
         }
 
@@ -251,8 +267,11 @@ namespace Unity.Cloud.Common.Runtime
             var asyncOp = request.SendWebRequest();
             asyncOp.completed += _ =>
             {
+                if (state.Request != request)
+                    return;
+
                 if (!state.RequestDisposed)
-                    state.Response.StatusCode = (HttpStatusCode)state.Request.responseCode;
+                    state.Response.StatusCode = (HttpStatusCode)request.responseCode;
                 onCompleted();
             };
 
@@ -273,6 +292,20 @@ namespace Unity.Cloud.Common.Runtime
             float? finalUploadProgress = isUpload ? 1 : null;
             progress.Report(new HttpProgress(finalDownloadProgress,
                 finalUploadProgress));
+        }
+
+        static void DisposeCurrentRequest(RequestState state)
+        {
+            if (state.Request == null || state.RequestDisposed)
+                return;
+
+            var request = state.Request;
+
+            state.RequestDisposed = true;
+            state.Request = null;
+            state.CancellationTokenRegistration?.Dispose();
+            request.disposeUploadHandlerOnDispose = false;
+            request.Dispose();
         }
 
         static void CompleteRequest(RequestState state)
@@ -386,6 +419,17 @@ namespace Unity.Cloud.Common.Runtime
         {
             SafeHttpResponseMessage m_Response = new();
 
+            public Action OnDispose
+            {
+                set
+                {
+                    if (m_Response.IsDisposed)
+                        return;
+
+                    m_Response.OnDispose = value;
+                }
+            }
+
             public HttpRequestMessage RequestMessage
             {
                 set
@@ -425,10 +469,15 @@ namespace Unity.Cloud.Common.Runtime
 
             class SafeHttpResponseMessage : HttpResponseMessage
             {
+                public Action OnDispose { get; set; }
+
                 protected override void Dispose(bool disposing)
                 {
                     if (!IsDisposed)
+                    {
                         IsDisposed = true;
+                        OnDispose?.Invoke();
+                    }
 
                     base.Dispose(disposing);
                 }
